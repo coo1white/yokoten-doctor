@@ -25,10 +25,11 @@ This counts how many rounds of fixes each task needed after the first code came 
 | Readable record | 2 | test, test |
 | Footer layout | 1 | real page |
 | Pull request reviewer | 1 | review |
+| Headline and page wording | 1 | review |
 
-33 rounds over 21 tasks: a mean of 1.6. Found by review 10, tests 13, the commit check 2, real runs 8.
+34 rounds over 22 tasks: a mean of 1.5. Found by review 11, tests 13, the commit check 2, real runs 8.
 
-Three of the problems no test could have caught: a deploy that left out modules, a page buried by 26 repeated warnings, and a wrong import.
+Four of the problems no test could have caught: a deploy that left out modules, a page buried by 26 repeated warnings, a wrong import, and a worker that weakened a security test while editing nearby lines.
 
 This is one small project. These numbers show how this work went. They are not a benchmark.
 
