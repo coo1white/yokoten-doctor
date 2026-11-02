@@ -102,7 +102,7 @@ stages from the server's `progress` events, and nothing fakes a percent.
 3. "Done, next step" marks the step and opens the next. It never changes the count
    or the bar, because the site can't see GitHub: only a new check can. After the
    last step, or in the one-step layout, the page offers "Run the check again".
-4. "Nothing below is required": quiet rows that each open real content. See all
+4. "More details": quiet rows that each open real content. See all
    13 checks, extra files (they won't change the count), "Is this meant to be
    public?", "Confirm this result" and the repo summary, marked as by Muse.
 
