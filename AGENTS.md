@@ -122,7 +122,7 @@ and a small Python service in `server/` that runs on Modal. The design is in
 Muse Spark Open writes all code in `web/`, `server/`, `test/` and the root config files. There are no exceptions, even for one line.
 
 - Why. Incident: the owner set this rule, and the lead still wrote PR 90's changes by hand. It then asked whether one or two lines could be an exception.
-- Roles. Claude Fable 5.1 designs. Claude Opus 5.5 briefs Muse, applies its reply, reads the diff and runs the tests. Neither writes this code.
+- Roles. Claude designs, briefs Muse, applies its reply, reads the diff and runs the tests. Claude does not write this code.
 - CI files, `AGENTS.md` and docs stay with the lead.
 - A wrong reply goes back to Muse with a new brief. Nobody fixes it by hand.
 - `apply-json.mjs` compares the files with Baseten's reply. It then writes them and records each hash in `muse-receipts.json`.
