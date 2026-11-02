@@ -431,8 +431,9 @@ OpenSSF Scorecard: the hosted run is a convenience, and anyone can re-run it.
   HOME="$(mktemp -d)" npx yokoten@<version> check --json
   ```
 
-  "Run in a clean home folder: on your own machine, check also looks for your
-  own private marks, which this page never had." (A matching mode in yokoten
+  The page shows both commands in one box, in order, because `check` must run
+  in the same folder: "The HOME part runs the check with an empty home folder,
+  so your own settings don't change the result." (A matching mode in yokoten
   may come later; noted on yokoten issue #1256.)
 - The result JSON (what the page shows, minus Muse's files) can be downloaded,
   with its SHA-256 shown, so a user can keep it and compare later.
