@@ -89,19 +89,25 @@ stages from the server's `progress` events, and nothing fakes a percent.
 
 **State C, result.** Zones, from the top:
 
-1. A summary band: the repo, the count, a bar split by what fixes each check,
-   and a legend that adds up to the total (for example 4 pass, +3 with files,
-   +5 with yokoten, +1 by hand). Beside it, "Do this first" with one button.
-   "See all 13 checks" folds out every check.
-2. Numbered steps. Only what moves the count is a step, and "Step 1 of 3" counts
-   those. The first step is always what "Do this first" points at. A rail (from
-   1024 px) or a small bar (below it) shows where you are on the page. The site
-   can't see GitHub, so it never marks a step done.
-3. Unnumbered zones: files that change nothing, "Is this meant to be public?",
-   and the record ("On record since <time>").
+1. The top: the repo, the saved date, "Run it again" and "Copy link". Then one
+   sentence ("4 of 13 checks pass.") and a flat bar, green for passing and yellow
+   for what is left.
+2. One task zone, so the reader has one job at a time. Several steps are exclusive
+   `details` with only the current one open. Each row shows its number, its title
+   and where it gets you ("gets you to 7 of 13"). `planSteps` in `view.ts` works
+   out that number from the plan. A step that moves nothing says "the count stays
+   at 7". When the count after a step isn't known, the row claims none.
+   One step has no number and no accordion. If all checks pass, the zone says
+   "Nothing to do."
+3. "Done, next step" marks the step and opens the next. It never changes the count
+   or the bar, because the site can't see GitHub: only a new check can. After the
+   last step, or in the one-step layout, the page offers "Run the check again".
+4. "Nothing below is required": quiet rows that each open real content. See all
+   13 checks, extra files (they won't change the count), "Is this meant to be
+   public?", "Confirm this result" and the repo summary, marked as by Muse.
 
-A file row has one button, in one column. The first row not yet opened has the
-filled button. A long file gets "Copy and open GitHub": one click copies it,
+A file row has one button, in one column, and the one filled button in a step is
+"Done, next step". A long file gets "Copy and open GitHub": one click copies it,
 then opens the new-file page. A check that `yokoten init` alone makes pass
 counts under the install step, so one command never shows twice on a page.
 The function `resultPlan` in `web/src/client/view.ts` decides all of this.
