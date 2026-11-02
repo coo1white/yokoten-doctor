@@ -51,7 +51,7 @@ a { text-underline-offset: 0.15em; }
 .icon-btn[aria-expanded="true"], .menu-item[aria-checked="true"], .view-switch a[aria-current] { background: var(--state-current); box-shadow: inset 0 0 0 1px var(--state-ring); }
 .view-switch a[aria-current] { color: var(--fg); font-weight: 600; }
 /* disabled: quiet, no layer, no press; the Check button keeps its own look while "Checking…" */
-:disabled, [aria-disabled="true"] { cursor: default; pointer-events: none; }
+:disabled { cursor: default; pointer-events: none; }
 .button-quiet:disabled, .button-primary:disabled, .icon-btn:disabled { opacity: 0.5; }
 
 /* ---------- 4. rows and areas: a highlight that bleeds past the text with soft corners, no layout shift ---------- */
@@ -62,7 +62,7 @@ details > summary::after { content: ""; position: absolute; inset: 2px calc(-1 *
 details > summary::before { transition: transform var(--dur) var(--ease); }
 /* the input */
 .input-row input { transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
-.input-row input:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
+.input-row input:focus-visible { outline: 2px solid transparent; outline-offset: 2px; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
 /* the theme tooltip and menu */
 /* icon buttons keep their tooltip on ::after, so their state layer is ::before */
 .icon-btn::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: var(--state-hover); opacity: 0; pointer-events: none; transition: opacity var(--dur) var(--ease), background-color var(--dur) var(--ease); }
