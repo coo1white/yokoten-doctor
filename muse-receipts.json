@@ -79,15 +79,20 @@
     "model": "meta-models/muse-spark-open-1026",
     "reply": "chatcmpl-78ce2cfa21064d1b8146835b0a5604bb"
   },
+  "test/site/static-host-part-2.test.mjs": {
+    "sha256": "83bb53209d3ce98226fbd38da7d23316d87f650f51566b0c7f8d36db0b3e55e0",
+    "model": "meta-models/muse-spark-open-1026",
+    "reply": "chatcmpl-ce0a4d6964a441a883b6849791262205"
+  },
   "test/web/fixes.test.mjs": {
     "sha256": "368e541311c9f84cccf6e247fe8c6d7a46c66eb80fb11594e882fe7a7bcad34e",
     "model": "meta-models/muse-spark-open-1026",
     "reply": "chatcmpl-be29388fb3c0485d80ad864a8e9970d3"
   },
   "test/web/static-host.test.mjs": {
-    "sha256": "841df41bb8b3f2150f75363adc3a7f5e41c0c86cd2ae31a34657808af0ec49ca",
+    "sha256": "df7b2ab70bc8e50313242487ab8af701c048e9207a51c3c02f1c9530c55c52eb",
     "model": "meta-models/muse-spark-open-1026",
-    "reply": "chatcmpl-d8f391f4f7644bc897272004386ae1ac"
+    "reply": "chatcmpl-ef946ba829f0426c8eed1d024b40d732"
   },
   "test/web/view.test.mjs": {
     "sha256": "5b324e1ae0dedfff09d66bdcdabf3addbd4740dd6b1c944ac5216396e07376bf",
