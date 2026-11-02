@@ -57,8 +57,9 @@ This counts how many rounds of fixes each task needed after the first code came 
 | One set of control states | 2 | real page, real page |
 | Only Muse writes site code | 1 | review |
 | Next step on every screen | 7 | review (6), test |
+| Rebuild to the approved design | 14 | review (9), test (4), real page |
 
-72 rounds over 53 tasks: a mean of 1.4. Found by review 36, tests 21, the commit check 2, real runs 13.
+85 rounds over 54 tasks: a mean of 1.6. Found by review 44, tests 25, the commit check 2, real runs 14.
 
 Four of the problems no test could have caught: a deploy that left out modules, a page buried by 26 repeated warnings, a wrong import, and a worker that weakened a security test while editing nearby lines.
 

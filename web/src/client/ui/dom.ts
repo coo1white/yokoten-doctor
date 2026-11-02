@@ -66,11 +66,6 @@ export function make<K extends keyof HTMLElementTagNameMap>(tag: K, className?: 
   return element;
 }
 
-export function createRich<K extends keyof HTMLElementTagNameMap>(tag: K, className: string | undefined, text: string): HTMLElementTagNameMap[K] {
-  const element = make(tag, className);
-  renderRichText(text, element);
-  return element;
-}
 
 export type IconName = "out" | "check" | "circle" | "dot" | "right";
 

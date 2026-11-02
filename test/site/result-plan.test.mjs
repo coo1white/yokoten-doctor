@@ -107,6 +107,21 @@ test("the license stays by hand when the files can't add it", () => {
   assert.equal(item.title, "Add a license");
 });
 
+test("a single by-hand step takes its title from the item", () => {
+  let data = loadExample("OpenZeppelin-openzeppelin-contracts");
+  let plan = resultPlan(data.result, data.fixes, false);
+  assert.equal(plan.handTitle, "Add one line to CLAUDE.md");
+  data = loadExample("Uniswap-v4-core");
+  plan = resultPlan(data.result, data.fixes, false);
+  assert.equal(plan.handTitle, "Keep build output out of git");
+  data = loadExample("expressjs-express");
+  plan = resultPlan(data.result, data.fixes, false);
+  assert.equal(plan.handTitle, "Run your tests on every push");
+  data = loadExample("jup-ag-jupiter-quote-api-node");
+  plan = resultPlan(data.result, data.fixes, false);
+  assert.equal(plan.handTitle, "Fix these 2 by hand");
+});
+
 test("with no install step, the changelog stays by hand with its command", () => {
   const result = {
     summary: { done: 12, total: 13, next: { id: 'changelog', title: 'Keep a changelog' }, steps: [{ id: 'changelog', title: 'Keep a changelog', mark: 'next', what: 'no changelog', fix: '`yokoten init` adds both; then each pull request adds a file' }], install_only: [] },

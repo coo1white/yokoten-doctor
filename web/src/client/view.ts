@@ -283,7 +283,7 @@ export function resultPlan(result: CheckResult, fixes: FixesPayload | null, isWa
   const idx = stepOrder.indexOf("install");
   const installStepNumber = idx === -1 ? 0 : idx + 1;
   const handItems = remaining.map((step) => buildHandItem(step, installStepNumber, importInfo));
-  const handTitle = remaining.length === 1 && !isHandListShort ? remaining[0].title : handCount === 1 ? "Fix 1 by hand" : `Fix these ${handCount} by hand`;
+  const handTitle = handItems.length === 1 && !isHandListShort ? handItems[0].title : handCount === 1 ? "Fix 1 by hand" : `Fix these ${handCount} by hand`;
   const filesTitle = (() => {
     if (filesBlock === "waiting") return "Get your files";
     if (filesBlock === "lost") return "Your files didn't arrive";
