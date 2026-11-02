@@ -70,14 +70,14 @@
     "reply": "chatcmpl-c481af64899c4aaaadbb16d1fd9080d4"
   },
   "test/site/real-pages.test.mjs": {
-    "sha256": "6e8ab3e78a74e08292db24558a114210ef00d1bb3887cf17241623e2dae56a3a",
+    "sha256": "e266ff9aa8caff5c4f7a1dd33900a51871bdd4d5a687af9a84f2822f58f45f53",
     "model": "meta-models/muse-spark-open-1026",
-    "reply": "chatcmpl-045d0e2f4e354c5fbda05919df56f159"
+    "reply": "chatcmpl-ffef6da4156745b5841467f917eadcbb"
   },
   "test/site/result-plan.test.mjs": {
-    "sha256": "94849bce3566eed4437fd862f20ea7008e8f96ac6de03057e3bdbe4266b57a85",
+    "sha256": "2c700f10411a039286d8df215bed494f36c94702a2f895cdf6efa6d6d7fd43da",
     "model": "meta-models/muse-spark-open-1026",
-    "reply": "chatcmpl-c481af64899c4aaaadbb16d1fd9080d4"
+    "reply": "chatcmpl-20970cb4a1424f75a7d1d946d0f9a139"
   },
   "test/site/static-host-part-2.test.mjs": {
     "sha256": "83bb53209d3ce98226fbd38da7d23316d87f650f51566b0c7f8d36db0b3e55e0",
@@ -140,9 +140,9 @@
     "reply": "chatcmpl-295e815859604ec3841f94c5956f1ef8"
   },
   "web/src/client/ui/fix.ts": {
-    "sha256": "41aceef7bbf69f953d7b413210e35b222ef4472bec51479998ef507015b00966",
+    "sha256": "debef9bb34bd308f7913e8f5a846595ed21949d63c750d0c2d03820bd032ea2e",
     "model": "meta-models/muse-spark-open-1026",
-    "reply": "chatcmpl-045d0e2f4e354c5fbda05919df56f159"
+    "reply": "chatcmpl-ffef6da4156745b5841467f917eadcbb"
   },
   "web/src/client/ui/hero.ts": {
     "sha256": "49cfb70a580f1244088eaa4592729ce6b3d2968bda98764d193a7927bc900f02",
@@ -150,9 +150,9 @@
     "reply": "chatcmpl-aff7f2185065403ea63f2ebf7039bf7e"
   },
   "web/src/client/ui/page.ts": {
-    "sha256": "cccb776105173efa00d073d69924ab29bd3f457893a30ef749f2520e4d5fa58d",
+    "sha256": "834060565c4f2a8e040838f0b153570d9989a50fda5c60f479cb26c548203e85",
     "model": "meta-models/muse-spark-open-1026",
-    "reply": "chatcmpl-6b2b622cb3e940aab69acbb90f68638f"
+    "reply": "chatcmpl-ffef6da4156745b5841467f917eadcbb"
   },
   "web/src/client/ui/private.ts": {
     "sha256": "f4b87b1982f14a01c0f8f064ab449c2af18a94ee8c3fe3b4ef48609c3ea1fc58",
@@ -160,9 +160,9 @@
     "reply": "chatcmpl-aa12ac8663e84c4eb9aa592af4c6c19e"
   },
   "web/src/client/ui/proof.ts": {
-    "sha256": "9049d05593b0dc93862c045ff093a7514d7ace98209bc603cb28270bfec471b6",
+    "sha256": "d5ccc5b55ff011d7480b1daeba40d1547ac30b0571dea9eb4d92431e37e9fe53",
     "model": "meta-models/muse-spark-open-1026",
-    "reply": "chatcmpl-aa12ac8663e84c4eb9aa592af4c6c19e"
+    "reply": "chatcmpl-ffef6da4156745b5841467f917eadcbb"
   },
   "web/src/client/ui/working.ts": {
     "sha256": "f36fa380aeb23147a7d2ccc33ea86bbef43e9b61f72738bb0e8e1cdd99114766",
@@ -170,9 +170,9 @@
     "reply": "chatcmpl-06669bddc3714b01b67225617fa4a942"
   },
   "web/src/client/view.ts": {
-    "sha256": "05cdd6c8b362b151f0f5348e38242e22ea157c6e4e2b95c4a66b90c14cc3b86c",
+    "sha256": "886ecd875f03920ad6a0311580ff32ce6e190a1094a9c15e1e4d14cbf6e100ed",
     "model": "meta-models/muse-spark-open-1026",
-    "reply": "chatcmpl-9216936bc51c45eb93e5625eb6566fb6"
+    "reply": "chatcmpl-20970cb4a1424f75a7d1d946d0f9a139"
   },
   "web/src/components/ExampleRows.astro": {
     "sha256": "fec010cb42701b4a1e49d4e977075affc559b9c13c3f4a2ffe147cea9ba39f67",
@@ -200,9 +200,9 @@
     "reply": "chatcmpl-636c5724a7ee4e44b4f9f25a746fcde3"
   },
   "web/src/pages/about.astro": {
-    "sha256": "39950a2681305dc85688026134731a1a16ff1038e90ce98d0c8a7f134d843c03",
+    "sha256": "b968b740b527dd743951a3ac551324e2dcefd21b8305464ffa24f4c682fd3c53",
     "model": "meta-models/muse-spark-open-1026",
-    "reply": "chatcmpl-636c5724a7ee4e44b4f9f25a746fcde3"
+    "reply": "chatcmpl-ffef6da4156745b5841467f917eadcbb"
   },
   "web/src/pages/agent-view.astro": {
     "sha256": "02d689bb266dadce049ed2fa7c64e3c7498f8afbcf14a4f5fe3b9ff84f049c94",

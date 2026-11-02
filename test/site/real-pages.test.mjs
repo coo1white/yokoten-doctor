@@ -351,7 +351,7 @@ describe('real pages', () => {
       assert.equal(await evaluate('document.querySelectorAll(".f-rest [data-done]").length'), 0, `${pagePath} .f-rest [data-done] should be 0`);
       assert.equal(await evaluate('document.querySelectorAll(".f-job .f-row").length'), 0, `${pagePath} .f-job .f-row should be 0`);
       const h2 = await evaluate('document.querySelector(".f-rest > h2").textContent.trim()');
-      assert.equal(h2, 'Nothing below is required', `${pagePath} .f-rest > h2 should be Nothing below is required, got ${h2}`);
+      assert.equal(h2, 'More details', `${pagePath} .f-rest > h2 should be More details, got ${h2}`);
       const before = await evaluate('!!(document.querySelector(".f-job").compareDocumentPosition(document.querySelector(".f-rest")) & 4)');
       assert.ok(before, `${pagePath} .f-job should come before .f-rest`);
       const rowCount = await evaluate('document.querySelectorAll(".f-rest .f-row").length');

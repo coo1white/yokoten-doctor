@@ -242,11 +242,11 @@ export function renderInstallBody(plan: ResultPlan): Node[] {
   const installOnlyCount = plan.installSteps.length - plan.movedToInstall.length;
   let ledeText = "";
   if (installOnlyCount === 5) {
-    ledeText = "Run this in your repo. Five checks need yokoten running, and no file can do them.";
+    ledeText = "Run this in your repo, then commit and push. Five checks need yokoten running, and no file can do them.";
   } else if (installOnlyCount === 1) {
-    ledeText = "Run this in your repo. 1 check needs yokoten running, and no file can do it.";
+    ledeText = "Run this in your repo, then commit and push. 1 check needs yokoten running, and no file can do it.";
   } else {
-    ledeText = `Run this in your repo. ${installOnlyCount} checks need yokoten running, and no file can do them.`;
+    ledeText = `Run this in your repo, then commit and push. ${installOnlyCount} checks need yokoten running, and no file can do them.`;
   }
   nodes.push(make("p", undefined, ledeText));
   nodes.push(createCommandBox(INSTALL_COMMAND, { isBig: true, isPrimary: true }));

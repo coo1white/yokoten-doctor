@@ -178,6 +178,7 @@ function renderStep(step: PlanStep, index: number, steps: PlanStep[], plan: Resu
   details.setAttribute("data-step", step.key);
   const isOpen = desiredOpenKey !== null && desiredOpenKey !== "" && desiredOpenKey === step.key;
   details.open = isOpen;
+  let isFirstToggleIgnored = details.open;
   const summary = make("summary");
   const numSpan = make("span", "f-num");
   if (isDone) {
@@ -232,6 +233,10 @@ function renderStep(step: PlanStep, index: number, steps: PlanStep[], plan: Resu
   }
   details.appendChild(bodyDiv);
   details.addEventListener("toggle", () => {
+    if (isFirstToggleIgnored) {
+      isFirstToggleIgnored = false;
+      return;
+    }
     if (details.open) {
       openStepKey = step.key;
     } else if (openStepKey === step.key) {
@@ -255,11 +260,11 @@ function markStepDone(details: HTMLDetailsElement, stepKey: StepKey): void {
 
 function createRestSection(lastResult: CheckResult, plan: ResultPlan, lastFixes: FixesPayload | null, vm: ViewModel, lastRecord: RecordPayload | null, isRecordShown: boolean): HTMLElement {
   const rest = make("section", "f-rest");
-  const restTitle = make("h2", undefined, "Nothing below is required");
+  const restTitle = make("h2", undefined, "More details");
   rest.appendChild(restTitle);
   const checksRow = renderChecksRow(lastResult, plan);
   rest.appendChild(checksRow);
-  if (!plan.filesAreStep && ((lastFixes?.files.length ?? 0) > 0 || lastFixes?.muse === "failed")) {
+  if (!plan.filesAreStep && ((lastFixes?.files?.length ?? 0) > 0 || lastFixes?.muse === "failed")) {
     const extraBody = renderFilesBody(plan, lastFixes, lastResult);
     const sideText = plan.isAfterKnown ? "won't change the count" : "";
     const extraRow = createRow("Extra files", sideText, extraBody, { key: "extra-files", id: "files" });

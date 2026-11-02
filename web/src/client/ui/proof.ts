@@ -94,7 +94,7 @@ export function renderProofRow({ vm, lastRecord }: { vm: ViewModel; lastRecord: 
     return createRow("Confirm this result", side, [intro, confirmWay, makeRunWay(vm)], { key: "verify", id: "verify" });
   } else {
     const side = "No public record";
-    const intro = make("p", undefined, "The public record couldn't be written this time. The check still ran. Nothing to do here.");
+    const intro = make("p", undefined, "This page has no public record for this result. The check still ran. Nothing to do here.");
     return createRow("Confirm this result", side, [intro, makeRunWay(vm)], { key: "verify", id: "verify" });
   }
 }

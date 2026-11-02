@@ -176,14 +176,10 @@ export function splitErrorCommand(message: string): { text: string; command: str
 
 function buildHandItem(step: SummaryStep, installStepNumber: number, importInfo: { file: string; line: string } | null): HandItem {
   if (step.id === "no-build-output") {
-    const m = (step.what ?? "").match(/\(([^)]*)\)/);
+    const m = (step.what ?? "").match(/\((.*)\)/s);
     const inner = m ? m[1] : "";
     const paths = inner ? inner.split(", ") : [];
-    const isWhole = paths.length > 0 && !paths.some((p) => /^and \d+ more$/.test(p));
-    if (isWhole) {
-      return { id: step.id, title: "Keep build output out of git", wrong: "Build output is in the repo.", list: [], command: "git rm --cached " + paths.join(" "), after: "Then add dist/, build/, out/ to .gitignore." };
-    }
-    return { id: step.id, title: "Keep build output out of git", wrong: "Build output is in the repo.", list: paths, command: "", after: "Remove it with `git rm --cached` and add dist/, build/, out/ to .gitignore." };
+    return { id: step.id, title: "Keep build output out of git", wrong: "Build output is in the repo.", list: paths, command: "", after: "Remove them with `git rm --cached` and add dist/, build/, out/ to .gitignore." };
   }
   if (step.id === "changelog" && (step.fix ?? "").includes("`yokoten init`")) {
     return { id: step.id, title: step.title, wrong: toSentence(step.what ?? ""), list: [], command: INSTALL_COMMAND, after: "It adds both. Then each pull request adds a file in changes/ for each change that users notice." };
@@ -221,8 +217,10 @@ export function resultPlan(result: CheckResult, fixes: FixesPayload | null, isWa
   const isAfterKnown = !!fixes?.after;
   const afterDone = fixes?.after?.done ?? done;
   const gain = Math.max(0, afterDone - done);
-  const countedHand = isAfterKnown ? total - done - gain - installOnly.length : 0;
-  const open = steps.filter((s) => s.mark !== "done" && !installIds.has(s.id));
+  const skipped = steps.filter((s) => (s.mark === "not now" || s.mark === "can't check") && !installIds.has(s.id)).length;
+  const countedHandRaw = isAfterKnown ? total - done - gain - installOnly.length : 0;
+  const countedHand = Math.max(0, countedHandRaw - skipped);
+  const open = steps.filter((s) => s.mark !== "done" && s.mark !== "not now" && s.mark !== "can't check" && !installIds.has(s.id));
   const handSteps = open.filter((step) => !isFixedByFiles(step, files));
   const rulesOpen = open.find((s) => s.id === "rules") ?? null;
   let importInfo: { file: string; line: string } | null = null;
@@ -241,7 +239,6 @@ export function resultPlan(result: CheckResult, fixes: FixesPayload | null, isWa
   const installSteps = [...installOnly, ...movedToInstall];
   const nInstall = installSteps.length;
   const handCount = Math.max(0, countedHand - movedToInstall.length);
-  const isHandListShort = remaining.length < handCount;
   const filesBlock: FilesBlock = !fixes ? "waiting" : isLost ? "lost" : isFailed || files.length > 0 ? "list" : nInstall > 0 ? "hidden" : "nothing";
   const owner = String(result.owner ?? "");
   const repo = String(result.repo ?? "");
@@ -262,6 +259,17 @@ export function resultPlan(result: CheckResult, fixes: FixesPayload | null, isWa
   const idx = stepOrder.indexOf("install");
   const installStepNumber = idx === -1 ? 0 : idx + 1;
   const handItems = remaining.map((step) => buildHandItem(step, installStepNumber, importInfo));
+  if (handItems.length < handCount) {
+    const present = new Set(remaining.map((s) => s.id));
+    const movedSet = new Set(movedToInstall.map((s) => s.id));
+    for (const step of open) {
+      if (handItems.length >= handCount) break;
+      if (present.has(step.id)) continue;
+      if (movedSet.has(step.id)) continue;
+      handItems.push(buildHandItem(step, installStepNumber, importInfo));
+    }
+  }
+  const isHandListShort = handItems.length < handCount;
   const handTitle = handItems.length === 1 && !isHandListShort ? handItems[0].title : handCount === 1 ? "Fix 1 by hand" : `Fix these ${handCount} by hand`;
   const filesTitle = (() => {
     if (filesBlock === "waiting") return "Get your files";
