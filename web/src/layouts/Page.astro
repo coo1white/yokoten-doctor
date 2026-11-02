@@ -4,7 +4,6 @@ import "@fontsource-variable/jetbrains-mono/index.css";
 import "../styles/global.css";
 import interLatin from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
 import monoLatin from "@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2?url";
-import ViewSwitch from "../components/ViewSwitch.astro";
 interface Props {
   noindex?: boolean;
   title?: string;
@@ -48,6 +47,5 @@ const {
 </head>
 <body>
 <slot />
-<ViewSwitch current={path === "/agent-view.html" ? "agent" : "human"} />
 </body>
 </html>

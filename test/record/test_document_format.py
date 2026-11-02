@@ -28,7 +28,6 @@ def test_json_loads_returns_input():
 
 
 def test_non_ascii_stays_utf8():
-    result = {"text": "café \u65e5\u672c"}
     result = {"text": "café 日本"}
     doc = make_document(result, "2024-01-01T00:00:00Z")
     text = doc.decode("utf-8")

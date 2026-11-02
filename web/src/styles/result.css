@@ -62,6 +62,7 @@
   cursor: pointer;
   font: inherit;
 }
+.result-saved { display: inline-flex; align-items: center; min-height: 44px; color: var(--muted); }
 .file-list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface); overflow: hidden; }
 .file-action-primary { display: inline-flex; align-items: center; height: 44px; padding: 0 18px; border-radius: var(--radius-lg); background: var(--accent); color: var(--on-accent); font-size: 14px; font-weight: 600; text-decoration: none; min-height: 44px; }
 .proof-download { align-self: flex-start; min-height: 44px; }
@@ -81,6 +82,9 @@
 .file-details-wrap { grid-column: 1 / -1; min-width: 0; }
 .file-details-wrap summary { font-size: 14px; }
 .file-details-wrap p { margin: 0 0 8px; font-size: 14px; }
+button.file-action-primary { border: 0; cursor: pointer; font-family: inherit; }
+.file-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; }
+.file-hint { grid-column: 1 / -1; margin: 0; }
 .file-action-link { font-size: 14px; font-weight: 600; color: var(--accent); min-height: 44px; display: inline-flex; align-items: center; }
 .agents-panel { min-width: 0; }
 .agents-body { max-height: 560px; overflow: auto; }

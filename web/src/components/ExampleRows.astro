@@ -11,7 +11,7 @@ const { examples } = Astro.props as { examples: Example[] };
           if (i < ex.done) cls = "is-done";
           else if (ex.after != null && ex.after > ex.done && i < ex.after) cls = "is-after";
           return <span class={`check-seg ${cls}`}></span>;
-        })}</span><span class="check-score">{ex.done} <span class="check-total">of {ex.total}</span></span></span>
+        })}</span><span class="check-score">{ex.done} <span class="check-total">of {ex.total}</span></span><span class="check-open" aria-hidden="true">›</span></span>
     </a>
   ))}
 </div>

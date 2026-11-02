@@ -1,5 +1,5 @@
 import { createLink, addCopyButton, createPanel } from "./dom.ts";
-import { fileLinkPlan, buildPatch, orderFiles, fixMessage, claudeImportMessage, PATCH_COMMANDS, projectSection } from "../fixes.ts";
+import { fileLinkPlan, buildPatch, orderFiles, fixMessage, claudeImportMessage, PATCH_COMMANDS, projectSection, isFilesSectionHidden, rerunHref } from "../fixes.ts";
 import type { CheckResult, FixesPayload, ViewModel } from "../types.ts";
 
 function createFileRow(owner: string, repo: string, branch: string | null, file: { path: string; content: string; source?: string }, isFirst: boolean, lastFixes: FixesPayload | null): HTMLLIElement {
@@ -10,26 +10,6 @@ function createFileRow(owner: string, repo: string, branch: string | null, file:
   pathSpan.textContent = file.path;
   li.appendChild(pathSpan);
   const plan = fileLinkPlan(owner, repo, branch, file);
-  const action = document.createElement("a");
-  action.href = plan.href;
-  action.textContent = "Add on GitHub";
-  action.target = "_blank";
-  action.rel = "noopener noreferrer";
-  if (isFirst) action.className = "file-action-primary";
-  else action.className = "file-action-link";
-  li.appendChild(action);
-
-  const details = document.createElement("details");
-  details.setAttribute("data-key", "read-" + file.path);
-  const sum = document.createElement("summary");
-  sum.textContent = "Read this file";
-  details.appendChild(sum);
-  if (file.source === "yokoten and Muse") {
-    const museNote = document.createElement("p");
-    museNote.className = "small";
-    museNote.textContent = "Muse wrote the “This project” section. Read it before you commit.";
-    details.appendChild(museNote);
-  }
   const preWrap = document.createElement("div");
   preWrap.className = "code-wrap";
   const pre = document.createElement("pre");
@@ -38,8 +18,41 @@ function createFileRow(owner: string, repo: string, branch: string | null, file:
   code.textContent = file.content;
   pre.appendChild(code);
   preWrap.appendChild(pre);
-  const copyBtn2 = addCopyButton("Copy", file.content, code);
-  preWrap.appendChild(copyBtn2);
+  if (plan.kind !== "filled") {
+    const fileActions = document.createElement("div");
+    fileActions.className = "file-actions";
+    const copyBtn = addCopyButton("Copy the file", file.content, code);
+    if (isFirst) copyBtn.className = "file-action-primary";
+    fileActions.appendChild(copyBtn);
+    const action = document.createElement("a");
+    action.href = plan.href;
+    action.textContent = "Then add it on GitHub";
+    action.target = "_blank";
+    action.rel = "noopener noreferrer";
+    action.className = "file-action-link";
+    fileActions.appendChild(action);
+    li.appendChild(fileActions);
+    const hint = document.createElement("p");
+    hint.className = "small muted file-hint";
+    hint.textContent = "GitHub opens an empty file. Paste, then pick a new branch.";
+    li.appendChild(hint);
+  } else {
+    const action = document.createElement("a");
+    action.href = plan.href;
+    action.textContent = "Add on GitHub";
+    action.target = "_blank";
+    action.rel = "noopener noreferrer";
+    if (isFirst) action.className = "file-action-primary";
+    else action.className = "file-action-link";
+    li.appendChild(action);
+    const copyBtn2 = addCopyButton("Copy", file.content, code);
+    preWrap.appendChild(copyBtn2);
+  }
+  const details = document.createElement("details");
+  details.setAttribute("data-key", "read-" + file.path);
+  const sum = document.createElement("summary");
+  sum.textContent = "Read this file";
+  details.appendChild(sum);
   details.appendChild(preWrap);
   if (file.path === "AGENTS.md" && lastFixes) {
     const msg = claudeImportMessage(lastFixes);
@@ -49,12 +62,7 @@ function createFileRow(owner: string, repo: string, branch: string | null, file:
       details.appendChild(claudeP);
     }
   }
-  if (plan.kind !== "filled") {
-    const hint = document.createElement("p");
-    hint.className = "small muted";
-    hint.textContent = "GitHub opens an empty file. Paste this in, then pick a new branch.";
-    details.appendChild(hint);
-  } else {
+  if (plan.kind === "filled") {
     const hint = document.createElement("p");
     hint.className = "small muted";
     hint.textContent = "GitHub opens a commit form. Pick a new branch to get a pull request.";
@@ -70,7 +78,7 @@ function createFileRow(owner: string, repo: string, branch: string | null, file:
 export function renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult }: { vm: ViewModel; lastFixes: FixesPayload | null; isWaitingForFixes: boolean; lastResult: CheckResult }): HTMLElement | null {
   const files = lastFixes?.files ?? [];
   const hasOpenInstallOnly = vm.installOnly.length > 0;
-  if (lastFixes && lastFixes.muse !== "failed" && files.length === 0 && hasOpenInstallOnly) return null;
+  if (isFilesSectionHidden(lastFixes, hasOpenInstallOnly)) return null;
   const section = document.createElement("section");
   section.id = "files";
   section.className = "band";
@@ -105,7 +113,14 @@ export function renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult 
       h2.textContent = "Your files";
       left.appendChild(h2);
       const lostP = document.createElement("p");
-      lostP.textContent = "The files didn't arrive. Run the check again.";
+      lostP.appendChild(document.createTextNode("The files didn't arrive. "));
+      const owner = String(lastResult.owner ?? "");
+      const repo = String(lastResult.repo ?? "");
+      const a = document.createElement("a");
+      a.textContent = "Run the check again";
+      a.href = rerunHref(owner, repo);
+      lostP.appendChild(a);
+      lostP.appendChild(document.createTextNode("."));
       left.appendChild(lostP);
       return section;
     }
@@ -208,7 +223,8 @@ export function renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult 
     const agentsFile = (lastFixes as FixesPayload).files.find((f) => f.path === "AGENTS.md");
     const content = agentsFile ? agentsFile.content : "";
     const text = projectSection(content);
-    const { panel, body } = createPanel("AGENTS.md", "Written by Muse. Read it first.");
+    const asideText = agentsFile?.source === "yokoten and Muse" ? "The part Muse wrote. The full file is in the list." : "Fill in this part. The full file is in the list.";
+    const { panel, body } = createPanel("AGENTS.md", asideText);
     panel.classList.add("agents-panel");
     body.classList.add("agents-body");
     const pre = document.createElement("pre");
@@ -266,7 +282,9 @@ export function renderGuardSection({ vm }: { vm: ViewModel }): HTMLElement | nul
   right.className = "guard-right";
   const p2 = document.createElement("p");
   p2.className = "guard-note";
-  p2.textContent = "No file can do these. Install yokoten in your repo:";
+  p2.appendChild(document.createTextNode("No file can do these. yokoten has to run in your repo ("));
+  p2.appendChild(createLink("https://yokoten.app/", "see what it does"));
+  p2.appendChild(document.createTextNode("). Install it:"));
   right.appendChild(p2);
   const cmdRow = document.createElement("div");
   cmdRow.className = "cmd-row";
@@ -276,8 +294,6 @@ export function renderGuardSection({ vm }: { vm: ViewModel }): HTMLElement | nul
   cmdRow.appendChild(code);
   const copyBtn = addCopyButton("Copy", "npx yokoten init", code);
   cmdRow.appendChild(copyBtn);
-  const link = createLink("https://yokoten.app/", "See what yokoten does");
-  cmdRow.appendChild(link);
   right.appendChild(cmdRow);
   section.appendChild(right);
   return section;

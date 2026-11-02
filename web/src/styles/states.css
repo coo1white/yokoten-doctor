@@ -8,12 +8,12 @@ a { text-underline-offset: 0.15em; }
 
 /* ---------- 3. the state layer: one pseudo-element, three opacities ----------
    Add class "ctl" to a control (or list it here) and it gets hover, press, focus and disabled. */
-.ctl, .button-primary, .button-quiet, .file-action-primary, .file-action-link, .cta-link, .icon-btn, .menu-item, .input-row button, .view-switch a, .result-actions a, .result-actions button, .tools-link, .site-footer a {
+.ctl, .button-primary, .button-quiet, .file-action-primary, .file-action-link, .cta-link, .icon-btn, .menu-item, .input-row button, .result-actions a, .result-actions button, .tools-link, .site-footer a {
   position: relative;
   isolation: isolate;
   cursor: pointer;
 }
-.ctl::after, .button-primary::after, .button-quiet::after, .file-action-primary::after, .file-action-link::after, .cta-link::after, .menu-item::after, .input-row button::after, .view-switch a::after, .result-actions a::after, .result-actions button::after, .tools-link::after, .site-footer a::after {
+.ctl::after, .button-primary::after, .button-quiet::after, .file-action-primary::after, .file-action-link::after, .cta-link::after, .menu-item::after, .input-row button::after, .result-actions a::after, .result-actions button::after, .tools-link::after, .site-footer a::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -32,7 +32,7 @@ a { text-underline-offset: 0.15em; }
 
 /* hover only where a pointer can hover: no sticky hover after a tap */
 @media (hover: hover) {
-  .ctl:hover::after, .button-primary:hover::after, .button-quiet:hover::after, .file-action-primary:hover::after, .file-action-link:hover::after, .cta-link:hover::after, .menu-item:hover::after, .input-row button:hover::after, .view-switch a:hover::after, .result-actions a:hover::after, .result-actions button:hover::after, .tools-link:hover::after, .site-footer a:hover::after { opacity: 1; }
+  .ctl:hover::after, .button-primary:hover::after, .button-quiet:hover::after, .file-action-primary:hover::after, .file-action-link:hover::after, .cta-link:hover::after, .menu-item:hover::after, .input-row button:hover::after, .result-actions a:hover::after, .result-actions button:hover::after, .tools-link:hover::after, .site-footer a:hover::after { opacity: 1; }
   .check-row:hover::before, summary:hover::after { opacity: 1; }
   a:hover { color: var(--fg); }
   .button-primary:hover, .file-action-primary:hover { color: var(--on-accent); }
@@ -40,16 +40,15 @@ a { text-underline-offset: 0.15em; }
   .input-row input:hover:not(:focus-visible):not([readonly]) { border-color: var(--fg); }
 }
 /* pressed: shows on mouse and on touch */
-.ctl:is(:active, .is-pressed)::after, .button-primary:is(:active, .is-pressed)::after, .button-quiet:is(:active, .is-pressed)::after, .file-action-primary:is(:active, .is-pressed)::after, .file-action-link:is(:active, .is-pressed)::after, .cta-link:is(:active, .is-pressed)::after, .menu-item:is(:active, .is-pressed)::after, .input-row button:is(:active, .is-pressed)::after, .view-switch a:is(:active, .is-pressed)::after, .result-actions a:is(:active, .is-pressed)::after, .result-actions button:is(:active, .is-pressed)::after, .tools-link:is(:active, .is-pressed)::after, .site-footer a:is(:active, .is-pressed)::after { opacity: 1; background: var(--state-press); }
+.ctl:is(:active, .is-pressed)::after, .button-primary:is(:active, .is-pressed)::after, .button-quiet:is(:active, .is-pressed)::after, .file-action-primary:is(:active, .is-pressed)::after, .file-action-link:is(:active, .is-pressed)::after, .cta-link:is(:active, .is-pressed)::after, .menu-item:is(:active, .is-pressed)::after, .input-row button:is(:active, .is-pressed)::after, .result-actions a:is(:active, .is-pressed)::after, .result-actions button:is(:active, .is-pressed)::after, .tools-link:is(:active, .is-pressed)::after, .site-footer a:is(:active, .is-pressed)::after { opacity: 1; background: var(--state-press); }
 .button-primary:is(:active, .is-pressed)::after, .file-action-primary:is(:active, .is-pressed)::after, .input-row button:is(:active, .is-pressed)::after { background: var(--state-press-on-fill); }
-.button-primary:is(:active, .is-pressed), .button-quiet:is(:active, .is-pressed), .file-action-primary:is(:active, .is-pressed), .cta-link:is(:active, .is-pressed), .icon-btn:is(:active, .is-pressed), .input-row button:is(:active, .is-pressed), .view-switch a:is(:active, .is-pressed) { transform: var(--press); }
+.button-primary:is(:active, .is-pressed), .button-quiet:is(:active, .is-pressed), .file-action-primary:is(:active, .is-pressed), .cta-link:is(:active, .is-pressed), .icon-btn:is(:active, .is-pressed), .input-row button:is(:active, .is-pressed) { transform: var(--press); }
 .check-row:is(:active, .is-pressed)::before, summary:is(:active, .is-pressed)::after { opacity: 1; background: var(--state-press); }
 /* keyboard focus: the ring, never a layer */
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .menu-item:focus-visible, .check-row:focus-visible, summary:focus-visible { outline-offset: -2px; }
 /* open or current: a faint fill and a hairline ring, see-through */
-.icon-btn[aria-expanded="true"], .menu-item[aria-checked="true"], .view-switch a[aria-current] { background: var(--state-current); box-shadow: inset 0 0 0 1px var(--state-ring); }
-.view-switch a[aria-current] { color: var(--fg); font-weight: 600; }
+.icon-btn[aria-expanded="true"], .menu-item[aria-checked="true"] { background: var(--state-current); box-shadow: inset 0 0 0 1px var(--state-ring); }
 /* disabled: quiet, no layer, no press; the Check button keeps its own look while "Checking…" */
 :disabled { cursor: default; pointer-events: none; }
 .button-quiet:disabled, .button-primary:disabled, .icon-btn:disabled { opacity: 0.5; }

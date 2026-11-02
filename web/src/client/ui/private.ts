@@ -16,8 +16,8 @@ export function renderPrivateSection({ vm }: { vm: ViewModel }): HTMLElement | n
 
   const h2 = document.createElement("h2");
   h2.className = "section-title";
-  if (vm.secretCount === 1) h2.textContent = "1 thing looks private";
-  else h2.textContent = `${vm.secretCount} things look private`;
+  if (vm.secretGroups.length === 1) h2.textContent = "1 thing looks private";
+  else h2.textContent = `${vm.secretGroups.length} things look private`;
   inner.appendChild(h2);
 
   const note = document.createElement("p");

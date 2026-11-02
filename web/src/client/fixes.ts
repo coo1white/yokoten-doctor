@@ -42,6 +42,19 @@ export function fileLinkPlan(owner: string, repo: string, branch: string | null,
   return { kind: "copy first", href };
 }
 
+export function isFilesSectionHidden(fixes: { files?: { path: string }[]; muse: string } | null, hasOpenInstallOnly: boolean): boolean {
+  if (!fixes) return false;
+  if (fixes.muse === "failed" || fixes.muse === "lost") return false;
+  const hasFiles = !!(fixes.files && fixes.files.length > 0);
+  if (hasFiles) return false;
+  if (!hasOpenInstallOnly) return false;
+  return true;
+}
+
+export function rerunHref(owner: string, repo: string): string {
+  return "/?repo=" + encodeURIComponent(owner) + "/" + encodeURIComponent(repo);
+}
+
 export function buildPatch(files: { path: string; content: string }[]): string {
   const safe = files.filter((f) => isSafePath(f.path));
   if (safe.length === 0) return "";

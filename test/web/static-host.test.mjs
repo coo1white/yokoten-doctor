@@ -279,13 +279,13 @@ describe('static host portability', () => {
     assert.ok(!afterDeployStep.includes('secrets.'), 'no step after Deploy should read a secret');
   });
 
-  test('every page has one view switch outside the landing section, marked for its own view', () => {
+  test('every page has one link to the agent view in its footer, and no floating view switch', () => {
     const dist = path.dirname(indexPath);
-    for (const [name, currentView] of [['index.html', 'human'], ['about.html', 'human'], ['agent-view.html', 'agent']]) {
+    for (const name of ['index.html', 'about.html', 'agent-view.html']) {
       const html = fs.readFileSync(path.join(dist, name), 'utf8');
-      assert.equal(html.split('class="view-switch"').length - 1, 1, `dist/${name} should have one view switch`);
-      assert.ok(html.indexOf('class="view-switch"') > html.indexOf('</footer>'), `dist/${name} should put the switch after the footer`);
-      assert.match(html, new RegExp(`aria-current="true"[^>]*>${currentView}</a>`), `dist/${name} should mark the ${currentView} view`);
+      assert.equal(html.includes('view-switch'), false, `dist/${name} should have no view switch`);
+      const footer = html.slice(html.indexOf('<footer'), html.indexOf('</footer>'));
+      assert.equal(footer.split('<a href="/agent-view.html">For agents</a>').length - 1, 1, `dist/${name} should link to the agent view once in its footer`);
     }
   });
 

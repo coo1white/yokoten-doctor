@@ -7,12 +7,12 @@ import threading
 import time
 from typing import Callable
 
-from check.sandbox_run import run_in_sandbox
 from check.github_check import RepoRefused
 from check.github_check import check_public as _check_public_default
 from check.repo_url import BadRepoUrl
 from check.repo_url import parse_repo_url as _parse_repo_url_default
 from check.result import summarize as _summarize_default
+from check.sandbox_run import run_in_sandbox
 from fixes.build import build_fixes
 
 import modal
@@ -46,22 +46,24 @@ class RateLimiter:
         self.store = store
         self.now = now
 
+    def _read_count(self, key: str) -> int:
+        count = self.store.get(key, 0)
+        if count is None:
+            return 0
+        return count
+
     def allow(self, client_ip) -> str:
         try:
-            now_val = self.now()
-            day_num = int(now_val // 86400)
-            hour_num = int(now_val // 3600)
-            day_key = f"limit:day:{day_num}"
-            day_count = self.store.get(day_key, 0)
-            if day_count is None:
-                day_count = 0
+            current_time = self.now()
+            day_number = int(current_time // 86400)
+            hour_number = int(current_time // 3600)
+            day_key = f"limit:day:{day_number}"
+            day_count = self._read_count(day_key)
             if day_count >= self.DAILY_LIMIT_TOTAL:
                 return "day"
             ip_hash = hashlib.sha256(client_ip.encode("utf-8")).hexdigest()[:16]
-            hour_key = f"limit:ip:{ip_hash}:{hour_num}"
-            ip_count = self.store.get(hour_key, 0)
-            if ip_count is None:
-                ip_count = 0
+            hour_key = f"limit:ip:{ip_hash}:{hour_number}"
+            ip_count = self._read_count(hour_key)
             if ip_count >= self.HOURLY_LIMIT_PER_IP:
                 return "ip"
             try:
@@ -73,8 +75,8 @@ class RateLimiter:
             except Exception:
                 raise
             return "ok"
-        except Exception as e:
-            logger.error(type(e).__name__)
+        except Exception as error:
+            logger.error(type(error).__name__)
             return "ok"
 
 
@@ -94,12 +96,12 @@ def build_result(res) -> dict:
         findings = check_data.get("findings", []) or []
     secrets = []
     allowed = {"id", "what", "file", "line", "grade", "why", "fix"}
-    for f in findings:
-        if not isinstance(f, dict):
+    for finding in findings:
+        if not isinstance(finding, dict):
             continue
-        if f.get("id") == "layout":
+        if finding.get("id") == "layout":
             continue
-        secrets.append({k: f.get(k) for k in allowed})
+        secrets.append({key: finding.get(key) for key in allowed})
     return {
         "owner": res.get("owner"),
         "repo": res.get("repo"),
@@ -120,9 +122,11 @@ def build_result_event(res) -> dict:
 
 def create_api(run: Callable = run_in_sandbox, public: Callable = _check_public_default, make_fixes=None, limiter=None, write_public_record=None):  # type: ignore
     if make_fixes is None:
+
         def _default_make_fixes(result):
             cache = open_cache()
             return build_fixes(result, cache=cache)
+
         make_fixes = _default_make_fixes
 
     api = FastAPI()
@@ -149,6 +153,7 @@ def create_api(run: Callable = run_in_sandbox, public: Callable = _check_public_
         def error_generator(message: str):
             def gen():
                 yield sse_event("error", {"message": message})
+
             return StreamingResponse(gen(), media_type="text/event-stream")
 
         if len(body_bytes) > 2048:
@@ -159,18 +164,18 @@ def create_api(run: Callable = run_in_sandbox, public: Callable = _check_public_
         except Exception:
             return error_generator(BAD_URL_MSG)
 
-        url_val = payload.get("url") if isinstance(payload, dict) else None
-        if not isinstance(url_val, str):
-            url_val = ""
-        if len(url_val) > 300:
+        url_value = payload.get("url") if isinstance(payload, dict) else None
+        if not isinstance(url_value, str):
+            url_value = ""
+        if len(url_value) > 300:
             return error_generator(BAD_URL_MSG)
 
         def gen():
             yield sse_event("progress", {"step": "reading"})
             try:
-                owner, repo = _parse_repo_url_default(url_val)
-            except (BadRepoUrl, RepoRefused) as e:
-                yield sse_event("error", {"message": str(e)})
+                owner, repo = _parse_repo_url_default(url_value)
+            except (BadRepoUrl, RepoRefused) as error:
+                yield sse_event("error", {"message": str(error)})
                 return
             except Exception:
                 logger.exception("check failed reading")
@@ -184,56 +189,62 @@ def create_api(run: Callable = run_in_sandbox, public: Callable = _check_public_
                     client_ip = ""
                 decision = limiter.allow(client_ip)
                 if decision == "ip":
-                    yield sse_event("error", {"message": "10 checks this hour is the limit. Try later, or run it on your machine: npx yokoten"})
+                    yield sse_event(
+                        "error",
+                        {"message": "10 checks this hour is the limit. Try later, or run it on your machine: npx yokoten"},
+                    )
                     return
                 if decision == "day":
-                    yield sse_event("error", {"message": "This page is at its daily limit. Try tomorrow, or run it on your machine: npx yokoten"})
+                    yield sse_event(
+                        "error",
+                        {"message": "This page is at its daily limit. Try tomorrow, or run it on your machine: npx yokoten"},
+                    )
                     return
 
             try:
                 public(owner, repo)
-            except (BadRepoUrl, RepoRefused) as e:
-                yield sse_event("error", {"message": str(e)})
+            except (BadRepoUrl, RepoRefused) as error:
+                yield sse_event("error", {"message": str(error)})
                 return
             except Exception:
                 logger.exception("check failed reading")
                 yield sse_event("error", {"message": GENERIC_ERROR})
                 return
 
-            q: queue.Queue = queue.Queue()
+            event_queue: queue.Queue = queue.Queue()
 
             def on_progress(step: str):
                 try:
-                    q.put(("progress", step))
+                    event_queue.put(("progress", step))
                 except Exception:
                     pass
 
             def worker():
                 try:
-                    res = run(owner, repo, on_progress=on_progress)  # type: ignore
-                    q.put(("done", res))
+                    result = run(owner, repo, on_progress=on_progress)  # type: ignore
+                    event_queue.put(("done", result))
                     try:
-                        output = make_fixes(res)
-                        q.put(("fixes", output))
-                    except Exception as e:
-                        logger.error(type(e).__name__)
-                        q.put(("fixes", NO_FIXES))
+                        fixes_output = make_fixes(result)
+                        event_queue.put(("fixes", fixes_output))
+                    except Exception as error:
+                        logger.error(type(error).__name__)
+                        event_queue.put(("fixes", NO_FIXES))
                     if write_public_record is not None:
                         try:
-                            payload_out = build_result_event(res)
-                            rec = write_public_record(payload_out)
-                            q.put(("record", rec))
-                        except Exception as e:
-                            logger.error(type(e).__name__)
-                            q.put(("record", None))
-                except (BadRepoUrl, RepoRefused) as e:
-                    q.put(("error_known", str(e)))
+                            payload_out = build_result_event(result)
+                            record = write_public_record(payload_out)
+                            event_queue.put(("record", record))
+                        except Exception as error:
+                            logger.error(type(error).__name__)
+                            event_queue.put(("record", None))
+                except (BadRepoUrl, RepoRefused) as error:
+                    event_queue.put(("error_known", str(error)))
                 except Exception:
                     logger.exception("sandbox run failed")
-                    q.put(("error_generic", GENERIC_ERROR))
+                    event_queue.put(("error_generic", GENERIC_ERROR))
 
-            t = threading.Thread(target=worker, daemon=True)
-            t.start()
+            thread = threading.Thread(target=worker, daemon=True)
+            thread.start()
 
             start = time.monotonic()
             result_sent = False
@@ -248,7 +259,7 @@ def create_api(run: Callable = run_in_sandbox, public: Callable = _check_public_
                         yield sse_event("fixes", NO_FIXES)
                     return
                 try:
-                    item = q.get(timeout=remaining)
+                    item = event_queue.get(timeout=remaining)
                 except queue.Empty:
                     if not result_sent:
                         yield sse_event("error", {"message": GENERIC_ERROR})
@@ -299,7 +310,10 @@ def fastapi_app():
             limiter = RateLimiter(cache)
         except Exception:
             limiter = None
+
     def _write_public_record(result):
         from record.write import write_record
+
         return write_record(result, store=open_cache())
+
     return create_api(limiter=limiter, write_public_record=_write_public_record)

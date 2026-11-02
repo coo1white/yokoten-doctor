@@ -3,7 +3,7 @@ import { shownMark, toSentence } from "../view.ts";
 import type { CheckResult, ViewModel } from "../types.ts";
 
 export function renderChart({ lastResult, vm }: { lastResult: CheckResult; vm: ViewModel }): HTMLElement {
-  const { panel, body } = createPanel(`All ${vm.score.total} checks`, `${vm.score.done} pass`);
+  const { panel, body } = createPanel(`All ${vm.score.total} checks`);
 
   const list = document.createElement("div");
   list.className = "result-chart";
@@ -27,6 +27,7 @@ export function renderChart({ lastResult, vm }: { lastResult: CheckResult; vm: V
     markEl.className = "chart-mark";
     if (m === "done") markEl.textContent = "done";
     else if (m === "next") markEl.textContent = "next";
+    else if (vm.installOnly.some((step) => step.id === s.id)) markEl.textContent = "install";
     else markEl.textContent = "to do";
     row.appendChild(markEl);
 

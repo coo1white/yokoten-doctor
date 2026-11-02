@@ -1,5 +1,7 @@
 import io
+
 import pytest
+
 from check import sandbox_run
 from check.github_check import RepoRefused
 
@@ -32,11 +34,11 @@ class FakeSandbox:
         self.is_ended = True
 
 
-def run_with(monkeypatch, steps, message):
+def run_with(monkeypatch, steps, expected_message):
     sandbox = FakeSandbox(steps)
-    monkeypatch.setattr(sandbox_run.modal.App, "lookup", lambda *a, **k: object())
-    monkeypatch.setattr(sandbox_run.modal.Sandbox, "create", lambda *a, **k: sandbox)
-    with pytest.raises(RepoRefused, match=message):
+    monkeypatch.setattr(sandbox_run.modal.App, "lookup", lambda *args, **kwargs: object())
+    monkeypatch.setattr(sandbox_run.modal.Sandbox, "create", lambda *args, **kwargs: sandbox)
+    with pytest.raises(RepoRefused, match=expected_message):
         sandbox_run.run_in_sandbox("owner", "repo")
     return sandbox
 

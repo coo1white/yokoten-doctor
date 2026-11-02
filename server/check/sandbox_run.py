@@ -1,9 +1,11 @@
 import json
 import logging
+
 import modal
-from fixes.select_files import choose_muse_paths, cap_files, select_fix_paths, is_private_path, fill_owner
+
 from check.github_check import RepoRefused
 from check.result import summarize
+from fixes.select_files import cap_files, choose_muse_paths, fill_owner, is_private_path, select_fix_paths
 
 YOKOTEN_VERSION = "0.2.0"
 CLONE_FAILED_MSG = "We couldn't copy this repo in time. It may be too big to check here."
@@ -65,27 +67,41 @@ def _read_process(proc):
     return stdout, stderr, proc.returncode
 
 
-def _run_yokoten(sb, *args) -> str:
+def _exec_read(sandbox, *command, timeout):
+    proc = sandbox.exec(*command, timeout=timeout)
+    return _read_process(proc)
+
+
+def _notify_progress(callback, stage):
+    if callback is None:
+        return
+    try:
+        callback(stage)
+    except Exception:
+        pass
+
+
+def _run_yokoten(sandbox, *args) -> str:
     # A second try would likely fail too, so this does not say to try again.
     try:
-        p = sb.exec("env", "-C", "/tmp/repo", "yokoten", *args, timeout=30)
-        stdout, stderr, rc = _read_process(p)
-    except Exception as e:
-        logger.error(type(e).__name__)
-        raise RepoRefused(CHECK_FAILED_MSG) from e
-    if rc not in (0, 1):
-        logger.error("yokoten %s failed with %s: %s", args[0], rc, stderr.strip()[:200])
+        stdout, stderr, return_code = _exec_read(sandbox, "env", "-C", "/tmp/repo", "yokoten", *args, timeout=30)
+    except Exception as exc:
+        logger.error(type(exc).__name__)
+        raise RepoRefused(CHECK_FAILED_MSG) from exc
+    if return_code not in (0, 1):
+        logger.error("yokoten %s failed with %s: %s", args[0], return_code, stderr.strip()[:200])
         raise RepoRefused(CHECK_FAILED_MSG)
     return stdout
 
 
-def _read_files(sb, paths, limit) -> dict:
+def _read_files(sandbox, paths, limit) -> dict:
     if not paths:
         return {}
-    args = json.dumps({"paths": paths, "limit": limit})
-    p = sb.exec("env", "-C", "/tmp/repo", "node", "-e", READ_FILES_SCRIPT, args, timeout=20)
-    stdout, _, rc = _read_process(p)
-    if rc != 0:
+    payload = json.dumps({"paths": paths, "limit": limit})
+    stdout, _, return_code = _exec_read(
+        sandbox, "env", "-C", "/tmp/repo", "node", "-e", READ_FILES_SCRIPT, payload, timeout=20
+    )
+    if return_code != 0:
         return {}
     try:
         data = json.loads(stdout)
@@ -96,46 +112,60 @@ def _read_files(sb, paths, limit) -> dict:
         return {}
 
 
-def _score_after_fixes(sb, selected, fix_files):
+def _score_after_fixes(sandbox, selected, fix_files):
     try:
         if not selected:
             return None
-        p = sb.exec("git", "-C", "/tmp/repo", "checkout", "--", ".", timeout=10)
-        _, _, rc = _read_process(p)
-        if rc != 0:
+        _, _, return_code = _exec_read(sandbox, "git", "-C", "/tmp/repo", "checkout", "--", ".", timeout=10)
+        if return_code != 0:
             return None
-        clean_args = ["git", "-C", "/tmp/repo", "clean", "-fdqx"]
+        clean_command = ["git", "-C", "/tmp/repo", "clean", "-fdqx"]
         for path in selected:
-            clean_args.extend(["-e", f"/{path}"])
-        p = sb.exec(*clean_args, timeout=10)
-        _, _, rc = _read_process(p)
-        if rc != 0:
+            clean_command.extend(["-e", f"/{path}"])
+        _, _, return_code = _exec_read(sandbox, *clean_command, timeout=10)
+        if return_code != 0:
             return None
-        for f in fix_files or []:
-            if isinstance(f, dict) and f.get("path") == ".github/CODEOWNERS":
-                content = f.get("content") or ""
-                p = sb.exec("env", "-C", "/tmp/repo", "node", "-e", "require('fs').writeFileSync(process.argv[1], process.argv[2])", ".github/CODEOWNERS", content, timeout=10)
-                _, _, rc = _read_process(p)
-                if rc != 0:
+        for fix in fix_files or []:
+            if isinstance(fix, dict) and fix.get("path") == ".github/CODEOWNERS":
+                content = fix.get("content") or ""
+                _, _, return_code = _exec_read(
+                    sandbox,
+                    "env",
+                    "-C",
+                    "/tmp/repo",
+                    "node",
+                    "-e",
+                    "require('fs').writeFileSync(process.argv[1], process.argv[2])",
+                    ".github/CODEOWNERS",
+                    content,
+                    timeout=10,
+                )
+                if return_code != 0:
                     return None
                 break
-        p = sb.exec("env", "-C", "/tmp/repo", "yokoten", "doctor", "--files", "--json", timeout=30)
-        stdout, _, rc = _read_process(p)
-        if rc not in (0, 1):
+        stdout, _, return_code = _exec_read(
+            sandbox, "env", "-C", "/tmp/repo", "yokoten", "doctor", "--files", "--json", timeout=30
+        )
+        if return_code not in (0, 1):
             return None
         data = json.loads(stdout)
-        s = summarize(data)
-        done = s.get("done")
-        total = s.get("total")
-        if isinstance(done, int) and isinstance(total, int) and not isinstance(done, bool) and not isinstance(total, bool):
+        summary = summarize(data)
+        done = summary.get("done")
+        total = summary.get("total")
+        if (
+            isinstance(done, int)
+            and isinstance(total, int)
+            and not isinstance(done, bool)
+            and not isinstance(total, bool)
+        ):
             return {"done": done, "total": total}
         return None
-    except Exception as e:
-        logger.error(type(e).__name__)
+    except Exception as exc:
+        logger.error(type(exc).__name__)
         return None
 
 
-def _collect_fix_data(sb, owner, repo, doctor, check) -> dict:
+def _collect_fix_data(sandbox, owner, repo, doctor, check) -> dict:
     fix_files = []
     muse_facts = {}
     too_big = False
@@ -143,10 +173,8 @@ def _collect_fix_data(sb, owner, repo, doctor, check) -> dict:
     selected = []
     after = None
     try:
-        p = sb.exec("git", "-C", "/tmp/repo", "ls-files", timeout=10)
-        stdout_ls, _, rc_ls = _read_process(p)
-        tracked = []
-        if rc_ls == 0:
+        stdout_ls, _, return_code = _exec_read(sandbox, "git", "-C", "/tmp/repo", "ls-files", timeout=10)
+        if return_code == 0:
             tracked = [line for line in stdout_ls.splitlines() if line]
         else:
             tracked = []
@@ -158,39 +186,38 @@ def _collect_fix_data(sb, owner, repo, doctor, check) -> dict:
             claude_file = ".claude/CLAUDE.md"
         else:
             claude_file = None
-        findings = []
         try:
             findings = check.get("findings") or []
         except Exception:
             findings = []
-        filtered_for_list = [t for t in tracked if not is_private_path(t)]
+        filtered_for_list = [path for path in tracked if not is_private_path(path)]
         file_list = filtered_for_list[:500]
         open_checks = []
         try:
             steps = summarize(doctor)["steps"]
-            for s in steps:
-                if not isinstance(s, dict):
+            for step in steps:
+                if not isinstance(step, dict):
                     continue
-                mark = s.get("mark")
+                mark = step.get("mark")
                 if mark == "done" or mark == "not now":
                     continue
-                open_checks.append({"id": s.get("id"), "title": s.get("title"), "what": s.get("what")})
+                open_checks.append({"id": step.get("id"), "title": step.get("title"), "what": step.get("what")})
         except Exception:
             open_checks = []
         chosen = choose_muse_paths(tracked, findings)
-        changelog_paths = [c for c in chosen if c == "CHANGELOG.md"]
-        other_paths = [c for c in chosen if c != "CHANGELOG.md"]
+        changelog_paths = [path for path in chosen if path == "CHANGELOG.md"]
+        other_paths = [path for path in chosen if path != "CHANGELOG.md"]
         read_files = {}
         if other_paths:
-            data = _read_files(sb, other_paths, 20 * 1024)
-            for c in other_paths:
-                if c in data:
-                    read_files[c] = data[c]
+            data = _read_files(sandbox, other_paths, 20 * 1024)
+            for path in other_paths:
+                if path in data:
+                    read_files[path] = data[path]
         if changelog_paths:
-            data2 = _read_files(sb, changelog_paths, 3 * 1024)
-            for c in changelog_paths:
-                if c in data2:
-                    read_files[c] = data2[c]
+            data2 = _read_files(sandbox, changelog_paths, 3 * 1024)
+            for path in changelog_paths:
+                if path in data2:
+                    read_files[path] = data2[path]
         capped = cap_files(read_files, 120 * 1024)
         muse_facts = {
             "owner": owner,
@@ -199,13 +226,13 @@ def _collect_fix_data(sb, owner, repo, doctor, check) -> dict:
             "files": capped,
             "open_checks": open_checks,
         }
-        p = sb.exec("env", "-C", "/tmp/repo", "yokoten", "init", timeout=30)
-        _, _, rc_init = _read_process(p)
-        if rc_init == 0:
-            p = sb.exec("git", "-C", "/tmp/repo", "status", "--porcelain", "--untracked-files=all", timeout=10)
-            stdout_st, _, rc_st = _read_process(p)
+        _, _, return_code = _exec_read(sandbox, "env", "-C", "/tmp/repo", "yokoten", "init", timeout=30)
+        if return_code == 0:
+            stdout_st, _, return_code = _exec_read(
+                sandbox, "git", "-C", "/tmp/repo", "status", "--porcelain", "--untracked-files=all", timeout=10
+            )
             new_paths = []
-            if rc_st == 0:
+            if return_code == 0:
                 for line in stdout_st.splitlines():
                     if line.startswith("?? "):
                         path_part = line[3:]
@@ -214,16 +241,16 @@ def _collect_fix_data(sb, owner, repo, doctor, check) -> dict:
                         new_paths.append(path_part)
             selected = select_fix_paths(new_paths, tracked)
             if selected:
-                data_f = _read_files(sb, selected, 64 * 1024)
-                for sel in selected:
-                    if sel in data_f:
-                        content = data_f[sel]
-                        if sel == ".github/CODEOWNERS":
+                data_f = _read_files(sandbox, selected, 64 * 1024)
+                for path in selected:
+                    if path in data_f:
+                        content = data_f[path]
+                        if path == ".github/CODEOWNERS":
                             content = fill_owner(content, owner)
-                        fix_files.append({"path": sel, "content": content})
-        after = _score_after_fixes(sb, selected, fix_files)
-    except Exception as e:
-        logger.error(type(e).__name__)
+                        fix_files.append({"path": path, "content": content})
+        after = _score_after_fixes(sandbox, selected, fix_files)
+    except Exception as exc:
+        logger.error(type(exc).__name__)
         fix_files = []
         muse_facts = {}
         too_big = False
@@ -234,7 +261,7 @@ def _collect_fix_data(sb, owner, repo, doctor, check) -> dict:
 
 def run_in_sandbox(owner: str, repo: str, on_progress=None) -> dict:
     app = modal.App.lookup("yokoten-doctor", create_if_missing=True)
-    sb = modal.Sandbox.create(
+    sandbox = modal.Sandbox.create(
         app=app,
         image=image,
         timeout=120,
@@ -251,19 +278,15 @@ def run_in_sandbox(owner: str, repo: str, on_progress=None) -> dict:
         outbound_cidr_allowlist=[],
     )
     try:
-        p = sb.exec("mkdir", "-p", "/tmp/home", "/tmp/work", timeout=10)
-        _, _, rc = _read_process(p)
-        if rc != 0:
+        _, _, return_code = _exec_read(sandbox, "mkdir", "-p", "/tmp/home", "/tmp/work", timeout=10)
+        if return_code != 0:
             raise SandboxFailed("Could not prepare sandbox.")
-        if on_progress is not None:
-            try:
-                on_progress("copying")
-            except Exception:
-                pass
+        _notify_progress(on_progress, "copying")
         clone_url = f"https://github.com/{owner}/{repo}.git"
         # A second try would likely fail too, so this does not say to try again.
         try:
-            p = sb.exec(
+            _, stderr, return_code = _exec_read(
+                sandbox,
                 "git",
                 "-c",
                 "core.hooksPath=/dev/null",
@@ -276,43 +299,38 @@ def run_in_sandbox(owner: str, repo: str, on_progress=None) -> dict:
                 "/tmp/repo",
                 timeout=60,
             )
-            _, stderr, rc = _read_process(p)
-        except Exception as e:
-            logger.error(type(e).__name__)
-            raise RepoRefused(CLONE_FAILED_MSG) from e
-        if rc != 0:
-            logger.error("clone failed with %s: %s", rc, stderr.strip()[:200])
+        except Exception as exc:
+            logger.error(type(exc).__name__)
+            raise RepoRefused(CLONE_FAILED_MSG) from exc
+        if return_code != 0:
+            logger.error("clone failed with %s: %s", return_code, stderr.strip()[:200])
             raise RepoRefused(CLONE_FAILED_MSG)
-        p = sb.exec("git", "-C", "/tmp/repo", "rev-parse", "HEAD", timeout=10)
-        stdout, stderr, rc = _read_process(p)
-        if rc != 0:
+        stdout, stderr, return_code = _exec_read(sandbox, "git", "-C", "/tmp/repo", "rev-parse", "HEAD", timeout=10)
+        if return_code != 0:
             raise SandboxFailed(f"Could not read commit: {stderr.strip()}")
         commit = stdout.strip()
-        p = sb.exec("git", "-C", "/tmp/repo", "rev-parse", "--abbrev-ref", "HEAD", timeout=10)
-        stdout_branch, stderr_branch, rc_branch = _read_process(p)
-        branch = stdout_branch.strip() if rc_branch == 0 else None
+        stdout_branch, _, return_code_branch = _exec_read(
+            sandbox, "git", "-C", "/tmp/repo", "rev-parse", "--abbrev-ref", "HEAD", timeout=10
+        )
+        branch = stdout_branch.strip() if return_code_branch == 0 else None
         try:
-            sb._experimental_set_outbound_network_policy(
+            sandbox._experimental_set_outbound_network_policy(
                 outbound_domain_allowlist=[],
                 outbound_cidr_allowlist=[],
             )
-        except Exception as e:
-            raise SandboxFailed("Could not lock down network before running checks.") from e
-        if on_progress is not None:
-            try:
-                on_progress("checking")
-            except Exception:
-                pass
+        except Exception as exc:
+            raise SandboxFailed("Could not lock down network before running checks.") from exc
+        _notify_progress(on_progress, "checking")
         about = ""
         try:
-            p = sb.exec(
+            stdout_a, _, return_code_a = _exec_read(
+                sandbox,
                 "node",
                 "-p",
                 "require('/usr/local/lib/node_modules/yokoten/package.json').description",
                 timeout=10,
             )
-            stdout_a, _, rc_a = _read_process(p)
-            if rc_a == 0:
+            if return_code_a == 0:
                 about = stdout_a.strip()
                 if about is None:
                     about = ""
@@ -320,27 +338,29 @@ def run_in_sandbox(owner: str, repo: str, on_progress=None) -> dict:
                 about = ""
         except Exception:
             about = ""
-        stdout_d = _run_yokoten(sb, "doctor", "--files", "--json")
+        stdout_d = _run_yokoten(sandbox, "doctor", "--files", "--json")
         try:
             doctor = json.loads(stdout_d)
-        except Exception as e:
-            raise SandboxFailed(f"Could not parse doctor output: {e}") from e
-        stdout_c = _run_yokoten(sb, "check", "--json")
+        except Exception as exc:
+            raise SandboxFailed(f"Could not parse doctor output: {exc}") from exc
+        stdout_c = _run_yokoten(sandbox, "check", "--json")
         try:
             check = json.loads(stdout_c)
-        except Exception as e:
-            raise SandboxFailed(f"Could not parse check output: {e}") from e
+        except Exception as exc:
+            raise SandboxFailed(f"Could not parse check output: {exc}") from exc
         yokoten_version = doctor.get("version", YOKOTEN_VERSION)
         rerun = {
-            "doctor": "\n".join([
-                f"git clone --filter=blob:none https://github.com/{owner}/{repo}",
-                f"cd {repo}",
-                f"git checkout {commit}",
-                f"npx yokoten@{yokoten_version} doctor --files --json",
-            ]),
+            "doctor": "\n".join(
+                [
+                    f"git clone --filter=blob:none https://github.com/{owner}/{repo}",
+                    f"cd {repo}",
+                    f"git checkout {commit}",
+                    f"npx yokoten@{yokoten_version} doctor --files --json",
+                ]
+            ),
             "check": f'HOME="$(mktemp -d)" npx yokoten@{yokoten_version} check --json',
         }
-        collected = _collect_fix_data(sb, owner, repo, doctor, check)
+        collected = _collect_fix_data(sandbox, owner, repo, doctor, check)
         fix_files = collected["fix_files"]
         muse_facts = collected["muse_facts"]
         too_big = collected["too_big"]
@@ -364,6 +384,6 @@ def run_in_sandbox(owner: str, repo: str, on_progress=None) -> dict:
         }
     finally:
         try:
-            sb.terminate()
+            sandbox.terminate()
         except Exception:
             pass
