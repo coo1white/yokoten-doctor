@@ -70,9 +70,9 @@
     "reply": "chatcmpl-c481af64899c4aaaadbb16d1fd9080d4"
   },
   "test/site/real-pages.test.mjs": {
-    "sha256": "d206bb3e6beb06378ee8d32e6e945dd9578089a104e7d451b7cc252b1154885e",
+    "sha256": "6e8ab3e78a74e08292db24558a114210ef00d1bb3887cf17241623e2dae56a3a",
     "model": "meta-models/muse-spark-open-1026",
-    "reply": "chatcmpl-c481af64899c4aaaadbb16d1fd9080d4"
+    "reply": "chatcmpl-045d0e2f4e354c5fbda05919df56f159"
   },
   "test/site/result-plan.test.mjs": {
     "sha256": "94849bce3566eed4437fd862f20ea7008e8f96ac6de03057e3bdbe4266b57a85",
@@ -140,9 +140,9 @@
     "reply": "chatcmpl-295e815859604ec3841f94c5956f1ef8"
   },
   "web/src/client/ui/fix.ts": {
-    "sha256": "c2ba06f5408da0eb8cbbeb9159de20797c6dc90ea67e655a48d4a9d8d0345927",
+    "sha256": "41aceef7bbf69f953d7b413210e35b222ef4472bec51479998ef507015b00966",
     "model": "meta-models/muse-spark-open-1026",
-    "reply": "chatcmpl-4adfdd08956540d19b067d6a95aa3008"
+    "reply": "chatcmpl-045d0e2f4e354c5fbda05919df56f159"
   },
   "web/src/client/ui/hero.ts": {
     "sha256": "49cfb70a580f1244088eaa4592729ce6b3d2968bda98764d193a7927bc900f02",

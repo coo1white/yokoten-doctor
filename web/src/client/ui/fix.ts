@@ -78,20 +78,22 @@ function createFileRow(file: FixFile, plan: ResultPlan, lastFixes: FixesPayload 
     more.appendChild(note);
     row.appendChild(more);
   }
-  const read = make("div", "file-read");
-  const body: Node[] = [];
-  const project = projectSection(file.content);
-  const isMuse = file.source === "yokoten and Muse";
-  if (file.path === "AGENTS.md" && isMuse && project) {
-    body.push(make("p", "small muted", "The part Muse wrote:"));
-    body.push(createFilePre(project));
-    const before = file.content.slice(0, file.content.indexOf("## This project")).trim();
-    body.push(createFold("The rest of the file", [createFilePre(before)], { key: "rest-AGENTS.md" }));
-  } else {
-    body.push(createFilePre(file.content));
+  if (isLong) {
+    const read = make("div", "file-read");
+    const body: Node[] = [];
+    const project = projectSection(file.content);
+    const isMuse = file.source === "yokoten and Muse";
+    if (file.path === "AGENTS.md" && isMuse && project) {
+      body.push(make("p", "small muted", "The part Muse wrote:"));
+      body.push(createFilePre(project));
+      const before = file.content.slice(0, file.content.indexOf("## This project")).trim();
+      body.push(createFold("The rest of the file", [createFilePre(before)], { key: "rest-AGENTS.md" }));
+    } else {
+      body.push(createFilePre(file.content));
+    }
+    read.appendChild(createFold("Read this file", body, { key: `read-${file.path}` }));
+    row.appendChild(read);
   }
-  read.appendChild(createFold("Read this file", body, { key: `read-${file.path}` }));
-  row.appendChild(read);
   return { row, addLink, undoButton, isLong };
 }
 

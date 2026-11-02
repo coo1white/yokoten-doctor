@@ -283,6 +283,14 @@ describe('real pages', () => {
     assert.deepEqual(openIds2, ['step-install']);
   });
 
+  test('only a long file row has a read fold', { timeout: 180000 }, async (t) => {
+    if (skipReason) { t.skip(skipReason); return; }
+    await navigate('/example/Uniswap-v4-core.html', 1440);
+    const rowsWithFold = JSON.parse(await evaluate('JSON.stringify([...document.querySelectorAll("[data-file-list] .file")].map((row) => ({ isLong: row.querySelector("[data-add]").textContent.includes("Copy and open"), hasFold: row.querySelector(".file-read details") !== null })))'));
+    assert.ok(rowsWithFold.length > 0, 'the page lists files');
+    for (const row of rowsWithFold) assert.equal(row.hasFold, row.isLong);
+  });
+
   test('marking a step done leaves the count and the bar alone', { timeout: 180000 }, async (t) => {
     if (skipReason) { t.skip(skipReason); return; }
     await navigate('/example/Uniswap-v4-core.html', 1440);
