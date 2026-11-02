@@ -15,94 +15,95 @@
   line-gap-override: 0%;
 }
 :root {
-  --bg: #F6F5F1;
-  --surface: #FFFFFF;
-  --raised: #ECEAE3;
-  --line: #D9D7CF;
-  --fg: #1B1B19;
-  --muted: #5C5B55;
-  --accent: #B5431A;
-  --on-accent: #FFFFFF;
-  --code: #1B1B19;
-  --on-code: #ECEAE3;
-  --shadow: 0 1px 2px rgb(27 27 25 / 0.06), 0 16px 40px -20px rgb(27 27 25 / 0.25);
-  --font-sans: 'Inter Variable', 'Inter Fallback', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono Fallback', ui-monospace, SFMono-Regular, Menlo, monospace;
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-pill: 999px;
+  /* color: page, surfaces, text */
+  --bg: #ecece8;             /* the page behind the blocks */
+  --surface: #ffffff;        /* a block */
+  --panel: #f1f1ee;          /* a box inside a block */
+  --next-bg: #17171a;        /* the Rules for agents block. Dark in both themes */
+  --line: #d9d9d4;
+  --line-strong: #8d8d87;    /* 3:1 on the page: outlines that carry meaning */
+  --fg: #141413;
+  --muted: #5a5a55;
+  /* color: meaning */
+  --press: #1a56db;          /* can be pressed. Links, primary fill, focus */
+  --on-press: #ffffff;
+  --pass: #0a6b3d;           /* passing: text and icons */
+  --pass-fill: #0f8a50;      /* passing: bar segments */
+  --pass-wash: color-mix(in srgb, var(--pass) 11%, transparent);
+  --todo: #7a4e00;           /* needs work: text and icons. Darker amber, since yellow fails AA on light */
+  --todo-fill: #c08300;      /* needs work: bar segments, swatches */
+  --bad: #b3261e;            /* the run stopped or failed. Never a check status */
+  --code: #17171a;
+  --on-code: #e9e9e6;
+  /* the bar: four fills, no color needed */
+  --seg-done: var(--pass-fill);
+  --seg-files: var(--todo-fill);
+  --seg-empty: var(--line);
+
+  /* state layers (from PR 90): a see-through wash of the text color */
+  --state-hover: color-mix(in srgb, var(--fg) 4.5%, transparent);
+  --state-press: color-mix(in srgb, var(--fg) 8%, transparent);
+  --state-hover-link: color-mix(in srgb, var(--press) 8%, transparent);
+  --state-press-link: color-mix(in srgb, var(--press) 15%, transparent);
+  --state-hover-fill: rgb(255 255 255 / 0.12);
+  --state-press-fill: rgb(0 0 0 / 0.14);
+  --focus: 0 0 0 2px var(--bg), 0 0 0 4px var(--press);
+
+  /* type: six sizes, two weights, mono only for what you can copy */
+  --t-sm: 0.875rem;   /* 14 notes, tags */
+  --t-md: 1rem;       /* 16 body */
+  --t-lg: 1.1875rem;  /* 19 lede */
+  --t-xl: 1.5rem;     /* 24 section title */
+  --t-2xl: clamp(1.75rem, 1.35rem + 1.8vw, 2.5rem);    /* 28-40 the one thing on a screen */
+  --t-3xl: clamp(2.25rem, 1.6rem + 3.2vw, 3.75rem);    /* 36-60 home headline, the big count */
+  --w-normal: 420;
+  --w-strong: 620;
+  --font: "Inter Variable", "Inter Fallback", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  --mono: "JetBrains Mono Variable", "JetBrains Mono Fallback", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* space: a 4 px scale, four rhythm steps */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px; --s8: 72px; --s9: 112px;
   --gutter: 16px;
-  --max: 1120px;
-  --section: 56px;
-  --section-result: 48px;
+  --wide: 1160px;            /* every zone */
+  --r-sm: 6px; --r-md: 10px; --r-lg: 16px;
+  --tap: 44px;
+  --control: 48px;          /* a button or a command box in a row of cards */
+
+  /* motion */
+  --dur-fast: 90ms; --dur: 160ms; --dur-slow: 260ms; --dur-enter: 360ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.1, 0.8, 0.2, 1);
   color-scheme: light;
 }
-@media (min-width: 48rem) {
-  :root { --gutter: 24px; --section: 88px; --section-result: 72px; }
-}
+@media (min-width: 48rem) { :root { --gutter: 32px; } }
+
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #141412;
-    --surface: #1C1C1A;
-    --raised: #262623;
-    --line: #33332F;
-    --fg: #ECEAE3;
-    --muted: #A3A199;
-    --accent: #F08A58;
-    --on-accent: #141412;
-    --code: #0E0E0D;
-    --on-code: #D6D4CC;
-    --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 16px 40px -20px rgb(0 0 0 / 0.7);
+    --bg: #0d0d0e; --surface: #1b1b1e; --panel: #26262a; --next-bg: #2a2a30; --line: #303035; --line-strong: #77777d;
+    --fg: #efefec; --muted: #a6a6a2;
+    --press: #86adff; --on-press: #0a1224;
+    --pass: #5ad69a; --pass-fill: #3fbf83; --todo: #f2bb3d; --todo-fill: #e0a526; --bad: #ff8d84;
+    --code: #0b0b0c; --on-code: #dfdfdb;
+    --state-hover: color-mix(in srgb, var(--fg) 7%, transparent);
+    --state-press: color-mix(in srgb, var(--fg) 13%, transparent);
+    --state-hover-link: color-mix(in srgb, var(--press) 11%, transparent);
+    --state-press-link: color-mix(in srgb, var(--press) 19%, transparent);
+    --state-hover-fill: rgb(255 255 255 / 0.2);
+    --state-press-fill: rgb(0 0 0 / 0.16);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #141412;
-  --surface: #1C1C1A;
-  --raised: #262623;
-  --line: #33332F;
-  --fg: #ECEAE3;
-  --muted: #A3A199;
-  --accent: #F08A58;
-  --on-accent: #141412;
-  --code: #0E0E0D;
-  --on-code: #D6D4CC;
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 16px 40px -20px rgb(0 0 0 / 0.7);
+  --bg: #0d0d0e; --surface: #1b1b1e; --panel: #26262a; --next-bg: #2a2a30; --line: #303035; --line-strong: #77777d;
+  --fg: #efefec; --muted: #a6a6a2;
+  --press: #86adff; --on-press: #0a1224;
+  --pass: #5ad69a; --pass-fill: #3fbf83; --todo: #f2bb3d; --todo-fill: #e0a526; --bad: #ff8d84;
+  --code: #0b0b0c; --on-code: #dfdfdb;
+  --state-hover: color-mix(in srgb, var(--fg) 7%, transparent);
+  --state-press: color-mix(in srgb, var(--fg) 13%, transparent);
+  --state-hover-link: color-mix(in srgb, var(--press) 11%, transparent);
+  --state-press-link: color-mix(in srgb, var(--press) 19%, transparent);
+  --state-hover-fill: rgb(255 255 255 / 0.2);
+  --state-press-fill: rgb(0 0 0 / 0.16);
   color-scheme: dark;
-}
-
-:root {
-  /* state layers: a translucent wash of the text color, so they sit on any surface and never look pasted */
-  --state-hover: color-mix(in srgb, var(--fg) 6%, transparent);
-  --state-press: color-mix(in srgb, var(--fg) 12%, transparent);
-  --state-current: color-mix(in srgb, var(--fg) 5%, transparent);
-  --state-ring: color-mix(in srgb, var(--fg) 16%, transparent);
-  /* on a filled control (accent or fg) hover lightens and press darkens, with the two tokens that are light and dark in both themes */
-  --state-hover-on-fill: color-mix(in srgb, var(--on-code) 14%, transparent);
-  --state-press-on-fill: color-mix(in srgb, var(--code) 18%, transparent);
-  --radius-state: var(--radius-md);
-  --row-bleed: 12px;               /* how far a row's highlight reaches past its text */
-  --press: scale(0.98);
-  --dur-fast: 90ms;                /* press */
-  --dur: 160ms;                    /* hover, color, chevron */
-  --dur-slow: 260ms;               /* a fold opening, a segment filling */
-  --dur-enter: 360ms;              /* a section arriving */
-  --ease: cubic-bezier(0.2, 0, 0, 1);
-  --ease-out: cubic-bezier(0.1, 0.8, 0.2, 1);
-}
-/* dark: a wash of light on dark reads weaker, so a little more of it */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --state-hover: color-mix(in srgb, var(--fg) 8%, transparent);
-    --state-press: color-mix(in srgb, var(--fg) 15%, transparent);
-    --state-current: color-mix(in srgb, var(--fg) 7%, transparent);
-    --state-ring: color-mix(in srgb, var(--fg) 20%, transparent);
-  }
-}
-:root[data-theme="dark"] {
-  --state-hover: color-mix(in srgb, var(--fg) 8%, transparent);
-  --state-press: color-mix(in srgb, var(--fg) 15%, transparent);
-  --state-current: color-mix(in srgb, var(--fg) 7%, transparent);
-  --state-ring: color-mix(in srgb, var(--fg) 20%, transparent);
 }

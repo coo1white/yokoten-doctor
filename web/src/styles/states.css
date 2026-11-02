@@ -1,106 +1,29 @@
-/* One system for every control. A new control gets its states by adding the class "ctl". */
-/* ---------- 2. every control: the same transitions, no browser tap flash ---------- */
-:where(a, button, summary, input, textarea, select, [role="menuitemradio"]) {
-  -webkit-tap-highlight-color: transparent;
-  transition: color var(--dur) var(--ease), background-color var(--dur) var(--ease), border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease), opacity var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
-}
-a { text-underline-offset: 0.15em; }
-
-/* ---------- 3. the state layer: one pseudo-element, three opacities ----------
-   Add class "ctl" to a control (or list it here) and it gets hover, press, focus and disabled. */
-.ctl, .button-primary, .button-quiet, .file-action-primary, .file-action-link, .cta-link, .icon-btn, .menu-item, .input-row button, .result-actions a, .result-actions button, .tools-link, .site-footer a {
-  position: relative;
-  isolation: isolate;
-  cursor: pointer;
-}
-.ctl::after, .button-primary::after, .button-quiet::after, .file-action-primary::after, .file-action-link::after, .cta-link::after, .menu-item::after, .input-row button::after, .result-actions a::after, .result-actions button::after, .tools-link::after, .site-footer a::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  background: var(--state-hover);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--dur) var(--ease), background-color var(--dur) var(--ease);
-}
-/* text-only controls get a small pill around the text instead of a layer on the box */
-.file-action-link, .result-actions a, .result-actions button, .tools-link, .site-footer a { border-radius: var(--radius-state); }
-.file-action-link::after, .result-actions a::after, .result-actions button::after, .tools-link::after, .site-footer a::after { inset: 4px -8px; }
-/* filled accent controls wash with the on-accent color */
-.button-primary::after, .file-action-primary::after, .input-row button::after { background: var(--state-hover-on-fill); }
-
-/* hover only where a pointer can hover: no sticky hover after a tap */
-@media (hover: hover) {
-  .ctl:hover::after, .button-primary:hover::after, .button-quiet:hover::after, .file-action-primary:hover::after, .file-action-link:hover::after, .cta-link:hover::after, .menu-item:hover::after, .input-row button:hover::after, .result-actions a:hover::after, .result-actions button:hover::after, .tools-link:hover::after, .site-footer a:hover::after { opacity: 1; }
-  .check-row:hover::before, summary:hover::after { opacity: 1; }
-  a:hover { color: var(--fg); }
-  .button-primary:hover, .file-action-primary:hover { color: var(--on-accent); }
-  .tools-link:hover, .site-footer a:hover, .result-actions a:hover, .result-actions button:hover { color: var(--fg); }
-  .input-row input:hover:not(:focus-visible):not([readonly]) { border-color: var(--fg); }
-}
-/* pressed: shows on mouse and on touch */
-.ctl:is(:active, .is-pressed)::after, .button-primary:is(:active, .is-pressed)::after, .button-quiet:is(:active, .is-pressed)::after, .file-action-primary:is(:active, .is-pressed)::after, .file-action-link:is(:active, .is-pressed)::after, .cta-link:is(:active, .is-pressed)::after, .menu-item:is(:active, .is-pressed)::after, .input-row button:is(:active, .is-pressed)::after, .result-actions a:is(:active, .is-pressed)::after, .result-actions button:is(:active, .is-pressed)::after, .tools-link:is(:active, .is-pressed)::after, .site-footer a:is(:active, .is-pressed)::after { opacity: 1; background: var(--state-press); }
-.button-primary:is(:active, .is-pressed)::after, .file-action-primary:is(:active, .is-pressed)::after, .input-row button:is(:active, .is-pressed)::after { background: var(--state-press-on-fill); }
-.button-primary:is(:active, .is-pressed), .button-quiet:is(:active, .is-pressed), .file-action-primary:is(:active, .is-pressed), .cta-link:is(:active, .is-pressed), .icon-btn:is(:active, .is-pressed), .input-row button:is(:active, .is-pressed) { transform: var(--press); }
-.check-row:is(:active, .is-pressed)::before, summary:is(:active, .is-pressed)::after { opacity: 1; background: var(--state-press); }
-/* keyboard focus: the ring, never a layer */
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.menu-item:focus-visible, .check-row:focus-visible, summary:focus-visible { outline-offset: -2px; }
-/* open or current: a faint fill and a hairline ring, see-through */
-.icon-btn[aria-expanded="true"], .menu-item[aria-checked="true"] { background: var(--state-current); box-shadow: inset 0 0 0 1px var(--state-ring); }
-/* disabled: quiet, no layer, no press; the Check button keeps its own look while "Checking…" */
+.ctl { position: relative; isolation: isolate; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease), transform var(--dur-fast) var(--ease); }
+.ctl::after { content: ""; position: absolute; inset: var(--layer-inset, 0); z-index: -1; border-radius: inherit;
+  background: var(--layer, var(--state-hover)); opacity: 0; pointer-events: none;
+  transition: opacity var(--dur) var(--ease), background-color var(--dur) var(--ease); }
+@media (hover: hover) { .ctl:hover::after { opacity: 1; } }
+.ctl:active::after { opacity: 1; background: var(--layer-down, var(--state-press)); }
+.ctl.is-pressed::after { opacity: 1; background: var(--layer-down, var(--state-press)); }
+.btn.is-pressed { transform: scale(0.98); }
+.fold > summary.is-pressed::after { opacity: 1; background: var(--state-press); }
+:focus { outline: none; }
+:focus-visible { outline: none; box-shadow: var(--focus); border-radius: var(--r-sm); }
 :disabled { cursor: default; pointer-events: none; }
-.button-quiet:disabled, .button-primary:disabled, .icon-btn:disabled { opacity: 0.5; }
 
-/* ---------- 4. rows and areas: a highlight that bleeds past the text with soft corners, no layout shift ---------- */
-.check-row { position: relative; isolation: isolate; -webkit-tap-highlight-color: transparent; }
-.check-row::before { content: ""; position: absolute; inset: 0 calc(-1 * var(--row-bleed)); z-index: -1; border-radius: var(--radius-state); background: var(--state-hover); opacity: 0; pointer-events: none; transition: opacity var(--dur) var(--ease), background-color var(--dur) var(--ease); }
-details > summary { position: relative; isolation: isolate; -webkit-tap-highlight-color: transparent; }
-details > summary::after { content: ""; position: absolute; inset: 2px calc(-1 * var(--row-bleed)); z-index: -1; border-radius: var(--radius-state); background: var(--state-hover); opacity: 0; pointer-events: none; transition: opacity var(--dur) var(--ease), background-color var(--dur) var(--ease); }
-details > summary::before { transition: transform var(--dur) var(--ease); }
-/* the input */
-.input-row input { transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
-.input-row input:focus-visible { outline: 2px solid transparent; outline-offset: 2px; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
-/* the theme tooltip and menu */
-/* icon buttons keep their tooltip on ::after, so their state layer is ::before */
-.icon-btn::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: var(--state-hover); opacity: 0; pointer-events: none; transition: opacity var(--dur) var(--ease), background-color var(--dur) var(--ease); }
-@media (hover: hover) { .icon-btn:hover::before { opacity: 1; } }
-.icon-btn:is(:active, .is-pressed)::before { opacity: 1; background: var(--state-press); }
-.menu-list { transform-origin: top right; animation: pop var(--dur) var(--ease-out) both; }
-
-/* ---------- 5. motion that earns its place ---------- */
 @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-@keyframes pop { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
 @keyframes fill { from { transform: scaleX(0); } to { transform: none; } }
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-/* a fold opening: its content rises in */
-details[open] > :not(summary) { animation: rise var(--dur-slow) var(--ease-out) both; }
-/* the result arriving: sections rise in turn; the class is set once by app.ts on the first result render */
-#app.is-entering > * { animation: rise var(--dur-enter) var(--ease-out) both; }
-#app.is-entering > :nth-child(2) { animation-delay: 60ms; }
-#app.is-entering > :nth-child(3) { animation-delay: 120ms; }
-#app.is-entering > :nth-child(4) { animation-delay: 180ms; }
-#app.is-entering > :nth-child(5) { animation-delay: 240ms; }
-/* the score bar filling, left to right, done segments then the outlined ones */
-#app.is-entering .score-seg.is-done, #app.is-entering .score-seg.is-after { transform-origin: left; animation: fill var(--dur-slow) var(--ease-out) both; }
-#app.is-entering .score-seg:nth-child(2) { animation-delay: 30ms; }  #app.is-entering .score-seg:nth-child(3) { animation-delay: 60ms; }
-#app.is-entering .score-seg:nth-child(4) { animation-delay: 90ms; }  #app.is-entering .score-seg:nth-child(5) { animation-delay: 120ms; }
-#app.is-entering .score-seg:nth-child(6) { animation-delay: 150ms; } #app.is-entering .score-seg:nth-child(7) { animation-delay: 180ms; }
-#app.is-entering .score-seg:nth-child(8) { animation-delay: 210ms; } #app.is-entering .score-seg:nth-child(9) { animation-delay: 240ms; }
-#app.is-entering .score-seg:nth-child(10) { animation-delay: 270ms; } #app.is-entering .score-seg:nth-child(11) { animation-delay: 300ms; }
-#app.is-entering .score-seg:nth-child(12) { animation-delay: 330ms; } #app.is-entering .score-seg:nth-child(13) { animation-delay: 360ms; }
-/* the running panel: it rises once when it appears; the "now" mark breathes */
-.hero-live:not([hidden]) { animation: rise var(--dur-slow) var(--ease-out) both; }
-.work-row.is-now span:first-child { animation: pulse 1.4s ease-in-out infinite; }
-/* the error box */
-.error-box:not([hidden]) { animation: rise var(--dur-slow) var(--ease-out) both; }
-/* page to page: a short cross-fade (browsers without it just navigate) */
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pop { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: none; } }
+.enter > * { animation: rise var(--dur-enter) var(--ease-out) both; }
+.enter > :nth-child(2) { animation-delay: 60ms; }
+.enter > :nth-child(3) { animation-delay: 120ms; }
+.enter > :nth-child(4) { animation-delay: 180ms; }
 @view-transition { navigation: auto; }
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: var(--dur); }
-
-/* ---------- 6. reduced motion: everything lands at once ---------- */
 @media (prefers-reduced-motion: reduce) {
-  * { animation: none !important; transition: none !important; }
+  html { scroll-behavior: auto; }
+  *, *::before, *::after, ::details-content { animation: none !important; transition: none !important; }
   @view-transition { navigation: none; }
 }

@@ -3,89 +3,50 @@ import Page from "../layouts/Page.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import ExampleRows from "../components/ExampleRows.astro";
-import Panel from "../components/Panel.astro";
 import sample from "../data/sample-result.json";
-const doneCount = sample.steps.filter((s) => s.mark === "done").length;
-const total = sample.steps.length;
-const commitShort = (sample.commit as string).slice(0, 7);
-const ownerRepo = `${sample.owner}/${sample.repo}`;
 ---
 <Page>
-<Header />
+<Header isHome />
+<main id="main">
 <div id="landing">
-<section id="top" class="hero">
+<section class="band"><div class="hero wide enter">
   <h1>Check your repo before you hand it to an AI agent.</h1>
-  <p>13 file checks, the one thing to fix next, and the files that fix it. Your code never runs.</p>
-  <form id="check-form" novalidate class="check-form">
-    <label for="repo-input">Public GitHub repo URL</label>
-    <div class="input-row">
-      <input id="repo-input" name="url" type="url" placeholder="https://github.com/owner/repo" autocomplete="off" />
-      <button type="submit">Check</button>
-    </div>
-    <p class="check-form-note">Free, no account. 10 checks an hour.</p>
-  </form>
-  <p id="check-error" class="error-box" role="alert" hidden></p>
-  <noscript><p>Running a check needs JavaScript. You can also run it on your machine: npx yokoten</p></noscript>
-  <div id="hero-live" class="hero-live" hidden></div>
-</section>
-<section id="checks" class="checks">
-  <div class="checks-head"><h2>Real results</h2><span class="checks-date">Last checked {sample.examplesCheckedOn}</span></div>
-  <div class="checks-groups">
-    <div class="checks-group">
-      <h3 class="checks-group-title">Web2</h3>
-      <ExampleRows examples={sample.examples.filter((ex) => ex.group === "web2")} />
-    </div>
-    <div class="checks-group">
-      <h3 class="checks-group-title">Web3</h3>
-      <ExampleRows examples={sample.examples.filter((ex) => ex.group === "web3")} />
-    </div>
+  <p class="hero-sub">13 file checks, the one thing to fix next, and the files that fix it. Your code never runs.</p>
+  <form id="check-form" class="check" novalidate>
+  <label for="repo-input">Paste a public GitHub repo</label>
+  <div class="check-row">
+    <input id="repo-input" name="url" type="text" inputmode="url" placeholder="https://github.com/owner/repo" autocomplete="off" autocapitalize="off" spellcheck="false" autofocus />
+    <button type="submit" class="btn btn-primary ctl">Check</button>
   </div>
-  <p class="checks-note">Solid: passes today. Orange outline: the files add it.</p>
-  <p class="checks-note">Five checks need yokoten installed, so a repo without it tops out at 8 of 13.</p>
-</section>
-<section id="result" class="band">
-  <div class="band-inner result-columns">
-    <div class="result-left">
-      <p class="section-label">What you get back</p>
-      <h2 class="section-title">One next step, and the files to take it.</h2>
-      <ul class="get-list">
-        <li>Where the repo stands, and the one thing to do next.</li>
-        <li>Files for your repo, ready to commit. Muse writes the part specific to your project.</li>
-        <li>The commands to run the same check yourself.</li>
-      </ul>
-    </div>
-    <div class="result-right">
-      <Panel title={ownerRepo} aside={commitShort}>
-        <div class="chart"><p class="chart-count">{doneCount} <span>of {total} file checks pass</span></p><div role="list">{sample.steps.map((s) => {
-          let cls = "is-todo";
-          if (s.mark === "next") cls = "is-next";
-          else if (s.mark === "done") cls = "is-done";
-          return (<div role="listitem" class={`chart-row ${cls}`}><span aria-hidden="true" class="chart-box"></span><span class="chart-mark">{s.mark}</span><span class="chart-title">{s.title}</span></div>);
-        })}</div></div>
-        <div class="panel-foot"><p class="panel-foot-label">Muse wrote for this repo</p>{sample.museLines.map((line: string) => <p>{line}</p>)}</div>
-      </Panel>
-    </div>
+  <div id="check-error" class="check-error" role="alert" hidden><p id="check-error-text" class="check-error-msg"></p></div>
+  <div id="check-note" class="check-note"><span>Free, no account. 10 checks an hour.</span><a class="link ctl" href="#examples">No repo handy? See a real result</a></div>
+  <noscript><p class="small muted">Running a check needs JavaScript. You can also run it on your machine: npx yokoten</p></noscript>
+</form>
+</div></section>
+<section class="zone" id="examples"><div class="wide">
+  <div class="results-head"><h2>Or open a real result</h2><span class="small muted">Last checked {sample.examplesCheckedOn}</span></div>
+  <div class="results-grid">
+    <div class="card results-group"><h3>Web2</h3><ExampleRows examples={sample.examples.filter((e) => e.group === "web2")} /></div>
+    <div class="card results-group"><h3>Web3</h3><ExampleRows examples={sample.examples.filter((e) => e.group === "web3")} /></div>
   </div>
-</section>
-<section id="how" class="section-inner">
-  <p class="section-label">What it won't do</p>
-  <h2 class="section-title">It reads your repo. That's all.</h2>
+  <p class="results-note">Five checks need yokoten installed, so a repo without it tops out at 8 of 13. The file checks don't judge a repo's code.</p>
+</div></section>
+<section class="band" id="how"><div class="wide">
+  <h2 class="home-title">It reads your repo. That's all.</h2>
   <ul class="facts">
-    <li><strong>Your code never runs.</strong> No install, no build, no tests.</li>
-    <li><strong>The network is cut.</strong> A throwaway sandbox, no connection.</li>
-    <li><strong>Your repo doesn't change.</strong> We can't write to it. Nothing happens until you commit.</li>
+    <li><strong>Your code never runs.</strong><p>No install, no build, no tests.</p></li>
+    <li><strong>The network is cut.</strong><p>A throwaway sandbox, no connection.</p></li>
+    <li><strong>Your repo doesn't change.</strong><p>We can't write to it. Nothing happens until you commit.</p></li>
   </ul>
-  <p class="facts-note">Public repos only. It doesn't scan your code for vulnerabilities. Some files go to Muse Spark Open on Baseten to write the project section; Muse's text is cached for 24 hours.</p>
-</section>
-<section id="proof" class="band">
-  <div class="band-inner home-verify">
-    <div><p class="section-label">Verify</p><h2 class="section-title">Don't take our word for it.</h2></div>
-    <div class="home-verify-text"><p class="proof-lede">Every result shows the yokoten version, the commit, and the commands to run the same check yourself.</p><p class="proof-note">A hash of each result also goes to two public records, Sigstore Rekor and a Solana devnet memo, so a changed result would show. Devnet is a test network; nothing on it has real value.</p></div>
-  </div>
-</section>
-<section class="cta"><div class="cta-inner"><div class="cta-text"><p class="cta-title">Want this to stick?</p><p class="cta-body">This page checks once. Installed, yokoten checks your agent's commands, your commits, and your pull requests.</p></div><a href="https://yokoten.app/" class="cta-link">See what yokoten does</a></div></section>
+  <p class="fine">Public repos only. It doesn't scan your code for vulnerabilities. Some files go to Muse Spark Open on Baseten to write the project section; Muse's text is cached for 24 hours.</p>
+</div></section>
+<section class="zone"><div class="wide more">
+  <div class="card" id="terminal-card"><h3>Private repo? Prefer your terminal?</h3><p>Run the same check on your machine.</p><div class="card-action"><div class="cmd"><pre><code>npx yokoten</code></pre><button type="button" class="btn btn-line btn-sm ctl" data-copy="npx yokoten">Copy</button></div></div></div>
+  <div class="card"><h3>Want this to stick?</h3><p>This page checks once. Installed, yokoten checks your agent's commands, your commits, and your pull requests.</p><div class="card-action"><a class="btn btn-line ctl" href="https://yokoten.app/">See what yokoten does</a></div></div>
+</div></section>
 </div>
-<main id="app" hidden></main>
-<Footer />
+<div id="app" hidden></div>
+</main>
+<Footer isHome />
 <script src="../client/app.ts"></script>
 </Page>

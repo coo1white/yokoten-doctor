@@ -1,26 +1,5 @@
 import { splitCode } from "../view.ts";
 
-export function createPanel(title: string, aside?: string): { panel: HTMLDivElement; body: HTMLDivElement; asideEl: HTMLSpanElement | null } {
-  const panel = document.createElement("div");
-  panel.className = "panel";
-  const head = document.createElement("div");
-  head.className = "panel-head";
-  const titleEl = document.createElement("span");
-  titleEl.textContent = title;
-  head.appendChild(titleEl);
-  let asideEl: HTMLSpanElement | null = null;
-  if (aside) {
-    asideEl = document.createElement("span");
-    asideEl.textContent = aside;
-    head.appendChild(asideEl);
-  }
-  panel.appendChild(head);
-  const body = document.createElement("div");
-  body.className = "panel-content";
-  panel.appendChild(body);
-  return { panel, body, asideEl };
-}
-
 export function safeUrl(href: string): string | null {
   if (typeof href !== "string") return null;
   if (href.startsWith("https://github.com/")) return href;
@@ -43,52 +22,6 @@ export function createLink(href: string, text: string): HTMLElement {
     return span;
   }
   return a;
-}
-
-export function fallbackSelect(el: HTMLElement): void {
-  const range = document.createRange();
-  range.selectNodeContents(el);
-  const sel = window.getSelection();
-  if (sel) {
-    sel.removeAllRanges();
-    sel.addRange(range);
-  }
-}
-
-export function addCopyButton(label: string, text: string, codeEl: HTMLElement): HTMLButtonElement {
-  const btn = document.createElement("button");
-  btn.textContent = label;
-  btn.className = "button-quiet";
-  btn.type = "button";
-  btn.addEventListener("click", () => {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(
-        () => {
-          btn.textContent = "Copied";
-          setTimeout(() => {
-            btn.textContent = label;
-          }, 2000);
-        },
-        () => {
-          fallbackSelect(codeEl);
-          btn.textContent = "Press Ctrl+C to copy";
-          const details = codeEl.closest("details");
-          if (details) (details as HTMLDetailsElement).open = true;
-        },
-      ).catch(() => {
-        fallbackSelect(codeEl);
-        btn.textContent = "Press Ctrl+C to copy";
-        const details = codeEl.closest("details");
-        if (details) (details as HTMLDetailsElement).open = true;
-      });
-    } else {
-      fallbackSelect(codeEl);
-      btn.textContent = "Press Ctrl+C to copy";
-      const details = codeEl.closest("details");
-      if (details) (details as HTMLDetailsElement).open = true;
-    }
-  });
-  return btn;
 }
 
 export function captureDetailsState(root: Element | null, openSet: Set<string>): void {
@@ -126,16 +59,103 @@ export function renderRichText(text: string | null | undefined, parent: HTMLElem
   }
 }
 
-export function appendLabeledSection(parent: HTMLElement, labelText: string, value: string | null | undefined): void {
-  if (value == null || value === "") return;
-  const block = document.createElement("div");
-  block.className = "field-block";
-  const label = document.createElement("p");
-  label.className = "field-label small muted";
-  label.textContent = labelText;
-  block.appendChild(label);
-  const p = document.createElement("p");
-  renderRichText(value, p);
-  block.appendChild(p);
-  parent.appendChild(block);
+export function make<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, text?: string): HTMLElementTagNameMap[K] {
+  const element = document.createElement(tag);
+  if (className) element.className = className;
+  if (text !== undefined) element.textContent = text;
+  return element;
+}
+
+export type IconName = "out" | "check" | "circle" | "right";
+
+const iconTable: Record<IconName, { size: number; strokeWidth: string; shapes: { tag: string; attrs: Record<string, string> }[] }> = {
+  out: { size: 16, strokeWidth: "2", shapes: [{ tag: "path", attrs: { d: "M7 17L17 7M9 7h8v8" } }] },
+  check: { size: 18, strokeWidth: "2.2", shapes: [{ tag: "path", attrs: { d: "M5 12.5l4.5 4.5L19 7.5" } }] },
+  circle: { size: 18, strokeWidth: "1.7", shapes: [{ tag: "circle", attrs: { cx: "12", cy: "12", r: "7.5" } }] },
+  right: { size: 20, strokeWidth: "1.7", shapes: [{ tag: "path", attrs: { d: "M9 6l6 6-6 6" } }] },
+};
+
+export function createIcon(name: IconName): SVGSVGElement {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("fill", "none");
+  svg.setAttribute("stroke", "currentColor");
+  svg.setAttribute("stroke-linecap", "round");
+  svg.setAttribute("stroke-linejoin", "round");
+  svg.setAttribute("aria-hidden", "true");
+  const config = iconTable[name];
+  svg.setAttribute("width", String(config.size));
+  svg.setAttribute("height", String(config.size));
+  svg.setAttribute("stroke-width", config.strokeWidth);
+  for (const shape of config.shapes) {
+    const element = document.createElementNS("http://www.w3.org/2000/svg", shape.tag);
+    for (const [key, value] of Object.entries(shape.attrs)) {
+      element.setAttribute(key, value);
+    }
+    svg.appendChild(element);
+  }
+  return svg;
+}
+
+export function createCopyButton(text: string, className: string): HTMLButtonElement {
+  const button = make("button", className, "Copy");
+  button.type = "button";
+  button.setAttribute("data-copy", text);
+  return button;
+}
+
+export function createCommandBox(text: string, options?: { isBig?: boolean; isPrimary?: boolean }): HTMLDivElement {
+  let boxClass = "cmd";
+  if (options?.isBig) boxClass += " cmd-big";
+  if (text.includes("\n")) boxClass += " cmd-multi";
+  const container = make("div", boxClass);
+  const pre = make("pre");
+  const code = make("code");
+  code.textContent = text;
+  pre.appendChild(code);
+  container.appendChild(pre);
+  const buttonClass = getButtonClass(options);
+  const button = createCopyButton(text, buttonClass);
+  container.appendChild(button);
+  return container;
+}
+
+function getButtonClass(options?: { isBig?: boolean; isPrimary?: boolean }): string {
+  if (options?.isPrimary) return "btn btn-primary ctl";
+  if (options?.isBig) return "btn btn-line ctl";
+  return "btn btn-line btn-sm ctl";
+}
+
+export function createFold(title: string | Node[], body: Node[], options: { key: string; className?: string; id?: string }): HTMLDetailsElement {
+  const details = make("details", "fold" + (options.className ? " " + options.className : ""));
+  details.setAttribute("data-key", options.key);
+  if (options.id) details.id = options.id;
+  const summary = make("summary");
+  appendTitle(summary, title);
+  details.appendChild(summary);
+  const wrap = make("div", "fold-body");
+  for (const node of body) wrap.appendChild(node);
+  details.appendChild(wrap);
+  return details;
+}
+
+function appendTitle(summary: HTMLElement, title: string | Node[]): void {
+  if (typeof title === "string") {
+    const span = make("span", undefined, title);
+    summary.appendChild(span);
+  } else {
+    for (const node of title) summary.appendChild(node);
+  }
+}
+
+export function createRow(title: string, side: string, body: Node[], options: { key: string; id?: string; isSideTodo?: boolean }): HTMLDetailsElement {
+  const titleNodes: Node[] = [];
+  const titleSpan = make("span", "f-row-title", title);
+  titleNodes.push(titleSpan);
+  if (side !== "") {
+    const sideClass = options.isSideTodo ? "f-side todo" : "f-side";
+    const sideSpan = make("span", sideClass, side);
+    titleNodes.push(sideSpan);
+  }
+  return createFold(titleNodes, body, { key: options.key, id: options.id, className: "f-row" });
 }

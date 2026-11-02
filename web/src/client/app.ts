@@ -1,21 +1,22 @@
 const API = "https://yokoten-doctor--yokoten-doctor-fastapi-app.us-east.modal.run";
 
-import { viewModel, repoFromInput, repoFromQuery } from "./view.ts";
-import { renderResultHero } from "./ui/hero.ts";
-import { renderPrivateSection } from "./ui/private.ts";
-import { renderFixSection, renderGuardSection } from "./ui/fix.ts";
-import { renderProofSection } from "./ui/proof.ts";
-import { captureDetailsState, restoreDetailsState } from "./ui/dom.ts";
+import { viewModel, repoFromInput, repoFromQuery, resultPlan, splitErrorCommand } from "./view.ts";
+import { createCommandBox, captureDetailsState, restoreDetailsState } from "./ui/dom.ts";
+import { clearOpenedFiles } from "./ui/fix.ts";
 import { renderWorking } from "./ui/working.ts";
+import { renderResultPage, clearStepProgress } from "./ui/page.ts";
 import type { CheckResult, FixesPayload, RecordPayload } from "./types.ts";
 
-const appEl = document.getElementById("app") as HTMLElement | null;
-const landingEl = document.getElementById("landing") as HTMLElement | null;
-const checkForm = document.getElementById("check-form") as HTMLFormElement | null;
-const repoInput = document.getElementById("repo-input") as HTMLInputElement | null;
-const checkError = document.getElementById("check-error") as HTMLParagraphElement | null;
-const heroLive = document.getElementById("hero-live") as HTMLElement | null;
-const checkButton = checkForm ? checkForm.querySelector("button[type=\"submit\"]") as HTMLButtonElement | null : null;
+const appEl = document.getElementById("app");
+const landingEl = document.getElementById("landing");
+const checkFormCandidate = document.getElementById("check-form");
+const checkForm = checkFormCandidate instanceof HTMLFormElement ? checkFormCandidate : null;
+const repoInputCandidate = document.getElementById("repo-input");
+const repoInput = repoInputCandidate instanceof HTMLInputElement ? repoInputCandidate : null;
+const checkError = document.getElementById("check-error");
+const checkErrorText = document.getElementById("check-error-text");
+const checkNote = document.getElementById("check-note");
+const terminalCard = document.getElementById("terminal-card");
 
 let state: "empty" | "working" | "result" = "empty";
 let currentProgress: string[] = [];
@@ -23,8 +24,10 @@ let lastResult: CheckResult | null = null;
 let lastFixes: FixesPayload | null = null;
 let isWaitingForFixes = false;
 let lastRecord: RecordPayload | null = null;
-
 const openDetailsKeys = new Set<string>();
+let isStreamOpen = false;
+let hasEntered = false;
+let lastShownState = "";
 
 function showSavedCheck(): boolean {
   const el = document.getElementById("saved-check");
@@ -37,6 +40,7 @@ function showSavedCheck(): boolean {
     lastFixes = data.fixes;
     lastRecord = data.record;
     isWaitingForFixes = false;
+    isStreamOpen = false;
     state = "result";
     render();
     return true;
@@ -63,118 +67,56 @@ function maybeUpdateUrl(inputText: string): void {
   }
 }
 
-function restoreEmptyState(): void {
-  if (landingEl) landingEl.hidden = false;
-  if (appEl) appEl.hidden = true;
-  if (heroLive) {
-    heroLive.hidden = true;
-    while (heroLive.firstChild) heroLive.removeChild(heroLive.firstChild);
+function removeOldCommandBox(): void {
+  if (!checkError) return;
+  for (const child of Array.from(checkError.children)) {
+    if (child.id !== "check-error-text") child.remove();
   }
-  if (repoInput) repoInput.readOnly = false;
-  if (checkButton) {
-    checkButton.disabled = false;
-    checkButton.textContent = "Check";
-  }
-}
-
-function enterWorkingState(): void {
-  if (landingEl) landingEl.hidden = false;
-  if (appEl) appEl.hidden = true;
-  if (heroLive) heroLive.hidden = false;
-  if (repoInput) repoInput.readOnly = true;
-  if (checkButton) {
-    checkButton.disabled = true;
-    checkButton.textContent = "Checking…";
-  }
-}
-
-function renderWorkingIntoHero(): void {
-  if (!heroLive) return;
-  while (heroLive.firstChild) heroLive.removeChild(heroLive.firstChild);
-  const rawUrl = repoInput ? repoInput.value.trim() : "";
-  const repoName = repoFromInput(rawUrl) ?? (rawUrl || "");
-  const terminal = renderWorking({ repoName, progress: currentProgress });
-  heroLive.appendChild(terminal);
-  const note = document.createElement("p");
-  note.className = "hero-live-note";
-  note.textContent = "Usually about 15 seconds.";
-  heroLive.appendChild(note);
 }
 
 function showError(message: string): void {
+  const { text, command } = splitErrorCommand(message);
+  if (checkErrorText) checkErrorText.textContent = text;
   if (checkError) {
-    checkError.textContent = message;
+    removeOldCommandBox();
+    if (command) {
+      const box = createCommandBox(command);
+      checkError.appendChild(box);
+      if (terminalCard) terminalCard.hidden = true;
+    }
     checkError.hidden = false;
   }
+  if (checkForm) checkForm.classList.add("has-error");
+  if (checkNote) checkNote.hidden = true;
   if (repoInput) repoInput.focus();
 }
 
 function clearError(): void {
+  if (checkErrorText) checkErrorText.textContent = "";
   if (checkError) {
-    checkError.textContent = "";
+    removeOldCommandBox();
     checkError.hidden = true;
   }
+  if (checkForm) checkForm.classList.remove("has-error");
+  if (checkNote) checkNote.hidden = false;
+  if (terminalCard) terminalCard.hidden = false;
 }
 
-function render(): void {
-  if (appEl) captureDetailsState(appEl, openDetailsKeys);
-  if (!appEl) return;
-  while (appEl.firstChild) appEl.removeChild(appEl.firstChild);
-
-  if (state === "empty") {
-    restoreEmptyState();
-    return;
-  }
-
-  if (state === "working") {
-    enterWorkingState();
-    renderWorkingIntoHero();
-    return;
-  }
-
-  if (state === "result" && lastResult) {
-    if (landingEl) landingEl.hidden = true;
-    if (appEl) appEl.hidden = false;
-    if (heroLive) {
-      heroLive.hidden = true;
-      while (heroLive.firstChild) heroLive.removeChild(heroLive.firstChild);
-    }
-    if (repoInput) repoInput.readOnly = false;
-    if (checkButton) {
-      checkButton.disabled = false;
-      checkButton.textContent = "Check";
-    }
-    window.scrollTo(0, 0);
-    appEl.classList.toggle("is-entering", appEl.dataset.rendered !== "result");
-    appEl.dataset.rendered = "result";
-    const vm = viewModel(lastResult);
-    const hero = renderResultHero({ lastResult, vm, lastFixes, isWaitingForFixes });
-    appEl.appendChild(hero);
-    const fix = renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult });
-    if (fix) appEl.appendChild(fix);
-    const guard = renderGuardSection({ vm });
-    if (guard) appEl.appendChild(guard);
-    const priv = renderPrivateSection({ vm });
-    if (priv) appEl.appendChild(priv);
-    const proof = renderProofSection({ vm, lastRecord });
-    appEl.appendChild(proof);
-  }
-
-  restoreDetailsState(appEl, openDetailsKeys);
-}
-
-async function startCheck(): Promise<void> {
-  if (appEl) appEl.dataset.rendered = "";
-  clearError();
+function getCheckUrl(): string | null {
   const url = repoInput ? repoInput.value.trim() : "";
   if (!url) {
     const msg = "That doesn't look like a public GitHub repo. Try https://github.com/owner/repo.";
+    isStreamOpen = false;
     state = "empty";
     render();
+    if (window.scrollY !== 0) window.scrollTo(0, 0);
     showError(msg);
-    return;
+    return null;
   }
-  maybeUpdateUrl(url);
+  return url;
+}
+
+function resetCheckState(): void {
   state = "working";
   currentProgress = [];
   lastResult = null;
@@ -182,17 +124,86 @@ async function startCheck(): Promise<void> {
   lastRecord = null;
   isWaitingForFixes = false;
   openDetailsKeys.clear();
-  render();
+}
 
+async function getReader(url: string): Promise<ReadableStreamDefaultReader<Uint8Array>> {
+  const resp = await fetch(API + "/api/check", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url }) });
+  if (!resp.ok && !resp.body) throw new Error("network");
+  const reader = resp.body ? resp.body.getReader() : null;
+  if (!reader) throw new Error("no body");
+  return reader;
+}
+
+function handleCheckError(message: string): void {
+  isStreamOpen = false;
+  state = "empty";
+  render();
+  showError(message);
+}
+
+function render(): void {
+  if (appEl) captureDetailsState(appEl, openDetailsKeys);
+  if (!appEl) return;
+  while (appEl.firstChild) appEl.removeChild(appEl.firstChild);
+  if (state === "empty") {
+    if (landingEl) landingEl.hidden = false;
+    appEl.hidden = true;
+    lastShownState = "empty";
+    return;
+  }
+  if (state === "working") {
+    if (landingEl) landingEl.hidden = true;
+    appEl.hidden = false;
+    const rawUrl = repoInput ? repoInput.value.trim() : "";
+    const repoName = repoFromInput(rawUrl) ?? (rawUrl || "");
+    appEl.appendChild(renderWorking({ repoName, progress: currentProgress }));
+    if (lastShownState !== "working") window.scrollTo(0, 0);
+    lastShownState = "working";
+    return;
+  }
+  if (state === "result" && lastResult) renderResult();
+}
+
+function renderResult(): void {
+  if (!appEl || !lastResult) return;
+  if (landingEl) landingEl.hidden = true;
+  appEl.hidden = false;
+  const isEntering = !hasEntered;
+  if (isEntering) window.scrollTo(0, 0);
+  hasEntered = true;
+  const vm = viewModel(lastResult);
+  const plan = resultPlan(lastResult, lastFixes, isWaitingForFixes);
+  appEl.appendChild(renderResultPage({ lastResult, vm, plan, lastFixes, lastRecord, isRecordShown: lastRecord !== null || isStreamOpen === false, isEntering }));
+  lastShownState = "result";
+  restoreDetailsState(appEl, openDetailsKeys);
+  if (isEntering) openCheckFromHash();
+}
+
+function openCheckFromHash(): void {
+  if (!location.hash.startsWith("#check-")) return;
+  const target = document.getElementById(location.hash.slice(1));
+  if (!target) return;
+  if (target instanceof HTMLDetailsElement) {
+    target.open = true;
+    const allChecks = document.querySelector<HTMLDetailsElement>('details[data-key="all-checks"]');
+    if (allChecks) allChecks.open = true;
+  }
+  target.scrollIntoView();
+}
+
+async function startCheck(): Promise<void> {
+  hasEntered = false;
+  clearOpenedFiles();
+  clearStepProgress();
+  isStreamOpen = true;
+  clearError();
+  const url = getCheckUrl();
+  if (!url) return;
+  maybeUpdateUrl(url);
+  resetCheckState();
+  render();
   try {
-    const resp = await fetch(API + "/api/check", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url }),
-    });
-    if (!resp.ok && !resp.body) throw new Error("network");
-    const reader = resp.body ? resp.body.getReader() : null;
-    if (!reader) throw new Error("no body");
+    const reader = await getReader(url);
     const decoder = new TextDecoder();
     let buffer = "";
     let hasResultOrError = false;
@@ -237,26 +248,27 @@ async function startCheck(): Promise<void> {
           hasResultOrError = true;
           const d = data as Record<string, unknown>;
           const msg = typeof d.message === "string" ? d.message : "The check couldn't finish. Try again in a minute.";
+          isStreamOpen = false;
           state = "empty";
           render();
           showError(msg);
         }
       }
     }
-    if (!hasResultOrError) {
-      const msg = "The connection dropped. Try again.";
-      state = "empty";
-      render();
-      showError(msg);
-    } else {
+    if (!hasResultOrError) handleCheckError("The connection dropped. Try again.");
+    else {
+      isStreamOpen = false;
       markFixesLost();
+      render();
     }
   } catch (_e) {
-    if (lastResult) { markFixesLost(); return; }
-    const msg = "The connection dropped. Try again.";
-    state = "empty";
-    render();
-    showError(msg);
+    if (lastResult) {
+      isStreamOpen = false;
+      markFixesLost();
+      render();
+      return;
+    }
+    handleCheckError("The connection dropped. Try again.");
   }
 }
 
@@ -266,6 +278,7 @@ if (checkForm) {
     void startCheck();
   });
 }
+if (repoInput) repoInput.addEventListener("input", () => clearError());
 
 render();
 

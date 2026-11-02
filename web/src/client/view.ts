@@ -1,3 +1,5 @@
+import type { CheckResult, FixesPayload, ViewModel, Rerun, ResultPlan, StepKey, FilesBlock, HandItem, PlanAction, SummaryStep, PlanStep } from "./types.ts";
+
 export function toSentence(text: string): string {
   if (!text) return "";
   const first = text.charAt(0).toUpperCase() + text.slice(1);
@@ -103,12 +105,6 @@ export function markLabel(mark: string, reason: string | undefined): string {
   return "unknown";
 }
 
-export function shownMark(mark: string, stepId: string, nextId: string | null): string {
-  if (nextId !== null && stepId === nextId) return "next";
-  if (mark === "next" && nextId !== null && stepId !== nextId) return "to do";
-  return mark;
-}
-
 export function secretFolders(places: string[]): { folder: string; count: number }[] {
   const order: string[] = [];
   const counts = new Map<string, number>();
@@ -133,13 +129,24 @@ const FILE_FOR_STEP: Record<string, (path: string) => boolean> = {
   changelog: (path) => path === "CHANGELOG.md",
 };
 
+export const INSTALL_COMMAND = "npx yokoten init";
+
+function isFixedByFiles(step: { id: string; what?: string }, files: { path: string }[]): boolean {
+  const matchesFile = FILE_FOR_STEP[step.id];
+  if (!matchesFile || !files.some((file) => matchesFile(file.path))) return false;
+  // No file here can add a license, so that check stays open after the files.
+  if (step.id === "security-files" && (step.what ?? "").includes("no license")) return false;
+  return true;
+}
+
 export function nextAction(
-  next: { id: string },
+  next: { id: string; what?: string },
   installOnly: { id: string }[],
   files: { path: string }[],
   owner: string,
   repo: string,
   isWaiting: boolean,
+  options: { gain?: number; handIds?: string[] } = {},
 ): { label: string; href: string; opensChart: boolean } {
   const seeHow = { label: "See how", href: `#check-${next.id}`, opensChart: true };
   if (isWaiting) return seeHow;
@@ -147,16 +154,209 @@ export function nextAction(
     return { label: "Open repo settings", href: `https://github.com/${owner}/${repo}/settings`, opensChart: false };
   }
   if (installOnly.some((step) => step.id === next.id)) {
-    return { label: "Install yokoten", href: "#needs-yokoten", opensChart: false };
+    return { label: "Install yokoten", href: "#install", opensChart: false };
   }
-  const isFixedByFile = FILE_FOR_STEP[next.id];
-  if (isFixedByFile && files.some((file) => isFixedByFile(file.path))) {
-    return { label: "Fix it", href: "#files", opensChart: false };
+  if (isFixedByFiles(next, files)) {
+    const label = options.gain === 0 ? "Get the file" : "Get the files";
+    return { label, href: "#files", opensChart: false };
+  }
+  if (options.handIds?.includes(next.id)) {
+    return { label: "See how", href: "#hand", opensChart: false };
   }
   return seeHow;
 }
 
-import type { CheckResult, ViewModel, Rerun } from "./types.ts";
+export function splitErrorCommand(message: string): { text: string; command: string } {
+  if (message.endsWith(": npx yokoten") || message.endsWith(": npx yokoten.")) {
+    const idx = message.lastIndexOf(":");
+    return { text: message.slice(0, idx + 1), command: "npx yokoten" };
+  }
+  return { text: message, command: "" };
+}
+
+function buildHandItem(step: SummaryStep, installStepNumber: number, importInfo: { file: string; line: string } | null): HandItem {
+  if (step.id === "no-build-output") {
+    const m = (step.what ?? "").match(/\((.*)\)/s);
+    const inner = m ? m[1] : "";
+    const paths = inner ? inner.split(", ") : [];
+    return { id: step.id, title: "Keep build output out of git", wrong: "Build output is in the repo.", list: paths, command: "", after: "Remove them with `git rm --cached` and add dist/, build/, out/ to .gitignore." };
+  }
+  if (step.id === "changelog" && (step.fix ?? "").includes("`yokoten init`")) {
+    return { id: step.id, title: step.title, wrong: toSentence(step.what ?? ""), list: [], command: INSTALL_COMMAND, after: "It adds both. Then each pull request adds a file in changes/ for each change that users notice." };
+  }
+  if (step.id === "tests" && (step.fix ?? "").includes("`yokoten init`")) {
+    const fix = step.fix ?? "";
+    if (installStepNumber > 0) {
+      const rest = fix.replace(/^run `yokoten init` to add ([^,]+), then in it, /, `The command in Step ${installStepNumber} adds $1. In that file, `);
+      return { id: step.id, title: step.title, wrong: "CI does not run the tests yet. This does not mean they fail.", list: [], command: "", after: toSentence(rest) };
+    }
+    const rest = fix.replace(/^run `yokoten init` to add ([^,]+), then in it, /, "It adds $1. In that file, ");
+    return { id: step.id, title: step.title, wrong: "CI does not run the tests yet. This does not mean they fail.", list: [], command: INSTALL_COMMAND, after: toSentence(rest) };
+  }
+  if (step.id === "import") {
+    const file = importInfo?.file ?? "";
+    const line = importInfo?.line ?? "";
+    return { id: step.id, title: `Add one line to ${file}`, wrong: "Claude Code won't read the new rules until it does.", list: [], command: line, after: "" };
+  }
+  if (step.id === "security-files" && (step.fix ?? "").includes("choose a license")) {
+    return { id: step.id, title: "Add a license", wrong: "No license file.", list: [], command: "", after: "Choose a license and add it as LICENSE." };
+  }
+  return { id: step.id, title: step.title, wrong: toSentence(step.what ?? ""), list: [], command: "", after: toSentence(step.fix ?? "") };
+}
+
+export function resultPlan(result: CheckResult, fixes: FixesPayload | null, isWaiting: boolean): ResultPlan {
+  const summary = result.summary ?? {};
+  const done = summary.done ?? 0;
+  const total = summary.total ?? 0;
+  const steps = summary.steps ?? [];
+  const installOnly = summary.install_only ?? summary.installOnly ?? [];
+  const installIds = new Set(installOnly.map((s) => s.id));
+  const files = fixes?.files ?? [];
+  const isLost = fixes?.muse === "lost";
+  const isFailed = fixes?.muse === "failed";
+  const isAfterKnown = !!fixes?.after;
+  const afterDone = fixes?.after?.done ?? done;
+  const gain = Math.max(0, afterDone - done);
+  const skipped = steps.filter((s) => (s.mark === "not now" || s.mark === "can't check") && !installIds.has(s.id)).length;
+  const countedHandRaw = isAfterKnown ? total - done - gain - installOnly.length : 0;
+  const countedHand = Math.max(0, countedHandRaw - skipped);
+  const open = steps.filter((s) => s.mark !== "done" && s.mark !== "not now" && s.mark !== "can't check" && !installIds.has(s.id));
+  const handSteps = open.filter((step) => !isFixedByFiles(step, files));
+  const rulesOpen = open.find((s) => s.id === "rules") ?? null;
+  let importInfo: { file: string; line: string } | null = null;
+  if (fixes?.claude_import && rulesOpen && countedHand > handSteps.length) {
+    importInfo = fixes.claude_import;
+    handSteps.push({ ...rulesOpen, id: "import" });
+  }
+  const counted = handSteps.slice(0, Math.max(0, countedHand));
+  const isDoneByInstall = (step: { fix?: string }): boolean => {
+    const fix = step.fix ?? "";
+    return /^(?:run )?`yokoten init` (?:adds|writes|to add)\b/.test(fix) && !fix.includes("then in it") && !fix.includes("choose a license");
+  };
+  const movedToInstall = isAfterKnown && installOnly.length > 0 ? counted.filter(isDoneByInstall) : [];
+  const movedIds = new Set(movedToInstall.map((s) => s.id));
+  const remaining = counted.filter((s) => !movedIds.has(s.id));
+  const installSteps = [...installOnly, ...movedToInstall];
+  const nInstall = installSteps.length;
+  const handCount = Math.max(0, countedHand - movedToInstall.length);
+  const filesBlock: FilesBlock = !fixes ? "waiting" : isLost ? "lost" : isFailed || files.length > 0 ? "list" : nInstall > 0 ? "hidden" : "nothing";
+  const owner = String(result.owner ?? "");
+  const repo = String(result.repo ?? "");
+  const next = summary.next ?? null;
+  const action: PlanAction | null = !next ? null : { ...nextAction(next, installSteps, files, owner, repo, isWaiting || !fixes || isLost, { gain, handIds: remaining.map((step) => step.id) }), isQuiet: isLost };
+  const hrefMap: Record<string, StepKey> = { "#files": "files", "#install": "install", "#hand": "hand" };
+  const lead: StepKey | undefined = hrefMap[action?.href ?? ""];
+  const filesEarly = filesBlock === "waiting" || filesBlock === "lost" || (filesBlock === "list" && gain > 0);
+  const filesAreStep = filesBlock !== "hidden" && filesBlock !== "nothing" && (filesEarly || lead === "files");
+  const base: StepKey[] = filesAreStep ? ["files", "install", "hand"] : ["install", "hand"];
+  const sorted: StepKey[] = lead && base.includes(lead) ? [lead, ...base.filter((s) => s !== lead)] : base;
+  const stepOrder: StepKey[] = sorted.filter((step) => {
+    if (step === "files") return true;
+    if (step === "install") return nInstall > 0;
+    if (step === "hand") return handCount > 0;
+    return false;
+  });
+  const idx = stepOrder.indexOf("install");
+  const installStepNumber = idx === -1 ? 0 : idx + 1;
+  const handItems = remaining.map((step) => buildHandItem(step, installStepNumber, importInfo));
+  if (handItems.length < handCount) {
+    const present = new Set(remaining.map((s) => s.id));
+    const movedSet = new Set(movedToInstall.map((s) => s.id));
+    for (const step of open) {
+      if (handItems.length >= handCount) break;
+      if (present.has(step.id)) continue;
+      if (movedSet.has(step.id)) continue;
+      handItems.push(buildHandItem(step, installStepNumber, importInfo));
+    }
+  }
+  const isHandListShort = handItems.length < handCount;
+  const handTitle = handItems.length === 1 && !isHandListShort ? handItems[0].title : handCount === 1 ? "Fix 1 by hand" : `Fix these ${handCount} by hand`;
+  const filesTitle = (() => {
+    if (filesBlock === "waiting") return "Get your files";
+    if (filesBlock === "lost") return "Your files didn't arrive";
+    if (filesBlock === "nothing") return "Nothing to add";
+    if (filesBlock === "hidden") return "";
+    if (files.length === 0) return "Your files";
+    const n = files.length;
+    if (gain > 0 || lead === "files") return n === 1 ? "Add 1 file" : `Add ${n} files`;
+    return n === 1 ? "Add 1 more file if you want" : `Add ${n} more files if you want`;
+  })();
+  return {
+    done,
+    total,
+    isAfterKnown,
+    afterDone,
+    gain,
+    installSteps,
+    movedToInstall,
+    handCount,
+    handItems,
+    isHandListShort,
+    action,
+    filesBlock,
+    filesTitle,
+    filesAreStep,
+    stepOrder,
+    installStepNumber,
+    handTitle,
+  };
+}
+
+export function resultCommands(plan: ResultPlan): string[] {
+  const out: string[] = [];
+  if (plan.installStepNumber > 0) out.push(INSTALL_COMMAND);
+  for (const item of plan.handItems) {
+    if (item.command) out.push(item.command);
+  }
+  return out;
+}
+
+export function planSteps(plan: ResultPlan): PlanStep[] {
+  if (!plan.isAfterKnown) {
+    return plan.stepOrder.map((key) => ({ key, target: null, isMovingCount: false }));
+  }
+  let running = plan.done;
+  const out: PlanStep[] = [];
+  for (const key of plan.stepOrder) {
+    let add = 0;
+    if (key === "files") add = plan.gain;
+    else if (key === "install") add = plan.installSteps.length;
+    else if (key === "hand") add = plan.handItems.length;
+    running += add;
+    out.push({ key, target: running, isMovingCount: add > 0 });
+  }
+  return out;
+}
+
+export function stepTitle(plan: ResultPlan, key: StepKey): string {
+  if (key === "files") return plan.filesTitle;
+  if (key === "install") return "Install yokoten";
+  return plan.handTitle;
+}
+
+export function stepsHeadline(steps: PlanStep[]): string {
+  const count = steps.length;
+  let word: string;
+  if (count === 2) word = "Two";
+  else if (count === 3) word = "Three";
+  else if (count === 4) word = "Four";
+  else word = String(count);
+  const last = steps[steps.length - 1];
+  const target = last?.target ?? null;
+  if (target !== null) return `${word} steps get you to ${target}. Do them in order.`;
+  return `${word} steps. Do them in order.`;
+}
+
+export function stepGetsText(step: PlanStep, total: number): string {
+  if (step.target === null) return "";
+  if (!step.isMovingCount) return `the count stays at ${step.target}`;
+  return `gets you to ${step.target} of ${total}`;
+}
+
+export function singleStepTitle(plan: ResultPlan, step: PlanStep): string {
+  if (step.key === "install" && step.target !== null) return `Run one command to get to ${step.target} of ${plan.total}`;
+  return stepTitle(plan, step.key);
+}
 
 export function viewModel(result: CheckResult): ViewModel {
   const summary = (result.summary ?? {}) as NonNullable<CheckResult["summary"]>;

@@ -11,75 +11,70 @@
     } catch (e) {}
   };
   document.addEventListener("DOMContentLoaded", function () {
-    var choices = document.querySelectorAll("[data-theme-choice]");
-    var mark = function () {
-      var now = html.getAttribute("data-theme") || "system";
-      for (var c = 0; c < choices.length; c++) choices[c].setAttribute("aria-checked", choices[c].getAttribute("data-theme-choice") === now ? "true" : "false");
+    var order = ["system", "light", "dark"];
+    var labels = { system: "system", light: "light", dark: "dark" };
+    var current = html.getAttribute("data-theme") || "system";
+    var buttons = document.querySelectorAll("[data-theme-next]");
+    var apply = function (next) {
+      if (next === "system") html.removeAttribute("data-theme");
+      else html.setAttribute("data-theme", next);
+      store("yokoten.theme", next);
+      current = next;
+      sync();
     };
-    mark();
-    for (var i = 0; i < choices.length; i++) {
-      choices[i].addEventListener("click", function (event) {
-        var pick = event.currentTarget.getAttribute("data-theme-choice");
-        if (pick === "system") html.removeAttribute("data-theme");
-        else html.setAttribute("data-theme", pick);
-        store("yokoten.theme", pick);
-        mark();
+    var sync = function () {
+      for (var i = 0; i < buttons.length; i++) {
+        buttons[i].setAttribute("aria-label", "Theme: " + labels[current] + ". Change it");
+        buttons[i].setAttribute("title", "Theme: " + labels[current]);
+      }
+    };
+    sync();
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].addEventListener("click", function () {
+        var idx = order.indexOf(current);
+        var next = order[(idx + 1) % order.length];
+        apply(next);
       });
     }
-    var menus = document.querySelectorAll("[data-menu]");
-    var closeAll = function (except) {
-      for (var m = 0; m < menus.length; m++) if (menus[m] !== except) setOpen(menus[m], false, false);
-    };
-    var itemsOf = function (menu) {
-      return menu.querySelectorAll('[role="menuitemradio"], [role="menuitem"]');
-    };
-    var setOpen = function (menu, open, focus) {
-      var button = menu.querySelector("button[aria-haspopup]");
-      var list = menu.querySelector('[role="menu"]');
-      button.setAttribute("aria-expanded", open ? "true" : "false");
-      list.hidden = !open;
-      if (open) {
-        var items = itemsOf(menu);
-        var at = 0;
-        for (var n = 0; n < items.length; n++) if (items[n].getAttribute("aria-checked") === "true") at = n;
-        if (items[at]) items[at].focus();
-      } else if (focus) button.focus();
-    };
-    for (var mi = 0; mi < menus.length; mi++) {
-      (function (menu) {
-        var button = menu.querySelector("button[aria-haspopup]");
-        button.addEventListener("click", function () {
-          var open = button.getAttribute("aria-expanded") !== "true";
-          closeAll(menu);
-          setOpen(menu, open, false);
-        });
-        button.addEventListener("keydown", function (event) {
-          if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-            event.preventDefault();
-            closeAll(menu);
-            setOpen(menu, true, false);
+    document.addEventListener("click", function (event) {
+      var button = event.target.closest("[data-copy], [data-copy-url]");
+      if (!button) return;
+      var text = button.hasAttribute("data-copy-url") ? location.href : button.getAttribute("data-copy");
+      if (!text) return;
+      var done = function (ok) {
+        if (!button.dataset.label) button.dataset.label = button.textContent;
+        button.textContent = ok ? "Copied" : "Press Ctrl+C";
+        setTimeout(function () {
+          button.textContent = button.dataset.label;
+        }, 1600);
+      };
+      var selectFallback = function () {
+        var code = null;
+        var wrap = button.closest(".cmd, .hash");
+        if (wrap) code = wrap.querySelector("code");
+        if (code) {
+          var details = code.closest("details");
+          if (details && !details.open) details.open = true;
+          var range = document.createRange();
+          range.selectNodeContents(code);
+          var sel = window.getSelection();
+          if (sel) {
+            sel.removeAllRanges();
+            sel.addRange(range);
           }
+        }
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () {
+          done(true);
+        }, function () {
+          selectFallback();
+          done(false);
         });
-        menu.querySelector('[role="menu"]').addEventListener("keydown", function (event) {
-          var items = itemsOf(menu);
-          var now = Array.prototype.indexOf.call(items, document.activeElement);
-          var to = { ArrowDown: (now + 1) % items.length, ArrowUp: (now - 1 + items.length) % items.length, Home: 0, End: items.length - 1 }[event.key];
-          if (to !== undefined) {
-            event.preventDefault();
-            items[to].focus();
-          } else if (event.key === "Escape") {
-            event.preventDefault();
-            setOpen(menu, false, true);
-          } else if (event.key === "Tab") setOpen(menu, false, false);
-        });
-        var items = itemsOf(menu);
-        for (var it = 0; it < items.length; it++) items[it].addEventListener("click", function () {
-          setOpen(menu, false, true);
-        });
-      })(menus[mi]);
-    }
-    document.addEventListener("pointerdown", function (event) {
-      for (var m = 0; m < menus.length; m++) if (!menus[m].contains(event.target)) setOpen(menus[m], false, false);
+      } else {
+        selectFallback();
+        done(false);
+      }
     });
   });
 })();

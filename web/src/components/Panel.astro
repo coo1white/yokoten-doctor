@@ -1,8 +1,0 @@
----
-interface Props { title: string; aside?: string; }
-const { title, aside } = Astro.props as Props;
----
-<figure class="panel">
-  <figcaption class="panel-head"><span>{title}</span>{aside && <span>{aside}</span>}</figcaption>
-  <div class="panel-content"><slot /></div>
-</figure>

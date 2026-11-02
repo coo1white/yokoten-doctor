@@ -7,6 +7,7 @@ from check.result import INSTALL_ONLY_IDS
 PAGES = [
     "web/src/pages/index.astro",
     "web/src/pages/about.astro",
+    "web/src/pages/agent-view.astro",
     "web/src/data/agent-view.md",
 ]
 

@@ -102,3 +102,49 @@ export interface ProgressEventData {
 export interface ErrorEventData {
   message?: string;
 }
+
+export type StepKey = "files" | "install" | "hand";
+
+export type FilesBlock = "hidden" | "waiting" | "lost" | "list" | "nothing";
+
+export interface HandItem {
+  id: string;
+  title: string;
+  wrong: string;
+  list: string[];
+  command: string;
+  after: string;
+}
+
+export interface PlanAction {
+  label: string;
+  href: string;
+  opensChart: boolean;
+  isQuiet: boolean;
+}
+
+export interface ResultPlan {
+  done: number;
+  total: number;
+  isAfterKnown: boolean;
+  afterDone: number;
+  gain: number;
+  installSteps: SummaryStep[];
+  movedToInstall: SummaryStep[];
+  handCount: number;
+  handItems: HandItem[];
+  isHandListShort: boolean;
+  action: PlanAction | null;
+  filesBlock: FilesBlock;
+  filesTitle: string;
+  filesAreStep: boolean;
+  stepOrder: StepKey[];
+  installStepNumber: number;
+  handTitle: string;
+}
+
+export interface PlanStep {
+  key: StepKey;
+  target: number | null;
+  isMovingCount: boolean;
+}

@@ -10,7 +10,7 @@
     "build": "astro build",
     "typecheck": "astro check",
     "pretest": "astro build",
-    "test": "node --test \"test/web/*.test.mjs\" \"test/review/*.test.mjs\""
+    "test": "node --test \"test/web/*.test.mjs\" \"test/site/*.test.mjs\" \"test/review/*.test.mjs\""
   },
   "dependencies": {
     "astro": "7.4.2",
