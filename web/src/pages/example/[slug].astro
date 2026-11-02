@@ -15,7 +15,6 @@ const { data } = Astro.props as { data: { result: any; fixes: any; record: any }
 const result = data.result;
 const record = data.record;
 const date = String(record.recorded_at).slice(0, 10);
-const liveHref = `/?repo=${result.owner}/${result.repo}`;
 const text = JSON.stringify(data).replace(/</g, "\\u003c");
 const slug = Astro.params.slug ?? "";
 const pageTitle = `${result.owner}/${result.repo}: ${result.summary.done} of ${result.summary.total} file checks \u00b7 yokoten doctor`;
@@ -24,10 +23,9 @@ const pagePath = `/example/${slug}.html`;
 ---
 <Page noindex title={pageTitle} description={pageDescription} path={pagePath}>
 <Header />
-<p class="saved-note small muted">Saved {date}. <a href={liveHref}>Run it again</a> for a live result.</p>
 <noscript><p class="saved-note small muted">Showing a saved check needs JavaScript. You can also run it on your machine: npx yokoten</p></noscript>
 <main id="app" hidden></main>
 <Footer />
-<div id="saved-check" data-check={text} hidden></div>
+<div id="saved-check" data-check={text} data-saved={date} hidden></div>
 <script src="../../client/app.ts"></script>
 </Page>

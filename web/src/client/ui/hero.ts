@@ -1,5 +1,6 @@
 import { toSentence, nextAction } from "../view.ts";
 import { renderChart } from "./chart.ts";
+import { rerunHref } from "../fixes.ts";
 import type { CheckResult, FixesPayload, ViewModel } from "../types.ts";
 
 export function renderResultHero({ lastResult, vm, lastFixes, isWaitingForFixes }: { lastResult: CheckResult; vm: ViewModel; lastFixes: FixesPayload | null; isWaitingForFixes?: boolean }): HTMLElement {
@@ -9,6 +10,17 @@ export function renderResultHero({ lastResult, vm, lastFixes, isWaitingForFixes 
 
   const actions = document.createElement("div");
   actions.className = "result-actions";
+  const saved = document.getElementById("saved-check")?.dataset.saved;
+  if (saved) {
+    const savedSpan = document.createElement("span");
+    savedSpan.className = "result-saved";
+    savedSpan.textContent = `Saved ${saved}`;
+    actions.appendChild(savedSpan);
+    const rerunLink = document.createElement("a");
+    rerunLink.textContent = "Run it again";
+    rerunLink.href = rerunHref(String(lastResult.owner ?? ""), String(lastResult.repo ?? ""));
+    actions.appendChild(rerunLink);
+  }
   const checkAnother = document.createElement("a");
   checkAnother.href = "/";
   checkAnother.textContent = "Check another repo";

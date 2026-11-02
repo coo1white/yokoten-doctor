@@ -13,6 +13,8 @@ import {
   fixMessage,
   PATCH_COMMANDS,
   MAX_GITHUB_LINK,
+  isFilesSectionHidden,
+  rerunHref,
 } from "../../web/src/client/fixes.ts";
 
 describe("isSafePath", () => {
@@ -373,5 +375,38 @@ describe("PATCH_COMMANDS", () => {
   });
   test("does not hold git add -A", () => {
     assert.equal(PATCH_COMMANDS.includes("git add -A"), false);
+  });
+});
+
+describe("isFilesSectionHidden", () => {
+  test("true for {files: [], muse: \"ok\"} with install-only open", () => {
+    assert.equal(isFilesSectionHidden({ files: [], muse: "ok" }, true), true);
+  });
+  test("true for {files: [], muse: \"not needed\"} with install-only open", () => {
+    assert.equal(isFilesSectionHidden({ files: [], muse: "not needed" }, true), true);
+  });
+  test("false for muse: \"lost\" with install-only open", () => {
+    assert.equal(isFilesSectionHidden({ files: [], muse: "lost" }, true), false);
+  });
+  test("false for muse: \"failed\" with install-only open", () => {
+    assert.equal(isFilesSectionHidden({ files: [], muse: "failed" }, true), false);
+  });
+  test("false for {files: [{path: \"AGENTS.md\"}], muse: \"ok\"} with install-only open", () => {
+    assert.equal(isFilesSectionHidden({ files: [{ path: "AGENTS.md" }], muse: "ok" }, true), false);
+  });
+  test("false for {files: [], muse: \"ok\"} with none open", () => {
+    assert.equal(isFilesSectionHidden({ files: [], muse: "ok" }, false), false);
+  });
+  test("false for null", () => {
+    assert.equal(isFilesSectionHidden(null, true), false);
+  });
+});
+
+describe("rerunHref", () => {
+  test('rerunHref("owner", "repo") equals "/?repo=owner/repo"', () => {
+    assert.equal(rerunHref("owner", "repo"), "/?repo=owner/repo");
+  });
+  test('rerunHref("a b", "c&d") equals "/?repo=a%20b/c%26d"', () => {
+    assert.equal(rerunHref("a b", "c&d"), "/?repo=a%20b/c%26d");
   });
 });

@@ -69,19 +69,16 @@ export function renderProofSection({ vm, lastRecord }: { vm: ViewModel; lastReco
   way1.className = "proof-way-title";
   way1.textContent = "Run the same check";
   step1.appendChild(way1);
-  const note1 = document.createElement("p");
-  note1.className = "small muted";
-  note1.textContent = `This result came from yokoten ${vm.evidence.version} at commit ${vm.evidence.shortCommit}.`;
-  step1.appendChild(note1);
-  if (vm.evidence.doctorCommand) {
-    addCommand("Clone and check", vm.evidence.doctorCommand, step1);
-  }
-  if (vm.evidence.checkCommand) {
-    addCommand("From a clean home folder", vm.evidence.checkCommand, step1);
-    const note2 = document.createElement("p");
-    note2.className = "small muted";
-    note2.textContent = "Run this one from a clean home folder. On your own machine, check also looks for your private marks, which this page never had.";
-    step1.appendChild(note2);
+  const commands = [vm.evidence.doctorCommand, vm.evidence.checkCommand].filter((s) => s);
+  if (commands.length > 0) {
+    const commandText = commands.join("\n");
+    addCommand("Terminal", commandText, step1);
+    if (vm.evidence.checkCommand) {
+      const note = document.createElement("p");
+      note.className = "small muted";
+      note.textContent = "The HOME part runs the check with an empty home folder, so your own settings don't change the result.";
+      step1.appendChild(note);
+    }
   }
 
   if (rv && hasRecord) {
