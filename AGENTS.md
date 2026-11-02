@@ -117,6 +117,20 @@ and a small Python service in `server/` that runs on Modal. The design is in
 - The owner approves only a pull request that changes a CODEOWNERS path.
 - The bot squash merges in UTC. A merge to main deploys what it changed: the page, the server, or both.
 
+### Only Muse writes site code
+
+Muse Spark Open writes all code in `web/`, `server/`, `test/` and the root config files. There are no exceptions, even for one line.
+
+- Why. Incident: the owner set this rule, and the lead still wrote PR 90's changes by hand. It then asked whether one or two lines could be an exception.
+- Roles. Claude designs, briefs Muse, applies its reply, reads the diff and runs the tests. Claude does not write this code.
+- CI files, `AGENTS.md`, docs and JSON config stay with the lead. Deleting a file writes no code, so the lead can delete one.
+- A wrong reply goes back to Muse with a new brief. Nobody fixes it by hand.
+- Each new brief for a long file starts from a clean git copy. Read each reply as a diff before applying it.
+- `apply-json.mjs` compares the files with Baseten's reply. It then writes them and records each hash in `muse-receipts.json`.
+- Check: the `test` workflow fails when a changed code file has no receipt, or differs from its receipt.
+- Check: a local hook refuses Claude's file tools on these paths.
+- These checks stop mistakes. They do not prove authorship to an outsider, because a receipt can be forged by hand.
+
 ### What not to touch
 
 - No secrets in this repo: no keys, tokens, `.env` files or private marks.
@@ -133,6 +147,7 @@ and a small Python service in `server/` that runs on Modal. The design is in
 These come from mistakes already made in this repo. Each one was caught in review or by a check.
 
 - Return every test that was in a file. Never drop a test to make a file shorter.
+- Copy untouched lines byte for byte. Keep regex flags, escapes and quotes.
 - Tests use only `node:test` and `node:assert/strict`, or `pytest`. Add no test framework.
 - Test data uses `example.com` for email and `192.0.2.0/24` for IP addresses. The commit check refuses others.
 - A task that adds a file type or a folder also updates the test that limits them.

@@ -9,9 +9,17 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "22.23.4"
+      - run: node --test .github/workflows/check-muse-receipts.test.mjs
+      - if: github.event_name == 'pull_request'
+        run: node .github/workflows/check-muse-receipts.mjs "$BASE_SHA"
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
       - run: npm ci
       - run: npm run typecheck
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
