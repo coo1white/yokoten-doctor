@@ -1,4 +1,4 @@
-import { make, createIcon, createCopyButton, createCommandBox, createFold, createStepHeading, createLink } from "./dom.ts";
+import { make, createIcon, createCommandBox, createFold, createStepHeading, createLink } from "./dom.ts";
 import { formatRecordTime } from "../view.ts";
 import { recordView } from "../fixes.ts";
 import type { ViewModel } from "../types.ts";
@@ -16,6 +16,8 @@ function makeRunWay(vm: ViewModel): HTMLElement {
   strong.className = "strong";
   strong.textContent = "Run the same check";
   way.appendChild(strong);
+  const wayBody = document.createElement("div");
+  wayBody.className = "way-body";
   const muted = document.createElement("p");
   muted.className = "small muted";
   muted.appendChild(document.createTextNode("Commit "));
@@ -25,11 +27,12 @@ function makeRunWay(vm: ViewModel): HTMLElement {
   muted.appendChild(document.createTextNode(", yokoten "));
   muted.appendChild(document.createTextNode(vm.evidence.version ?? ""));
   muted.appendChild(document.createTextNode("."));
-  way.appendChild(muted);
+  wayBody.appendChild(muted);
   const commands = [vm.evidence.doctorCommand, vm.evidence.checkCommand].filter((s): s is string => Boolean(s)).join("\n");
   if (commands) {
-    way.appendChild(createCommandBox(commands));
+    wayBody.appendChild(createCommandBox(commands));
   }
+  way.appendChild(wayBody);
   return way;
 }
 
@@ -63,7 +66,7 @@ export function renderProofSection({ vm, lastRecord }: { vm: ViewModel; lastReco
     const dlBtn = document.createElement("button");
     dlBtn.type = "button";
     dlBtn.className = "btn btn-line ctl";
-    dlBtn.textContent = "Download the result";
+    dlBtn.textContent = "Download";
     dlBtn.addEventListener("click", () => {
       const blob = new Blob([rv.documentText], { type: "application/json;charset=utf-8" });
       const url = URL.createObjectURL(blob);
@@ -88,14 +91,7 @@ export function renderProofSection({ vm, lastRecord }: { vm: ViewModel; lastReco
     const pThree = document.createElement("p");
     pThree.textContent = "The output has to match this hash:";
     liThree.appendChild(pThree);
-    const hashDiv = document.createElement("div");
-    hashDiv.className = "hash";
-    const codeHash = document.createElement("code");
-    codeHash.className = "hash-value";
-    codeHash.textContent = rv.sha256;
-    hashDiv.appendChild(codeHash);
-    hashDiv.appendChild(createCopyButton(rv.sha256, "btn btn-line btn-sm ctl"));
-    liThree.appendChild(hashDiv);
+    liThree.appendChild(createCommandBox(rv.sha256));
     if (rv.rekorUrl) {
       const link = createLink(rv.rekorUrl, "See it on Sigstore Rekor");
       link.classList.add("link", "ctl");
