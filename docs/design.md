@@ -449,7 +449,8 @@ Two records, both free (decided by the owner 2026-10-28: Solana devnet):
 1. **Sigstore Rekor** (public, append-only transparency log; yokoten already
    uses it for `check --anchor`). The server signs with a signing key kept in
    its secret store; no money behind it. This is the lasting record.
-2. **A Solana devnet memo transaction** carrying the same hash, through
+2. **A Solana devnet memo transaction** carrying the same hash, the repo, the
+   commit and the yokoten version, through
    Solana's built-in Memo program: one transaction per check, readable in any
    Solana explorer set to devnet. Devnet SOL comes free from the faucet and is
    worth nothing, so the server's devnet wallet key cannot lose real money.
@@ -585,8 +586,8 @@ as a backup video.
    doctor`: the step turns done. "The model writes. The engine judges."
 4. (2:10, 25 s) The evidence card: yokoten version, commit, command. "Don't
    trust us. Re-run it." (File-based steps only.)
-5. (2:35, 25 s) Close: Muse wrote every line of this page; yokoten was built
-   before the event and does the checking; Claude planned and reviewed.
+5. (2:35, 25 s) Close: Muse wrote most of this page's code; yokoten was built
+   before the event and does the checking; Claude designed, planned and reviewed.
 
 The video is made as code, so it can be remade whenever the page changes:
 
