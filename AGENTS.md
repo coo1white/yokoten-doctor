@@ -117,6 +117,19 @@ and a small Python service in `server/` that runs on Modal. The design is in
 - The owner approves only a pull request that changes a CODEOWNERS path.
 - The bot squash merges in UTC. A merge to main deploys what it changed: the page, the server, or both.
 
+### Only Muse writes site code
+
+Muse Spark Open writes all code in `web/`, `server/`, `test/` and the root config files. There are no exceptions, even for one line.
+
+- Why. Incident: the owner set this rule, and the lead still wrote PR 90's changes by hand. It then asked whether one or two lines could be an exception.
+- Roles. Claude Fable 5.1 designs. Claude Opus 5.5 briefs Muse, applies its reply, reads the diff and runs the tests. Neither writes this code.
+- CI files, `AGENTS.md` and docs stay with the lead.
+- A wrong reply goes back to Muse with a new brief. Nobody fixes it by hand.
+- `apply-json.mjs` compares the files with Baseten's reply. It then writes them and records each hash in `muse-receipts.json`.
+- Check: the `test` workflow fails when a changed code file has no receipt, or differs from its receipt.
+- Check: a local hook refuses Claude's file tools on these paths.
+- These checks stop mistakes. They do not prove authorship to an outsider, because a receipt can be forged by hand.
+
 ### What not to touch
 
 - No secrets in this repo: no keys, tokens, `.env` files or private marks.
