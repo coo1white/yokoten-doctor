@@ -5,6 +5,9 @@
   transition: opacity var(--dur) var(--ease), background-color var(--dur) var(--ease); }
 @media (hover: hover) { .ctl:hover::after { opacity: 1; } }
 .ctl:active::after { opacity: 1; background: var(--layer-down, var(--state-press)); }
+.ctl.is-pressed::after { opacity: 1; background: var(--layer-down, var(--state-press)); }
+.btn.is-pressed { transform: scale(0.98); }
+.fold > summary.is-pressed::after { opacity: 1; background: var(--state-press); }
 :focus { outline: none; }
 :focus-visible { outline: none; box-shadow: var(--focus); border-radius: var(--r-sm); }
 :disabled { cursor: default; pointer-events: none; }

@@ -1,173 +1,167 @@
-import { toSentence, nextAction } from "../view.ts";
-import { renderChart } from "./chart.ts";
-import { rerunHref } from "../fixes.ts";
-import type { CheckResult, FixesPayload, ViewModel } from "../types.ts";
+import { toSentence } from '../view.ts';
+import { rerunHref } from '../fixes.ts';
+import type { CheckResult, ViewModel, ResultPlan, FixesPayload } from '../types.ts';
+import { createIcon, make, renderRichText } from './dom.ts';
+import { renderAllChecks } from './checks.ts';
 
-export function renderResultHero({ lastResult, vm, lastFixes, isWaitingForFixes }: { lastResult: CheckResult; vm: ViewModel; lastFixes: FixesPayload | null; isWaitingForFixes?: boolean }): HTMLElement {
-  const section = document.createElement("section");
-  section.className = "result-hero";
-  section.id = "result-panel";
-
-  const actions = document.createElement("div");
-  actions.className = "result-actions";
-  const saved = document.getElementById("saved-check")?.dataset.saved;
-  if (saved) {
-    const savedSpan = document.createElement("span");
-    savedSpan.className = "result-saved";
-    savedSpan.textContent = `Saved ${saved}`;
-    actions.appendChild(savedSpan);
-    const rerunLink = document.createElement("a");
-    rerunLink.textContent = "Run it again";
-    rerunLink.href = rerunHref(String(lastResult.owner ?? ""), String(lastResult.repo ?? ""));
-    actions.appendChild(rerunLink);
+export function renderSummary({ lastResult, vm, plan, lastFixes, isEntering }: { lastResult: CheckResult; vm: ViewModel; plan: ResultPlan; lastFixes: FixesPayload | null; isEntering: boolean }): HTMLElement {
+  const ownerName = String((lastResult as unknown as { owner?: unknown }).owner ?? '');
+  const repositoryName = String((lastResult as unknown as { repo?: unknown }).repo ?? '');
+  const doneCount = (plan as unknown as { done?: number }).done ?? 0;
+  const totalCount = (plan as unknown as { total?: number }).total ?? 0;
+  const segmentList = (plan as unknown as { segments?: string[] }).segments ?? [];
+  const legendList = (plan as unknown as { legend?: Array<{ swatch: string; text: string } | [string, string]> }).legend ?? [];
+  const scoreText = (vm as unknown as { score?: { text?: string } }).score?.text ?? '';
+  const outerSection = make('section', 'zone-sum');
+  const innerContainer = make('div', 'sum-in');
+  outerSection.appendChild(innerContainer);
+  const stateContainer = document.createElement('div');
+  if (isEntering) stateContainer.className = 'enter';
+  const headerContainer = make('div', 'r-head');
+  const titleHeading = make('h1', 'r-repo');
+  const repositoryLink = document.createElement('a');
+  repositoryLink.href = 'https://github.com/' + encodeURIComponent(ownerName) + '/' + encodeURIComponent(repositoryName);
+  repositoryLink.appendChild(document.createTextNode(ownerName));
+  repositoryLink.appendChild(document.createTextNode('/'));
+  repositoryLink.appendChild(document.createElement('wbr'));
+  repositoryLink.appendChild(document.createTextNode(repositoryName));
+  titleHeading.appendChild(repositoryLink);
+  headerContainer.appendChild(titleHeading);
+  const toolsContainer = make('div', 'r-tools');
+  const savedElement = document.getElementById('saved-check') as HTMLElement | null;
+  const savedValue = savedElement?.dataset.saved;
+  if (savedValue) {
+    const savedSpan = make('span', undefined, `Saved ${savedValue}`);
+    toolsContainer.appendChild(savedSpan);
+    const rerunLink = document.createElement('a');
+    rerunLink.className = 'link ctl';
+    rerunLink.href = rerunHref(ownerName, repositoryName);
+    rerunLink.textContent = 'Run it again';
+    toolsContainer.appendChild(rerunLink);
   }
-  const checkAnother = document.createElement("a");
-  checkAnother.href = "/";
-  checkAnother.textContent = "Check another repo";
-  actions.appendChild(checkAnother);
-  const copyBtn = document.createElement("button");
-  copyBtn.type = "button";
-  copyBtn.textContent = "Copy link";
-  const currentUrl = window.location.href;
-  copyBtn.addEventListener("click", () => {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(currentUrl).then(() => {
-        copyBtn.textContent = "Copied";
-        setTimeout(() => { copyBtn.textContent = "Copy link"; }, 2000);
-      }).catch(() => {
-        copyBtn.textContent = "Press Ctrl+C to copy";
-      });
-    } else {
-      copyBtn.textContent = "Press Ctrl+C to copy";
+  const copyButton = document.createElement('button');
+  copyButton.type = 'button';
+  copyButton.className = 'link ctl';
+  copyButton.textContent = 'Copy link';
+  copyButton.setAttribute('data-copy-url', '');
+  toolsContainer.appendChild(copyButton);
+  headerContainer.appendChild(toolsContainer);
+  stateContainer.appendChild(headerContainer);
+  const summaryValue = (lastFixes as unknown as { summary?: unknown } | null)?.summary;
+  const summaryText = typeof summaryValue === 'string' ? summaryValue : '';
+  const hasSummary = summaryText.trim() !== '';
+  if (hasSummary) {
+    const aboutParagraph = make('p', 'r-about');
+    aboutParagraph.appendChild(document.createTextNode(summaryText.trim()));
+    aboutParagraph.appendChild(document.createTextNode(' '));
+    const museSpan = make('span', undefined, 'Summary by Muse.');
+    aboutParagraph.appendChild(museSpan);
+    stateContainer.appendChild(aboutParagraph);
+  }
+  const countParagraph = make('p', 'count');
+  const boldElement = make('b', undefined, String(doneCount));
+  countParagraph.appendChild(boldElement);
+  const countSpan = make('span', undefined, `of ${totalCount} file checks pass`);
+  countParagraph.appendChild(countSpan);
+  stateContainer.appendChild(countParagraph);
+  const barContainer = make('div', isEntering ? 'bar bar-anim' : 'bar');
+  barContainer.setAttribute('role', 'img');
+  barContainer.setAttribute('aria-label', scoreText);
+  for (const segment of segmentList) {
+    const segmentElement = document.createElement('i');
+    if (segment) segmentElement.className = segment;
+    barContainer.appendChild(segmentElement);
+  }
+  stateContainer.appendChild(barContainer);
+  if (legendList.length > 0) {
+    const legendElement = make('ul', 'legend');
+    for (const entry of legendList) {
+      const listItem = document.createElement('li');
+      let swatchName = '';
+      let entryText = '';
+      if (Array.isArray(entry)) {
+        swatchName = entry[0] ?? '';
+        entryText = entry[1] ?? '';
+      } else {
+        const record = entry as { swatch?: unknown; text?: unknown };
+        swatchName = typeof record.swatch === 'string' ? record.swatch : '';
+        entryText = typeof record.text === 'string' ? record.text : '';
+      }
+      const swatchSpan = make('span', `swatch ${swatchName}`);
+      swatchSpan.setAttribute('aria-hidden', 'true');
+      listItem.appendChild(swatchSpan);
+      listItem.appendChild(document.createTextNode(entryText));
+      legendElement.appendChild(listItem);
     }
-  });
-  actions.appendChild(copyBtn);
-  section.appendChild(actions);
-
-  const grid = document.createElement("div");
-  grid.className = "result-grid";
-
-  const left = document.createElement("div");
-  left.className = "result-hero-left";
-
-  const h1 = document.createElement("h1");
-  h1.className = "result-repo";
-  h1.appendChild(document.createTextNode(`${lastResult.owner}/`));
-  h1.appendChild(document.createElement("wbr"));
-  h1.appendChild(document.createTextNode(`${lastResult.repo}`));
-  left.appendChild(h1);
-
-  if (lastFixes && lastFixes.summary && lastFixes.summary.trim() !== "") {
-    const sumP = document.createElement("p");
-    sumP.className = "result-summary";
-    sumP.textContent = lastFixes.summary;
-    left.appendChild(sumP);
-    const small = document.createElement("p");
-    small.className = "result-summary-note";
-    small.textContent = "Summary by Muse.";
-    left.appendChild(small);
+    stateContainer.appendChild(legendElement);
   }
-
-  const scoreWrap = document.createElement("div");
-  scoreWrap.className = "score";
-  const big = document.createElement("p");
-  big.className = "score-big";
-  const total = vm.score.total;
-  const done = vm.score.done;
-  big.appendChild(document.createTextNode(`${done} `));
-  const span = document.createElement("span");
-  span.textContent = `of ${total} file checks pass`;
-  big.appendChild(span);
-  scoreWrap.appendChild(big);
-
-  const bar = document.createElement("div");
-  bar.className = "score-bar";
-  bar.setAttribute("role", "img");
-  bar.setAttribute("aria-label", vm.score.text);
-  const segCount = vm.score.total || 0;
-  bar.style.setProperty("--seg-count", String(segCount || 1));
-  let afterDone: number | null = null;
-  let afterTotal: number | null = null;
-  let hasAfter = false;
-  if (lastFixes && lastFixes.after && typeof lastFixes.after.done === "number" && typeof lastFixes.after.total === "number") {
-    if (lastFixes.after.done > done) {
-      hasAfter = true;
-      afterDone = lastFixes.after.done;
-      afterTotal = lastFixes.after.total;
+  const noteParagraph = make('p', 'count-note', 'These checks read files. They don\'t judge your code.');
+  stateContainer.appendChild(noteParagraph);
+  innerContainer.appendChild(stateContainer);
+  const nextRecord = (vm as unknown as { next?: { id?: string; title?: string; why?: string } | null }).next ?? null;
+  if (!nextRecord) {
+    const nextSection = make('section', 'next');
+    const labelParagraph = make('p', 'next-label', 'Nothing to fix');
+    nextSection.appendChild(labelParagraph);
+    const headingElement = make('h2', undefined, `All ${totalCount} file checks pass.`);
+    nextSection.appendChild(headingElement);
+    innerContainer.appendChild(nextSection);
+  } else {
+    const nextSection = document.createElement('section');
+    nextSection.className = 'next';
+    nextSection.setAttribute('aria-labelledby', 'next-title');
+    const labelParagraph = make('p', 'next-label', 'Do this first');
+    nextSection.appendChild(labelParagraph);
+    const titleHeadingElement = document.createElement('h2');
+    titleHeadingElement.id = 'next-title';
+    const titleText = typeof nextRecord.title === 'string' ? nextRecord.title : '';
+    renderRichText(titleText, titleHeadingElement);
+    nextSection.appendChild(titleHeadingElement);
+    let whyText = '';
+    if (nextRecord.id === 'issues') whyText = 'Turn on issues in the repo\'s settings on GitHub.';
+    else {
+      const rawWhy = typeof nextRecord.why === 'string' ? nextRecord.why : '';
+      if (rawWhy) whyText = toSentence(rawWhy);
     }
-  }
-  for (let i = 0; i < segCount; i++) {
-    const seg = document.createElement("span");
-    seg.className = "score-seg";
-    if (i < done) seg.classList.add("is-done");
-    else if (hasAfter && afterDone != null && i < afterDone) seg.classList.add("is-after");
-    else seg.classList.add("is-open");
-    bar.appendChild(seg);
-  }
-  scoreWrap.appendChild(bar);
-  if (hasAfter && afterDone != null && afterTotal != null) {
-    const afterP = document.createElement("p");
-    afterP.className = "score-after";
-    afterP.textContent = `${afterDone} of ${afterTotal} once you add the files below.`;
-    scoreWrap.appendChild(afterP);
-  }
-  left.appendChild(scoreWrap);
-
-  if (vm.next) {
-    const nextWrap = document.createElement("div");
-    nextWrap.className = "next-step";
-    const label = document.createElement("p");
-    label.className = "next-label";
-    label.textContent = "Fix this first";
-    nextWrap.appendChild(label);
-    const h2 = document.createElement("h2");
-    h2.className = "next-title";
-    h2.textContent = vm.next.title;
-    nextWrap.appendChild(h2);
-    if (vm.next.id === "issues") {
-      const whyP = document.createElement("p");
-      whyP.className = "next-why";
-      whyP.textContent = "Turn on issues in the repo's settings on GitHub.";
-      nextWrap.appendChild(whyP);
-    } else if (vm.next.why) {
-      const whyP = document.createElement("p");
-      whyP.className = "next-why";
-      whyP.textContent = toSentence(vm.next.why);
-      nextWrap.appendChild(whyP);
+    if (whyText !== '') {
+      const whyParagraph = make('p', 'next-why');
+      renderRichText(whyText, whyParagraph);
+      nextSection.appendChild(whyParagraph);
     }
-    const owner = String(lastResult.owner ?? "");
-    const repo = String(lastResult.repo ?? "");
-    const act = nextAction(vm.next, vm.installOnly, lastFixes?.files ?? [], owner, repo, !!isWaitingForFixes);
-    const fixLink = document.createElement("a");
-    fixLink.href = act.href;
-    fixLink.textContent = act.label;
-    fixLink.className = "button-primary";
-    if (act.href.startsWith("https://")) {
-      fixLink.target = "_blank";
-      fixLink.rel = "noopener";
+    const actionRecord = (plan as unknown as { action?: { href?: string; label?: string; isQuiet?: boolean; opensChart?: boolean } }).action;
+    if (actionRecord && typeof actionRecord.href === 'string' && typeof actionRecord.label === 'string') {
+      const actionHref = actionRecord.href;
+      const actionLabel = actionRecord.label;
+      const isQuiet = Boolean(actionRecord.isQuiet);
+      const opensChart = Boolean(actionRecord.opensChart);
+      const actionLink = document.createElement('a');
+      actionLink.href = actionHref;
+      actionLink.className = isQuiet ? 'btn btn-line ctl' : 'btn btn-primary ctl';
+      actionLink.textContent = actionLabel;
+      if (actionHref.startsWith('https://')) {
+        actionLink.target = '_blank';
+        actionLink.rel = 'noopener';
+        const outIcon = createIcon('out');
+        actionLink.appendChild(outIcon);
+      }
+      if (opensChart) {
+        actionLink.addEventListener('click', (): void => {
+          const allDetails = document.querySelector('details[data-key=\"all-checks\"]') as HTMLDetailsElement | null;
+          if (allDetails) allDetails.open = true;
+          if (actionHref.startsWith('#')) {
+            const identifier = actionHref.slice(1);
+            const targetElement = document.getElementById(identifier);
+            if (targetElement && targetElement.tagName.toLowerCase() === 'details') (targetElement as HTMLDetailsElement).open = true;
+          }
+        });
+      }
+      nextSection.appendChild(actionLink);
     }
-    if (act.opensChart) {
-      fixLink.addEventListener("click", () => {
-        const details = document.querySelector("details.show-all-checks") as HTMLDetailsElement | null;
-        if (details) details.open = true;
-      });
-    }
-    nextWrap.appendChild(fixLink);
-    left.appendChild(nextWrap);
-  } else if (vm.installOnly.length === 0 && done === total) {
-    const doneP = document.createElement("p");
-    doneP.className = "every-done";
-    doneP.textContent = `All ${total} file checks pass.`;
-    left.appendChild(doneP);
+    innerContainer.appendChild(nextSection);
   }
-
-  const right = document.createElement("div");
-  right.className = "result-hero-right";
-  right.appendChild(renderChart({ lastResult, vm }));
-
-  grid.appendChild(left);
-  grid.appendChild(right);
-  section.appendChild(grid);
-
-  return section;
+  const allContainer = make('div', 'sum-all');
+  const checksElement = renderAllChecks(lastResult, vm, plan);
+  allContainer.appendChild(checksElement);
+  innerContainer.appendChild(allContainer);
+  return outerSection;
 }

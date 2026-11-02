@@ -1,107 +1,69 @@
+import { make, createIcon, createCopyButton, createCommandBox, createFold, createStepHeading, createLink } from "./dom.ts";
 import { formatRecordTime } from "../view.ts";
 import { recordView } from "../fixes.ts";
-import { createLink, addCopyButton } from "./dom.ts";
 import type { ViewModel } from "../types.ts";
+
+export function proofNavTitle(lastRecord: unknown): string {
+  const rv = recordView(lastRecord);
+  const hasRecord = !!(rv && (rv.rekorUrl || rv.solanaUrl));
+  return hasRecord ? "On record" : "No public record";
+}
+
+function makeRunWay(vm: ViewModel): HTMLElement {
+  const way = document.createElement("div");
+  way.className = "way";
+  const strong = document.createElement("p");
+  strong.className = "strong";
+  strong.textContent = "Run the same check";
+  way.appendChild(strong);
+  const muted = document.createElement("p");
+  muted.className = "small muted";
+  muted.appendChild(document.createTextNode("Commit "));
+  const codeCommit = document.createElement("code");
+  codeCommit.textContent = vm.evidence.shortCommit ?? "";
+  muted.appendChild(codeCommit);
+  muted.appendChild(document.createTextNode(", yokoten "));
+  muted.appendChild(document.createTextNode(vm.evidence.version ?? ""));
+  muted.appendChild(document.createTextNode("."));
+  way.appendChild(muted);
+  const commands = [vm.evidence.doctorCommand, vm.evidence.checkCommand].filter((s): s is string => Boolean(s)).join("\n");
+  if (commands) {
+    way.appendChild(createCommandBox(commands));
+  }
+  return way;
+}
 
 export function renderProofSection({ vm, lastRecord }: { vm: ViewModel; lastRecord: unknown }): HTMLElement {
   const section = document.createElement("section");
-  section.className = "band";
-  const inner = document.createElement("div");
-  inner.className = "band-inner";
-  section.appendChild(inner);
-
-  const label = document.createElement("p");
-  label.className = "section-label";
-  label.textContent = "Verify";
-  inner.appendChild(label);
-
+  section.className = "step step-aside";
+  section.id = "verify";
   const rv = recordView(lastRecord);
-
-  const h2 = document.createElement("h2");
-  h2.className = "section-title";
-  const hasRecord = !!(rv?.rekorUrl || rv?.solanaUrl);
-  h2.textContent = hasRecord ? "This result is on record" : "No public record for this result";
-  inner.appendChild(h2);
-
-  const lede = document.createElement("p");
-  lede.className = "proof-result-lede";
-  if (rv && hasRecord) {
-    const isBoth = !!(rv.rekorUrl && rv.solanaUrl);
-    const prefix = isBoth
-      ? "A fingerprint of this result (its SHA-256 hash) has been in two public records since "
-      : "A fingerprint of this result (its SHA-256 hash) has been in a public record since ";
-    lede.appendChild(document.createTextNode(prefix));
-    const timeSpan = document.createElement("span");
-    timeSpan.className = "proof-time";
-    timeSpan.textContent = formatRecordTime(rv.recordedAt);
-    lede.appendChild(timeSpan);
-    lede.appendChild(document.createTextNode(". Nothing to do here, unless you want to check it yourself."));
-  } else {
-    lede.textContent = "The public record couldn't be written this time. The check still ran, and you can run it yourself.";
-  }
-  inner.appendChild(lede);
-
-  const details = document.createElement("details");
-  details.className = "proof-fold";
-  details.setAttribute("data-key", "proof-check");
-  const summary = document.createElement("summary");
-  summary.textContent = "Check it yourself";
-  details.appendChild(summary);
-
-  const steps = document.createElement("div");
-  steps.className = "proof-steps";
-  details.appendChild(steps);
-
-  function addCommand(title: string, text: string, parent: HTMLElement): void {
-    const fig = document.createElement("figure"); fig.className = "proof-code";
-    const head = document.createElement("div"); head.className = "proof-code-head";
-    const name = document.createElement("span"); name.textContent = title; head.appendChild(name);
-    const pre = document.createElement("pre"); const code = document.createElement("code");
-    code.textContent = text; pre.appendChild(code);
-    head.appendChild(addCopyButton("Copy", text, code));
-    fig.appendChild(head); fig.appendChild(pre); parent.appendChild(fig);
-  }
-
-  const step1 = document.createElement("section");
-  step1.className = "proof-step";
-  steps.appendChild(step1);
-  const way1 = document.createElement("h3");
-  way1.className = "proof-way-title";
-  way1.textContent = "Run the same check";
-  step1.appendChild(way1);
-  const commands = [vm.evidence.doctorCommand, vm.evidence.checkCommand].filter((s) => s);
-  if (commands.length > 0) {
-    const commandText = commands.join("\n");
-    addCommand("Terminal", commandText, step1);
-    if (vm.evidence.checkCommand) {
-      const note = document.createElement("p");
-      note.className = "small muted";
-      note.textContent = "The HOME part runs the check with an empty home folder, so your own settings don't change the result.";
-      step1.appendChild(note);
-    }
-  }
-
-  if (rv && hasRecord) {
-    const step2 = document.createElement("section");
-    step2.className = "proof-step";
-    steps.appendChild(step2);
-    const way2 = document.createElement("h3");
-    way2.className = "proof-way-title";
-    way2.textContent = "Confirm the record";
-    step2.appendChild(way2);
-    const note3 = document.createElement("p");
-    note3.className = "small muted";
-    note3.appendChild(document.createTextNode("Download the result and hash it. The hash has to match the one recorded "));
-    const timeSpan2 = document.createElement("span");
-    timeSpan2.className = "proof-time";
-    timeSpan2.textContent = formatRecordTime(rv.recordedAt);
-    note3.appendChild(timeSpan2);
-    note3.appendChild(document.createTextNode("."));
-    step2.appendChild(note3);
+  const hasRecord = !!(rv && (rv.rekorUrl || rv.solanaUrl));
+  if (hasRecord && rv) {
+    const heading = createStepHeading(0, "");
+    heading.appendChild(document.createTextNode("On record since "));
+    const span = document.createElement("span");
+    span.className = "nowrap";
+    span.textContent = formatRecordTime(rv.recordedAt);
+    heading.appendChild(span);
+    section.appendChild(heading);
+    const lede = make("p", "sec-lede", "Nothing to do here.");
+    section.appendChild(lede);
+    const confirmWay = document.createElement("div");
+    confirmWay.className = "way";
+    const strong = make("p", "strong", "Confirm the record");
+    confirmWay.appendChild(strong);
+    const ol = document.createElement("ol");
+    ol.className = "steps-n";
+    const liOne = document.createElement("li");
+    const pOne = document.createElement("p");
+    pOne.textContent = "Download the result.";
+    liOne.appendChild(pOne);
+    const divOne = document.createElement("div");
     const dlBtn = document.createElement("button");
-    dlBtn.textContent = "Download the result";
-    dlBtn.className = "button-quiet proof-download";
     dlBtn.type = "button";
+    dlBtn.className = "btn btn-line ctl";
+    dlBtn.textContent = "Download the result";
     dlBtn.addEventListener("click", () => {
       const blob = new Blob([rv.documentText], { type: "application/json;charset=utf-8" });
       const url = URL.createObjectURL(blob);
@@ -113,39 +75,53 @@ export function renderProofSection({ vm, lastRecord }: { vm: ViewModel; lastReco
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     });
-    step2.appendChild(dlBtn);
-    addCommand("Hash the file", rv.verifyCommand, step2);
-    const dl = document.createElement("dl");
-    dl.className = "proof-record";
-    const dtHash = document.createElement("dt");
-    dtHash.textContent = "Recorded hash";
-    dl.appendChild(dtHash);
-    const ddHash = document.createElement("dd");
-    ddHash.className = "proof-hash";
-    ddHash.textContent = rv.sha256;
-    dl.appendChild(ddHash);
-    const dtRec = document.createElement("dt");
-    dtRec.textContent = rv.rekorUrl && rv.solanaUrl ? "Public records" : "Public record";
-    dl.appendChild(dtRec);
-    const ddRec = document.createElement("dd");
-    const linksP = document.createElement("p");
-    linksP.className = "proof-links";
-    if (rv.rekorUrl) linksP.appendChild(createLink(rv.rekorUrl, "Sigstore Rekor entry"));
-    if (rv.solanaUrl) linksP.appendChild(createLink(rv.solanaUrl, "Solana devnet memo"));
-    ddRec.appendChild(linksP);
-    dl.appendChild(ddRec);
-    step2.appendChild(dl);
-    const lastNote = document.createElement("p");
-    lastNote.className = "small muted";
-    if (rv.solanaUrl) {
-      lastNote.textContent = "Devnet is a test network. It can be reset, and nothing on it has real value.";
-    } else {
-      lastNote.textContent = rv.message;
+    divOne.appendChild(dlBtn);
+    liOne.appendChild(divOne);
+    ol.appendChild(liOne);
+    const liTwo = document.createElement("li");
+    const pTwo = document.createElement("p");
+    pTwo.textContent = "Hash it.";
+    liTwo.appendChild(pTwo);
+    liTwo.appendChild(createCommandBox(rv.verifyCommand));
+    ol.appendChild(liTwo);
+    const liThree = document.createElement("li");
+    const pThree = document.createElement("p");
+    pThree.textContent = "The output has to match this hash:";
+    liThree.appendChild(pThree);
+    const hashDiv = document.createElement("div");
+    hashDiv.className = "hash";
+    const codeHash = document.createElement("code");
+    codeHash.className = "hash-value";
+    codeHash.textContent = rv.sha256;
+    hashDiv.appendChild(codeHash);
+    hashDiv.appendChild(createCopyButton(rv.sha256, "btn btn-line btn-sm ctl"));
+    liThree.appendChild(hashDiv);
+    if (rv.rekorUrl) {
+      const link = createLink(rv.rekorUrl, "See it on Sigstore Rekor");
+      link.classList.add("link", "ctl");
+      link.appendChild(document.createTextNode(" "));
+      link.appendChild(createIcon("out"));
+      liThree.appendChild(link);
+    } else if (rv.solanaUrl) {
+      const link = createLink(rv.solanaUrl, "Solana devnet memo (test network)");
+      link.classList.add("link", "ctl");
+      link.appendChild(document.createTextNode(" "));
+      link.appendChild(createIcon("out"));
+      liThree.appendChild(link);
     }
-    step2.appendChild(lastNote);
+    ol.appendChild(liThree);
+    confirmWay.appendChild(ol);
+    const runWay = makeRunWay(vm);
+    const fold = createFold("Check it yourself", [confirmWay, runWay], { key: "proof-check" });
+    section.appendChild(fold);
+  } else {
+    const heading = createStepHeading(0, "No public record for this result");
+    section.appendChild(heading);
+    const lede = make("p", "sec-lede", "The public record couldn't be written this time. The check still ran. Nothing to do here.");
+    section.appendChild(lede);
+    const runWay = makeRunWay(vm);
+    const fold = createFold("Check it yourself", [runWay], { key: "proof-check" });
+    section.appendChild(fold);
   }
-
-  inner.appendChild(details);
-
   return section;
 }
