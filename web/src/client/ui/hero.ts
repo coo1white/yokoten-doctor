@@ -1,167 +1,176 @@
-import { toSentence } from '../view.ts';
-import { rerunHref } from '../fixes.ts';
-import type { CheckResult, ViewModel, ResultPlan, FixesPayload } from '../types.ts';
-import { createIcon, make, renderRichText } from './dom.ts';
-import { renderAllChecks } from './checks.ts';
+import { toSentence } from "../view.ts";
+import { rerunHref } from "../fixes.ts";
+import type { CheckResult, ViewModel, ResultPlan, FixesPayload } from "../types.ts";
+import { createIcon, make, renderRichText } from "./dom.ts";
+import { renderAllChecks } from "./checks.ts";
 
 export function renderSummary({ lastResult, vm, plan, lastFixes, isEntering }: { lastResult: CheckResult; vm: ViewModel; plan: ResultPlan; lastFixes: FixesPayload | null; isEntering: boolean }): HTMLElement {
-  const ownerName = String((lastResult as unknown as { owner?: unknown }).owner ?? '');
-  const repositoryName = String((lastResult as unknown as { repo?: unknown }).repo ?? '');
-  const doneCount = (plan as unknown as { done?: number }).done ?? 0;
-  const totalCount = (plan as unknown as { total?: number }).total ?? 0;
-  const segmentList = (plan as unknown as { segments?: string[] }).segments ?? [];
-  const legendList = (plan as unknown as { legend?: Array<{ swatch: string; text: string } | [string, string]> }).legend ?? [];
-  const scoreText = (vm as unknown as { score?: { text?: string } }).score?.text ?? '';
-  const outerSection = make('section', 'zone-sum');
-  const innerContainer = make('div', 'sum-in');
-  outerSection.appendChild(innerContainer);
-  const stateContainer = document.createElement('div');
-  if (isEntering) stateContainer.className = 'enter';
-  const headerContainer = make('div', 'r-head');
-  const titleHeading = make('h1', 'r-repo');
-  const repositoryLink = document.createElement('a');
-  repositoryLink.href = 'https://github.com/' + encodeURIComponent(ownerName) + '/' + encodeURIComponent(repositoryName);
-  repositoryLink.appendChild(document.createTextNode(ownerName));
-  repositoryLink.appendChild(document.createTextNode('/'));
-  repositoryLink.appendChild(document.createElement('wbr'));
-  repositoryLink.appendChild(document.createTextNode(repositoryName));
-  titleHeading.appendChild(repositoryLink);
-  headerContainer.appendChild(titleHeading);
-  const toolsContainer = make('div', 'r-tools');
-  const savedElement = document.getElementById('saved-check') as HTMLElement | null;
-  const savedValue = savedElement?.dataset.saved;
-  if (savedValue) {
-    const savedSpan = make('span', undefined, `Saved ${savedValue}`);
-    toolsContainer.appendChild(savedSpan);
-    const rerunLink = document.createElement('a');
-    rerunLink.className = 'link ctl';
-    rerunLink.href = rerunHref(ownerName, repositoryName);
-    rerunLink.textContent = 'Run it again';
-    toolsContainer.appendChild(rerunLink);
+  const outer = make("section", "zone-sum");
+  const inner = make("div", "sum-in");
+  outer.appendChild(inner);
+  const state = make("div", isEntering ? "enter" : undefined);
+  renderHead(state, lastResult, lastFixes);
+  renderStats(state, vm, plan, isEntering);
+  inner.appendChild(state);
+  renderNext(inner, vm, plan);
+  const all = make("div", "sum-all");
+  const checks = renderAllChecks(lastResult, vm, plan);
+  all.appendChild(checks);
+  inner.appendChild(all);
+  return outer;
+}
+
+function renderHead(parent: HTMLElement, result: CheckResult, fixes: FixesPayload | null): void {
+  const owner = result.owner ?? "";
+  const repo = result.repo ?? "";
+  const header = make("div", "r-head");
+  const title = make("h1", "r-repo");
+  const link = make("a");
+  link.href = "https://github.com/" + encodeURIComponent(owner) + "/" + encodeURIComponent(repo);
+  link.appendChild(document.createTextNode(owner));
+  link.appendChild(document.createTextNode("/"));
+  link.appendChild(document.createElement("wbr"));
+  link.appendChild(document.createTextNode(repo));
+  title.appendChild(link);
+  header.appendChild(title);
+  const tools = make("div", "r-tools");
+  const saved = document.getElementById("saved-check");
+  if (saved instanceof HTMLElement) {
+    const value = saved.dataset.saved;
+    if (value) {
+      const label = make("span", undefined, `Saved ${value}`);
+      tools.appendChild(label);
+      const rerun = make("a", "link ctl");
+      rerun.href = rerunHref(owner, repo);
+      rerun.textContent = "Run it again";
+      tools.appendChild(rerun);
+    }
   }
-  const copyButton = document.createElement('button');
-  copyButton.type = 'button';
-  copyButton.className = 'link ctl';
-  copyButton.textContent = 'Copy link';
-  copyButton.setAttribute('data-copy-url', '');
-  toolsContainer.appendChild(copyButton);
-  headerContainer.appendChild(toolsContainer);
-  stateContainer.appendChild(headerContainer);
-  const summaryValue = (lastFixes as unknown as { summary?: unknown } | null)?.summary;
-  const summaryText = typeof summaryValue === 'string' ? summaryValue : '';
-  const hasSummary = summaryText.trim() !== '';
-  if (hasSummary) {
-    const aboutParagraph = make('p', 'r-about');
-    aboutParagraph.appendChild(document.createTextNode(summaryText.trim()));
-    aboutParagraph.appendChild(document.createTextNode(' '));
-    const museSpan = make('span', undefined, 'Summary by Muse.');
-    aboutParagraph.appendChild(museSpan);
-    stateContainer.appendChild(aboutParagraph);
+  const copy = make("button", "link ctl", "Copy link");
+  copy.type = "button";
+  copy.setAttribute("data-copy-url", "");
+  tools.appendChild(copy);
+  header.appendChild(tools);
+  parent.appendChild(header);
+  const summary = fixes?.summary?.trim() ?? "";
+  if (summary !== "") {
+    const about = make("p", "r-about");
+    about.appendChild(document.createTextNode(summary));
+    about.appendChild(document.createTextNode(" "));
+    const by = make("span", undefined, "Summary by Muse.");
+    about.appendChild(by);
+    parent.appendChild(about);
   }
-  const countParagraph = make('p', 'count');
-  const boldElement = make('b', undefined, String(doneCount));
-  countParagraph.appendChild(boldElement);
-  const countSpan = make('span', undefined, `of ${totalCount} file checks pass`);
-  countParagraph.appendChild(countSpan);
-  stateContainer.appendChild(countParagraph);
-  const barContainer = make('div', isEntering ? 'bar bar-anim' : 'bar');
-  barContainer.setAttribute('role', 'img');
-  barContainer.setAttribute('aria-label', scoreText);
-  for (const segment of segmentList) {
-    const segmentElement = document.createElement('i');
-    if (segment) segmentElement.className = segment;
-    barContainer.appendChild(segmentElement);
+}
+
+function renderStats(parent: HTMLElement, vm: ViewModel, plan: ResultPlan, isEntering: boolean): void {
+  const done = plan.done;
+  const total = plan.total;
+  const count = make("p", "count");
+  const bold = make("b", undefined, String(done));
+  count.appendChild(bold);
+  const label = make("span", undefined, `of ${total} file checks pass`);
+  count.appendChild(label);
+  parent.appendChild(count);
+  renderBar(parent, vm, plan, isEntering);
+  renderLegend(parent, plan);
+  const note = make("p", "count-note", "These checks read files. They don't judge your code.");
+  parent.appendChild(note);
+}
+
+function renderBar(parent: HTMLElement, vm: ViewModel, plan: ResultPlan, isEntering: boolean): void {
+  const bar = make("div", isEntering ? "bar bar-anim" : "bar");
+  bar.setAttribute("role", "img");
+  bar.setAttribute("aria-label", vm.score.text);
+  for (const segment of plan.segments) {
+    const part = make("i", segment ? segment : undefined);
+    bar.appendChild(part);
   }
-  stateContainer.appendChild(barContainer);
-  if (legendList.length > 0) {
-    const legendElement = make('ul', 'legend');
-    for (const entry of legendList) {
-      const listItem = document.createElement('li');
-      let swatchName = '';
-      let entryText = '';
-      if (Array.isArray(entry)) {
-        swatchName = entry[0] ?? '';
-        entryText = entry[1] ?? '';
-      } else {
-        const record = entry as { swatch?: unknown; text?: unknown };
-        swatchName = typeof record.swatch === 'string' ? record.swatch : '';
-        entryText = typeof record.text === 'string' ? record.text : '';
+  parent.appendChild(bar);
+}
+
+function renderLegend(parent: HTMLElement, plan: ResultPlan): void {
+  if (plan.legend.length === 0) return;
+  const list = make("ul", "legend");
+  for (const entry of plan.legend) {
+    const item = make("li");
+    const swatch = make("span", `swatch ${entry.swatch}`);
+    swatch.setAttribute("aria-hidden", "true");
+    item.appendChild(swatch);
+    item.appendChild(document.createTextNode(entry.text));
+    list.appendChild(item);
+  }
+  parent.appendChild(list);
+}
+
+function renderNext(parent: HTMLElement, vm: ViewModel, plan: ResultPlan): void {
+  const next = vm.next;
+  if (!next) {
+    renderNextEmpty(parent, plan);
+    return;
+  }
+  renderNextCard(parent, next, plan);
+}
+
+function renderNextEmpty(parent: HTMLElement, plan: ResultPlan): void {
+  const section = make("section", "next");
+  const label = make("p", "next-label", "Nothing to fix");
+  section.appendChild(label);
+  const heading = make("h2", undefined, `All ${plan.total} file checks pass.`);
+  section.appendChild(heading);
+  parent.appendChild(section);
+}
+
+function renderNextCard(parent: HTMLElement, next: NonNullable<ViewModel["next"]>, plan: ResultPlan): void {
+  const section = make("section", "next");
+  section.setAttribute("aria-labelledby", "next-title");
+  const label = make("p", "next-label", "Do this first");
+  section.appendChild(label);
+  const title = make("h2");
+  title.id = "next-title";
+  renderRichText(next.title, title);
+  section.appendChild(title);
+  const why = getWhyText(next);
+  if (why !== "") {
+    const para = make("p", "next-why");
+    renderRichText(why, para);
+    section.appendChild(para);
+  }
+  const action = plan.action;
+  if (action) {
+    const link = buildActionLink(action);
+    section.appendChild(link);
+  }
+  parent.appendChild(section);
+}
+
+function getWhyText(next: NonNullable<ViewModel["next"]>): string {
+  if (next.id === "issues") return "Turn on issues in the repo's settings on GitHub.";
+  const raw = next.why ?? "";
+  if (raw === "") return "";
+  return toSentence(raw);
+}
+
+function buildActionLink(action: NonNullable<ResultPlan["action"]>): HTMLAnchorElement {
+  const link = make("a", action.isQuiet ? "btn btn-line ctl" : "btn btn-primary ctl");
+  link.href = action.href;
+  link.textContent = action.label;
+  if (action.href.startsWith("https://")) {
+    link.target = "_blank";
+    link.rel = "noopener";
+    const icon = createIcon("out");
+    link.appendChild(icon);
+  }
+  if (action.opensChart) {
+    link.addEventListener("click", () => {
+      const all = document.querySelector<HTMLDetailsElement>('details[data-key="all-checks"]');
+      if (all) all.open = true;
+      if (action.href.startsWith("#")) {
+        const id = action.href.slice(1);
+        const target = document.getElementById(id);
+        if (target instanceof HTMLDetailsElement) target.open = true;
       }
-      const swatchSpan = make('span', `swatch ${swatchName}`);
-      swatchSpan.setAttribute('aria-hidden', 'true');
-      listItem.appendChild(swatchSpan);
-      listItem.appendChild(document.createTextNode(entryText));
-      legendElement.appendChild(listItem);
-    }
-    stateContainer.appendChild(legendElement);
+    });
   }
-  const noteParagraph = make('p', 'count-note', 'These checks read files. They don\'t judge your code.');
-  stateContainer.appendChild(noteParagraph);
-  innerContainer.appendChild(stateContainer);
-  const nextRecord = (vm as unknown as { next?: { id?: string; title?: string; why?: string } | null }).next ?? null;
-  if (!nextRecord) {
-    const nextSection = make('section', 'next');
-    const labelParagraph = make('p', 'next-label', 'Nothing to fix');
-    nextSection.appendChild(labelParagraph);
-    const headingElement = make('h2', undefined, `All ${totalCount} file checks pass.`);
-    nextSection.appendChild(headingElement);
-    innerContainer.appendChild(nextSection);
-  } else {
-    const nextSection = document.createElement('section');
-    nextSection.className = 'next';
-    nextSection.setAttribute('aria-labelledby', 'next-title');
-    const labelParagraph = make('p', 'next-label', 'Do this first');
-    nextSection.appendChild(labelParagraph);
-    const titleHeadingElement = document.createElement('h2');
-    titleHeadingElement.id = 'next-title';
-    const titleText = typeof nextRecord.title === 'string' ? nextRecord.title : '';
-    renderRichText(titleText, titleHeadingElement);
-    nextSection.appendChild(titleHeadingElement);
-    let whyText = '';
-    if (nextRecord.id === 'issues') whyText = 'Turn on issues in the repo\'s settings on GitHub.';
-    else {
-      const rawWhy = typeof nextRecord.why === 'string' ? nextRecord.why : '';
-      if (rawWhy) whyText = toSentence(rawWhy);
-    }
-    if (whyText !== '') {
-      const whyParagraph = make('p', 'next-why');
-      renderRichText(whyText, whyParagraph);
-      nextSection.appendChild(whyParagraph);
-    }
-    const actionRecord = (plan as unknown as { action?: { href?: string; label?: string; isQuiet?: boolean; opensChart?: boolean } }).action;
-    if (actionRecord && typeof actionRecord.href === 'string' && typeof actionRecord.label === 'string') {
-      const actionHref = actionRecord.href;
-      const actionLabel = actionRecord.label;
-      const isQuiet = Boolean(actionRecord.isQuiet);
-      const opensChart = Boolean(actionRecord.opensChart);
-      const actionLink = document.createElement('a');
-      actionLink.href = actionHref;
-      actionLink.className = isQuiet ? 'btn btn-line ctl' : 'btn btn-primary ctl';
-      actionLink.textContent = actionLabel;
-      if (actionHref.startsWith('https://')) {
-        actionLink.target = '_blank';
-        actionLink.rel = 'noopener';
-        const outIcon = createIcon('out');
-        actionLink.appendChild(outIcon);
-      }
-      if (opensChart) {
-        actionLink.addEventListener('click', (): void => {
-          const allDetails = document.querySelector('details[data-key=\"all-checks\"]') as HTMLDetailsElement | null;
-          if (allDetails) allDetails.open = true;
-          if (actionHref.startsWith('#')) {
-            const identifier = actionHref.slice(1);
-            const targetElement = document.getElementById(identifier);
-            if (targetElement && targetElement.tagName.toLowerCase() === 'details') (targetElement as HTMLDetailsElement).open = true;
-          }
-        });
-      }
-      nextSection.appendChild(actionLink);
-    }
-    innerContainer.appendChild(nextSection);
-  }
-  const allContainer = make('div', 'sum-all');
-  const checksElement = renderAllChecks(lastResult, vm, plan);
-  allContainer.appendChild(checksElement);
-  innerContainer.appendChild(allContainer);
-  return outerSection;
+  return link;
 }

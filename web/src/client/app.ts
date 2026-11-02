@@ -9,16 +9,18 @@ import { proofNavTitle, renderProofSection } from "./ui/proof.ts";
 import { renderWorking } from "./ui/working.ts";
 import { renderStepNav, startStepSpy } from "./stepper.ts";
 import { rerunHref } from "./fixes.ts";
-import type { CheckResult, FixesPayload, RecordPayload } from "./types.ts";
+import type { CheckResult, FixesPayload, RecordPayload, ViewModel, ResultPlan } from "./types.ts";
 
-const appEl = document.getElementById("app") as HTMLElement | null;
-const landingEl = document.getElementById("landing") as HTMLElement | null;
-const checkForm = document.getElementById("check-form") as HTMLFormElement | null;
-const repoInput = document.getElementById("repo-input") as HTMLInputElement | null;
-const checkError = document.getElementById("check-error") as HTMLElement | null;
-const checkErrorText = document.getElementById("check-error-text") as HTMLElement | null;
-const checkNote = document.getElementById("check-note") as HTMLElement | null;
-const terminalCard = document.getElementById("terminal-card") as HTMLElement | null;
+const appEl = document.getElementById("app");
+const landingEl = document.getElementById("landing");
+const checkFormCandidate = document.getElementById("check-form");
+const checkForm = checkFormCandidate instanceof HTMLFormElement ? checkFormCandidate : null;
+const repoInputCandidate = document.getElementById("repo-input");
+const repoInput = repoInputCandidate instanceof HTMLInputElement ? repoInputCandidate : null;
+const checkError = document.getElementById("check-error");
+const checkErrorText = document.getElementById("check-error-text");
+const checkNote = document.getElementById("check-note");
+const terminalCard = document.getElementById("terminal-card");
 
 let state: "empty" | "working" | "result" = "empty";
 let currentProgress: string[] = [];
@@ -30,6 +32,7 @@ const openDetailsKeys = new Set<string>();
 let isStreamOpen = false;
 let stopStepSpy: () => void = () => {};
 let hasEntered = false;
+let lastShownState = "";
 
 function showSavedCheck(): boolean {
   const el = document.getElementById("saved-check");
@@ -69,13 +72,18 @@ function maybeUpdateUrl(inputText: string): void {
   }
 }
 
+function removeOldCommandBox(): void {
+  if (!checkError) return;
+  for (const child of Array.from(checkError.children)) {
+    if (child.id !== "check-error-text") child.remove();
+  }
+}
+
 function showError(message: string): void {
   const { text, command } = splitErrorCommand(message);
   if (checkErrorText) checkErrorText.textContent = text;
   if (checkError) {
-    for (const child of Array.from(checkError.children)) {
-      if (child.id !== "check-error-text") child.remove();
-    }
+    removeOldCommandBox();
     if (command) {
       const box = createCommandBox(command);
       checkError.appendChild(box);
@@ -91,14 +99,51 @@ function showError(message: string): void {
 function clearError(): void {
   if (checkErrorText) checkErrorText.textContent = "";
   if (checkError) {
-    for (const child of Array.from(checkError.children)) {
-      if (child.id !== "check-error-text") child.remove();
-    }
+    removeOldCommandBox();
     checkError.hidden = true;
   }
   if (checkForm) checkForm.classList.remove("has-error");
   if (checkNote) checkNote.hidden = false;
   if (terminalCard) terminalCard.hidden = false;
+}
+
+function getCheckUrl(): string | null {
+  const url = repoInput ? repoInput.value.trim() : "";
+  if (!url) {
+    const msg = "That doesn't look like a public GitHub repo. Try https://github.com/owner/repo.";
+    isStreamOpen = false;
+    state = "empty";
+    render();
+    if (window.scrollY !== 0) window.scrollTo(0, 0);
+    showError(msg);
+    return null;
+  }
+  return url;
+}
+
+function resetCheckState(): void {
+  state = "working";
+  currentProgress = [];
+  lastResult = null;
+  lastFixes = null;
+  lastRecord = null;
+  isWaitingForFixes = false;
+  openDetailsKeys.clear();
+}
+
+async function getReader(url: string): Promise<ReadableStreamDefaultReader<Uint8Array>> {
+  const resp = await fetch(API + "/api/check", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url }) });
+  if (!resp.ok && !resp.body) throw new Error("network");
+  const reader = resp.body ? resp.body.getReader() : null;
+  if (!reader) throw new Error("no body");
+  return reader;
+}
+
+function handleCheckError(message: string): void {
+  isStreamOpen = false;
+  state = "empty";
+  render();
+  showError(message);
 }
 
 function render(): void {
@@ -108,172 +153,140 @@ function render(): void {
   while (appEl.firstChild) appEl.removeChild(appEl.firstChild);
   if (state === "empty") {
     if (landingEl) landingEl.hidden = false;
-    if (appEl) appEl.hidden = true;
-    appEl.dataset.state = "empty";
+    appEl.hidden = true;
+    lastShownState = "empty";
     return;
   }
   if (state === "working") {
     if (landingEl) landingEl.hidden = true;
-    if (appEl) appEl.hidden = false;
+    appEl.hidden = false;
     const rawUrl = repoInput ? repoInput.value.trim() : "";
     const repoName = repoFromInput(rawUrl) ?? (rawUrl || "");
     appEl.appendChild(renderWorking({ repoName, progress: currentProgress }));
-    const wasWorking = appEl.dataset.state === "working";
-    if (!wasWorking) window.scrollTo(0, 0);
-    appEl.dataset.state = "working";
+    if (lastShownState !== "working") window.scrollTo(0, 0);
+    lastShownState = "working";
     return;
   }
-  if (state === "result" && lastResult) {
-    if (landingEl) landingEl.hidden = true;
-    if (appEl) appEl.hidden = false;
-    const isEntering = !hasEntered;
-    if (isEntering) window.scrollTo(0, 0);
-    hasEntered = true;
-    const vm = viewModel(lastResult);
-    const plan = resultPlan(lastResult, lastFixes, isWaitingForFixes);
-    appEl.appendChild(renderSummary({ lastResult, vm, plan, lastFixes, isEntering }));
-    const numberedSections: HTMLElement[] = [];
-    const numberedNavItems: { id: string; stepNumber: number; title: string }[] = [];
-    const unnumberedSections: HTMLElement[] = [];
-    const unnumberedNavItems: { id: string; stepNumber: number; title: string }[] = [];
-    const clean = (s: string): string => s.replaceAll("`", "");
-    let stepCounter = 1;
-    const order = (plan as unknown as { stepOrder?: string[] }).stepOrder ?? [];
-    for (const key of order) {
-      let section: HTMLElement | null = null;
-      let title = "";
-      if (key === "files") {
-        section = renderFilesSection({ plan, lastFixes, lastResult, stepNumber: stepCounter });
-        title = clean((plan as unknown as { filesTitle: string }).filesTitle);
-      } else if (key === "install") {
-        section = renderInstallSection(plan, stepCounter);
-        title = "Install yokoten";
-      } else if (key === "hand") {
-        section = renderHandSection(plan, stepCounter);
-        title = clean((plan as unknown as { handTitle: string }).handTitle);
-      }
-      if (section) {
-        numberedSections.push(section);
-        numberedNavItems.push({ id: section.id, stepNumber: stepCounter, title });
-        stepCounter++;
-      }
+  if (state === "result" && lastResult) renderResult();
+}
+
+function renderResult(): void {
+  if (!appEl || !lastResult) return;
+  if (landingEl) landingEl.hidden = true;
+  appEl.hidden = false;
+  const isEntering = !hasEntered;
+  if (isEntering) window.scrollTo(0, 0);
+  hasEntered = true;
+  const vm = viewModel(lastResult);
+  const plan = resultPlan(lastResult, lastFixes, isWaitingForFixes);
+  appEl.appendChild(renderSummary({ lastResult, vm, plan, lastFixes, isEntering }));
+  const zone = buildStepsZone(lastResult, plan, vm);
+  if (zone) appEl.appendChild(zone);
+  lastShownState = "result";
+  restoreDetailsState(appEl, openDetailsKeys);
+  stopStepSpy = startStepSpy(appEl);
+  if (isEntering) openCheckFromHash();
+}
+
+function buildClosing(result: CheckResult): HTMLElement {
+  const owner = String(result.owner ?? "");
+  const repo = String(result.repo ?? "");
+  const closeSec = make("section", "close");
+  const heading = make("h2", undefined, "Made the changes?");
+  const paragraph = make("p", undefined, "Run the check again to see the new count.");
+  const link = make("a", "btn btn-primary ctl", "Run it again");
+  link.setAttribute("href", rerunHref(owner, repo));
+  closeSec.appendChild(heading);
+  closeSec.appendChild(paragraph);
+  closeSec.appendChild(link);
+  return closeSec;
+}
+
+function openCheckFromHash(): void {
+  if (!location.hash.startsWith("#check-")) return;
+  const target = document.getElementById(location.hash.slice(1));
+  if (!target) return;
+  if (target instanceof HTMLDetailsElement) {
+    target.open = true;
+    const allChecks = document.querySelector<HTMLDetailsElement>('details[data-key="all-checks"]');
+    if (allChecks) allChecks.open = true;
+  }
+  target.scrollIntoView();
+}
+
+function buildStepsZone(result: CheckResult, plan: ResultPlan, vm: ViewModel): HTMLElement | null {
+  const numberedSections: HTMLElement[] = [], unnumberedSections: HTMLElement[] = [];
+  const numberedNavItems: { id: string; stepNumber: number; title: string }[] = [], unnumberedNavItems: { id: string; stepNumber: number; title: string }[] = [];
+  const clean = (value: string): string => value.replaceAll("`", "");
+  let stepCounter = 1;
+  for (const key of plan.stepOrder) {
+    let section: HTMLElement | null = null, title = "";
+    if (key === "files") {
+      section = renderFilesSection({ plan, lastFixes, lastResult: result, stepNumber: stepCounter });
+      title = clean(plan.filesTitle);
+    } else if (key === "install") {
+      section = renderInstallSection(plan, stepCounter);
+      title = "Install yokoten";
+    } else if (key === "hand") {
+      section = renderHandSection(plan, stepCounter);
+      title = clean(plan.handTitle);
     }
-    const filesBlock = (plan as unknown as { filesBlock?: unknown }).filesBlock;
-    const filesAreStep = (plan as unknown as { filesAreStep?: boolean }).filesAreStep;
-    const isFilesHidden = filesBlock === "hidden" || (typeof filesBlock === "object" && filesBlock !== null && (filesBlock as { hidden?: boolean }).hidden === true);
-    if (!isFilesHidden && filesAreStep === false) {
-      const sec = renderFilesSection({ plan, lastFixes, lastResult, stepNumber: 0 });
-      if (sec) {
-        unnumberedSections.push(sec);
-        unnumberedNavItems.push({ id: sec.id, stepNumber: 0, title: clean((plan as unknown as { filesTitle: string }).filesTitle) });
-      }
-    }
-    const priv = renderPrivateSection({ vm });
-    if (priv) {
-      unnumberedSections.push(priv);
-      unnumberedNavItems.push({ id: priv.id, stepNumber: 0, title: "Is this meant to be public?" });
-    }
-    if (lastRecord !== null || isStreamOpen === false) {
-      const proof = renderProofSection({ vm, lastRecord });
-      unnumberedSections.push(proof);
-      unnumberedNavItems.push({ id: proof.id, stepNumber: 0, title: proofNavTitle(lastRecord) });
-    }
-    const navItems = [...numberedNavItems, ...unnumberedNavItems];
-    if (navItems.length > 0) {
-      const { rail, bar } = renderStepNav(navItems);
-      const zoneSteps = make("div", "zone-steps");
-      zoneSteps.appendChild(bar);
-      const grid = make("div", "steps-grid");
-      grid.appendChild(rail);
-      const stepsContainer = make("div");
-      stepsContainer.setAttribute("data-steps", "");
-      for (const s of numberedSections) stepsContainer.appendChild(s);
-      if (numberedSections.length > 0) {
-        const ownerVal = (lastResult as unknown as { owner?: string }).owner ?? "";
-        const repoVal = (lastResult as unknown as { repo?: string }).repo ?? "";
-        let finalOwner = ownerVal;
-        let finalRepo = repoVal;
-        const maybe = repoFromInput(repoInput ? repoInput.value.trim() : "");
-        if (maybe && maybe.includes("/")) {
-          const parts = maybe.split("/");
-          if (!finalOwner) finalOwner = parts[0];
-          if (!finalRepo) finalRepo = parts[1];
-        }
-        if ((!finalOwner || !finalRepo) && typeof repoVal === "string" && repoVal.includes("/")) {
-          const parts = repoVal.split("/");
-          if (!finalOwner) finalOwner = parts[0];
-          if (!finalRepo) finalRepo = parts[1];
-        }
-        const closeSec = make("section", "close");
-        const h2 = make("h2", undefined, "Made the changes?");
-        const p = make("p", undefined, "Run the check again to see the new count.");
-        const a = make("a", "btn btn-primary ctl", "Run it again");
-        a.setAttribute("href", rerunHref(finalOwner, finalRepo));
-        closeSec.appendChild(h2);
-        closeSec.appendChild(p);
-        closeSec.appendChild(a);
-        stepsContainer.appendChild(closeSec);
-      }
-      if (unnumberedSections.length > 0) {
-        const zonesAfter = make("div", "zones-after");
-        for (const s of unnumberedSections) zonesAfter.appendChild(s);
-        stepsContainer.appendChild(zonesAfter);
-      }
-      grid.appendChild(stepsContainer);
-      zoneSteps.appendChild(grid);
-      appEl.appendChild(zoneSteps);
-    }
-    appEl.dataset.state = "result";
-    restoreDetailsState(appEl, openDetailsKeys);
-    stopStepSpy = startStepSpy(appEl);
-    if (isEntering && location.hash.startsWith("#check-")) {
-      const target = document.getElementById(location.hash.slice(1));
-      if (target) {
-        if (target.tagName.toLowerCase() === "details") {
-          (target as HTMLDetailsElement).open = true;
-          const allChecks = document.querySelector('details[data-key="all-checks"]') as HTMLDetailsElement | null;
-          if (allChecks) allChecks.open = true;
-        }
-        target.scrollIntoView();
-      }
+    if (section) {
+      numberedSections.push(section);
+      numberedNavItems.push({ id: section.id, stepNumber: stepCounter, title });
+      stepCounter += 1;
     }
   }
+  if (plan.filesBlock !== "hidden" && plan.filesAreStep === false) {
+    const sec = renderFilesSection({ plan, lastFixes, lastResult: result, stepNumber: 0 });
+    if (sec) {
+      unnumberedSections.push(sec);
+      unnumberedNavItems.push({ id: sec.id, stepNumber: 0, title: clean(plan.filesTitle) });
+    }
+  }
+  const priv = renderPrivateSection({ vm });
+  if (priv) {
+    unnumberedSections.push(priv);
+    unnumberedNavItems.push({ id: priv.id, stepNumber: 0, title: "Is this meant to be public?" });
+  }
+  if (lastRecord !== null || isStreamOpen === false) {
+    const proof = renderProofSection({ vm, lastRecord });
+    unnumberedSections.push(proof);
+    unnumberedNavItems.push({ id: proof.id, stepNumber: 0, title: proofNavTitle(lastRecord) });
+  }
+  const navItems = [...numberedNavItems, ...unnumberedNavItems];
+  if (navItems.length === 0) return null;
+  const { rail, bar } = renderStepNav(navItems);
+  const zoneSteps = make("div", "zone-steps");
+  zoneSteps.appendChild(bar);
+  const grid = make("div", "steps-grid");
+  grid.appendChild(rail);
+  const stepsContainer = make("div");
+  stepsContainer.setAttribute("data-steps", "");
+  for (const item of numberedSections) stepsContainer.appendChild(item);
+  if (numberedSections.length > 0 && plan.filesBlock !== "waiting" && plan.filesBlock !== "lost") stepsContainer.appendChild(buildClosing(result));
+  if (unnumberedSections.length > 0) {
+    const zonesAfter = make("div", "zones-after");
+    for (const item of unnumberedSections) zonesAfter.appendChild(item);
+    stepsContainer.appendChild(zonesAfter);
+  }
+  grid.appendChild(stepsContainer);
+  zoneSteps.appendChild(grid);
+  return zoneSteps;
 }
 
 async function startCheck(): Promise<void> {
   hasEntered = false;
   clearOpenedFiles();
   isStreamOpen = true;
-  if (appEl) appEl.dataset.rendered = "";
   clearError();
-  const url = repoInput ? repoInput.value.trim() : "";
-  if (!url) {
-    const msg = "That doesn't look like a public GitHub repo. Try https://github.com/owner/repo.";
-    isStreamOpen = false;
-    state = "empty";
-    render();
-    if (window.scrollY !== 0) window.scrollTo(0, 0);
-    showError(msg);
-    return;
-  }
+  const url = getCheckUrl();
+  if (!url) return;
   maybeUpdateUrl(url);
-  state = "working";
-  currentProgress = [];
-  lastResult = null;
-  lastFixes = null;
-  lastRecord = null;
-  isWaitingForFixes = false;
-  openDetailsKeys.clear();
+  resetCheckState();
   render();
   try {
-    const resp = await fetch(API + "/api/check", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url }),
-    });
-    if (!resp.ok && !resp.body) throw new Error("network");
-    const reader = resp.body ? resp.body.getReader() : null;
-    if (!reader) throw new Error("no body");
+    const reader = await getReader(url);
     const decoder = new TextDecoder();
     let buffer = "";
     let hasResultOrError = false;
@@ -325,24 +338,20 @@ async function startCheck(): Promise<void> {
         }
       }
     }
-    if (!hasResultOrError) {
-      const msg = "The connection dropped. Try again.";
-      isStreamOpen = false;
-      state = "empty";
-      render();
-      showError(msg);
-    } else {
+    if (!hasResultOrError) handleCheckError("The connection dropped. Try again.");
+    else {
       isStreamOpen = false;
       markFixesLost();
       render();
     }
   } catch (_e) {
-    if (lastResult) { isStreamOpen = false; markFixesLost(); render(); return; }
-    const msg = "The connection dropped. Try again.";
-    isStreamOpen = false;
-    state = "empty";
-    render();
-    showError(msg);
+    if (lastResult) {
+      isStreamOpen = false;
+      markFixesLost();
+      render();
+      return;
+    }
+    handleCheckError("The connection dropped. Try again.");
   }
 }
 

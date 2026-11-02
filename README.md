@@ -32,7 +32,7 @@ For the full check on your own machine, run `npx yokoten`.
 
 ## How this is built
 
-Each tool does what it is good at. Claude Opus 5.5 plans and reviews. Muse Spark Open writes the code from task briefs, and writes each repo's project section at run time. yokoten makes the checks, which give the same result every time. Modal runs one throwaway sandbox for each check, and Baseten serves Muse Spark Open. See `REVIEW.md` and `docs/build-log.md`.
+Each tool does what it is good at. Claude plans and reviews. Muse Spark Open writes the code from task briefs, and writes each repo's project section at run time. yokoten makes the checks, which give the same result every time. Modal runs one throwaway sandbox for each check, and Baseten serves Muse Spark Open. See `REVIEW.md` and `docs/build-log.md`.
 
 ## Where to report
 

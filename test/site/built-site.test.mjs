@@ -21,7 +21,7 @@ function readAllDistCss() {
   const astroDir = path.join(distDir, '_astro');
   if (!fs.existsSync(astroDir)) return '';
   const cssFiles = fs.readdirSync(astroDir).filter((f) => f.endsWith('.css'));
-  return cssFiles.map((f) => fs.readFileSync(path.join(astroDir, f), 'utf8')).join('\n'));
+  return cssFiles.map((f) => fs.readFileSync(path.join(astroDir, f), 'utf8')).join('\n');
 }
 
 const allCss = readAllDistCss();

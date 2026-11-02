@@ -32,8 +32,7 @@ for (const [slug, exp] of Object.entries(EXPECTED)) {
     assert.equal(plan.handCount, exp.hand);
     assert.deepEqual(plan.stepOrder, exp.order);
     assert.deepEqual(plan.movedToInstall.map((s) => s.id), exp.moved);
-    const handIds = plan.handItems.map((h) => h.id).sort();
-    assert.deepEqual(handIds, [...exp.handIds].sort());
+    assert.deepEqual(plan.handItems.map((h) => h.id), exp.handIds);
     assert.equal(plan.action?.label, exp.label);
     assert.equal(plan.done + plan.gain + plan.installSteps.length + plan.handCount, plan.total);
     assert.equal(plan.isHandListShort, false);
@@ -48,7 +47,8 @@ test("only steps that move the count are numbered, and the first step is what \"
     const plan = resultPlan(data.result, data.fixes, false);
     const href = plan.action?.href ?? "";
     const mapped = map[href];
-    if (mapped) assert.equal(plan.stepOrder[0], mapped);
+    assert.ok(mapped, `action href ${href} should map to a step for ${slug}`);
+    assert.equal(plan.stepOrder[0], mapped);
     if (plan.gain === 0 && plan.action?.href !== "#files") {
       assert.equal(plan.stepOrder.includes("files"), false);
     }
@@ -117,6 +117,17 @@ test("with no install step, the changelog stays by hand with its command", () =>
   assert.equal(plan.handCount, 1);
   assert.equal(plan.handItems[0].command, INSTALL_COMMAND);
   assert.equal(plan.installStepNumber, 0);
+  assert.equal(resultCommands(plan).length, 1);
+});
+
+test("with no install step, the tests step shows its own command", () => {
+  const result = {
+    summary: { done: 12, total: 13, next: { id: 'tests', title: 'Run your tests on every push' }, steps: [{ id: 'tests', title: 'Run your tests on every push', mark: 'next', what: 'CI does not run the tests yet', fix: 'run `yokoten init` to add .github/workflows/yokoten.yml, then in it, add a tests job' }], install_only: [] },
+  };
+  const fixes = { files: [], muse: 'ok', after: { done: 12, total: 13 } };
+  const plan = resultPlan(result, fixes, false);
+  assert.equal(plan.handItems[0].command, INSTALL_COMMAND);
+  assert.ok(plan.handItems[0].after.startsWith("It adds .github/workflows/yokoten.yml. In that file, "));
   assert.equal(resultCommands(plan).length, 1);
 });
 

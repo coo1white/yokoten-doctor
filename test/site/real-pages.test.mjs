@@ -22,6 +22,7 @@ describe('real pages', () => {
   let skipReason = null;
   let siteHost = process.env.SITE_ORIGIN_HOST || '127.0.0.1';
   let usingExternal = false;
+  let send;
 
   const pages = [];
   const widths = [
@@ -43,6 +44,51 @@ describe('real pages', () => {
       '.xml': 'application/xml',
     };
     return map[ext] || 'application/octet-stream';
+  }
+
+  function makeSend() {
+    let id = 1;
+    const pending = new Map();
+    ws.onmessage = (ev) => {
+      const msg = JSON.parse(ev.data);
+      if (msg.id && pending.has(msg.id)) { const fn = pending.get(msg.id); pending.delete(msg.id); fn(msg); }
+    };
+    return function sendFn(method, params = {}) {
+      return new Promise((resolve, reject) => {
+        const cur = id++;
+        pending.set(cur, resolve);
+        ws.send(JSON.stringify({ id: cur, method, params }));
+        setTimeout(() => { if (pending.has(cur)) { pending.delete(cur); reject(new Error('cdp timeout ' + method)); } }, 15000);
+      });
+    };
+  }
+
+  async function evaluate(expression) {
+    const res = await send('Runtime.evaluate', { expression, returnByValue: true });
+    if (res.exceptionDetails || (res.result && res.result.exceptionDetails)) {
+      throw new Error('evaluate exception: ' + JSON.stringify(res.exceptionDetails || res.result.exceptionDetails));
+    }
+    if (res.result && res.result.result) return res.result.result.value;
+    if (res.result && 'value' in res.result) return res.result.value;
+    return res.result;
+  }
+
+  async function navigate(pagePath, width) {
+    await send('Emulation.setDeviceMetricsOverride', { width: width, height: 900, deviceScaleFactor: 1, mobile: false });
+    const url = `http://${siteHost}:${serverPort}${pagePath}`;
+    await send('Page.navigate', { url });
+    for (let i = 0; i < 60; i++) {
+      await new Promise((r) => setTimeout(r, 200));
+      const val = await evaluate('document.readyState');
+      if (val === 'complete') break;
+    }
+    if (pagePath.includes('/example/')) {
+      for (let i = 0; i < 30; i++) {
+        const has = await evaluate('!!document.querySelector("[data-steps]")');
+        if (has) break;
+        await new Promise((res) => setTimeout(res, 200));
+      }
+    }
   }
 
   before(async () => {
@@ -126,7 +172,6 @@ describe('real pages', () => {
       }
     }
 
-    // CDP: PUT /json/new?about:blank
     function httpRequest(opts) {
       return new Promise((resolve, reject) => {
         const req = http.request(opts, (res) => {
@@ -149,16 +194,15 @@ describe('real pages', () => {
     }
     ws = new WebSocket(wsUrl);
     await once(ws, 'open');
+    send = makeSend();
+    await send('Page.enable');
+    await send('Runtime.enable');
+    await send('Emulation.setScrollbarsHidden', { hidden: true });
   });
 
   after(async () => {
     if (ws) { try { ws.close(); } catch {} }
-    if (cdpPort && targetId && !usingExternal) {
-      await new Promise((resolve) => {
-        const req = http.request({ host: '127.0.0.1', port: cdpPort, path: `/json/close/${targetId}`, method: 'GET' }, (res) => { res.on('data', () => {}); res.on('end', resolve); });
-        req.on('error', resolve); req.end();
-      });
-    } else if (cdpPort && targetId && usingExternal) {
+    if (cdpPort && targetId) {
       await new Promise((resolve) => {
         const req = http.request({ host: '127.0.0.1', port: cdpPort, path: `/json/close/${targetId}`, method: 'GET' }, (res) => { res.on('data', () => {}); res.on('end', resolve); });
         req.on('error', resolve); req.end();
@@ -169,59 +213,13 @@ describe('real pages', () => {
     if (tmpDir) { try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch {} }
   });
 
-  function makeSend() {
-    let id = 1;
-    const pending = new Map();
-    ws.onmessage = (ev) => {
-      const msg = JSON.parse(ev.data);
-      if (msg.id && pending.has(msg.id)) { const fn = pending.get(msg.id); pending.delete(msg.id); fn(msg); }
-    };
-    return function send(method, params = {}) {
-      return new Promise((resolve, reject) => {
-        const cur = id++;
-        pending.set(cur, resolve);
-        ws.send(JSON.stringify({ id: cur, method, params }));
-        setTimeout(() => { if (pending.has(cur)) { pending.delete(cur); reject(new Error('cdp timeout ' + method)); } }, 15000);
-      });
-    };
-  }
-
-  async function navigate(pagePath, width) {
-    const send = makeSend();
-    await send('Page.enable');
-    await send('Runtime.enable');
-    await send('Emulation.setDeviceMetricsOverride', { width: width, height: 900, deviceScaleFactor: 1, mobile: false });
-    const url = `http://${siteHost}:${serverPort}${pagePath}`;
-    await send('Page.navigate', { url });
-    for (let i = 0; i < 60; i++) {
-      await new Promise((r) => setTimeout(r, 200));
-      const res = await send('Runtime.evaluate', { expression: 'document.readyState', returnByValue: true });
-      const val = res.result && res.result.result && res.result.result.value;
-      if (val === 'complete') break;
-      if (res.result && res.result.result && res.result.result.value === 'complete') break;
-      const check = await send('Runtime.evaluate', { expression: 'document.readyState === "complete"', returnByValue: true });
-      if (check.result && check.result.result && check.result.result.value === true) break;
-    }
-    if (pagePath.includes('/example/')) {
-      for (let i = 0; i < 30; i++) {
-        const r = await send('Runtime.evaluate', { expression: '!!document.querySelector("[data-steps]")', returnByValue: true });
-        if (r.result && r.result.result && r.result.result.value) break;
-        await new Promise((res) => setTimeout(res, 200));
-      }
-    }
-    return send;
-  }
-
   test('one container: on every page and width, the header, footer and every container share one left and right edge', { timeout: 180000 }, async (t) => {
     if (skipReason) { t.skip(skipReason); return; }
     for (const pagePath of pages) {
       for (const { w, left: expLeft, right: expRight } of widths) {
-        const send = await navigate(pagePath, w);
-        const res = await send('Runtime.evaluate', { expression: `(() => { const els = [...document.querySelectorAll('.wide, .sum-in, .steps-grid')]; const out=[]; for (const el of els) { const rect = el.getBoundingClientRect(); if (rect.width===0 || rect.height===0) continue; if (el.closest('.steps-grid') && !el.classList.contains('steps-grid') && !el.classList.contains('wide') && !el.classList.contains('sum-in')) { if (el.parentElement && el.parentElement.classList.contains('steps-grid')) continue; } const style=getComputedStyle(el); const left=Math.round(rect.left+parseFloat(style.paddingLeft)); const right=Math.round(rect.right-parseFloat(style.paddingRight)); out.push({cls: el.className, left, right}); } return out; })()`, returnByValue: true });
-        const items = res.result.result.value;
+        await navigate(pagePath, w);
+        const items = await evaluate(`(() => { const els = [...document.querySelectorAll('.wide, .sum-in, .steps-grid')]; const out=[]; for (const el of els) { const rect = el.getBoundingClientRect(); if (rect.width===0 || rect.height===0) continue; const style=getComputedStyle(el); const left=Math.round(rect.left+parseFloat(style.paddingLeft)); const right=Math.round(rect.right-parseFloat(style.paddingRight)); out.push({cls: el.className, left, right}); } return out; })()`);
         for (const it of items) {
-          if (it.cls.includes('steps-grid') && false) continue;
-          // skip children of steps-grid
           assert.equal(it.left, expLeft, `${pagePath} width ${w} ${it.cls} left ${it.left} != ${expLeft}`);
           assert.equal(it.right, expRight, `${pagePath} width ${w} ${it.cls} right ${it.right} != ${expRight}`);
         }
@@ -233,9 +231,8 @@ describe('real pages', () => {
     if (skipReason) { t.skip(skipReason); return; }
     for (const pagePath of pages) {
       for (const { w } of widths) {
-        const send = await navigate(pagePath, w);
-        const res = await send('Runtime.evaluate', { expression: 'document.documentElement.scrollWidth <= window.innerWidth', returnByValue: true });
-        const ok = res.result.result.value;
+        await navigate(pagePath, w);
+        const ok = await evaluate('document.documentElement.scrollWidth <= window.innerWidth');
         assert.ok(ok, `${pagePath} width ${w} should not scroll sideways: scrollWidth > innerWidth`);
       }
     }
@@ -245,16 +242,13 @@ describe('real pages', () => {
     if (skipReason) { t.skip(skipReason); return; }
     const examplePages = pages.filter((p) => p.startsWith('/example/'));
     for (const pagePath of examplePages) {
-      const send = await navigate(pagePath, 1440);
-      await send('Runtime.evaluate', { expression: 'document.querySelectorAll("#verify details").forEach(d=>d.open=true)', returnByValue: true });
-      const res = await send('Runtime.evaluate', { expression: 'document.querySelectorAll("#verify a[href*=\\"sigstore\\"], #verify a[href*=\\"solana\\"]").length', returnByValue: true });
-      const count = res.result.result.value;
+      await navigate(pagePath, 1440);
+      await evaluate('document.querySelectorAll("#verify details").forEach(d=>d.open=true)');
+      const count = await evaluate('document.querySelectorAll("#verify a[href*=\\"sigstore\\"], #verify a[href*=\\"solana\\"]").length');
       assert.equal(count, 1, `${pagePath} should have exactly 1 sigstore/solana link`);
-      const res2 = await send('Runtime.evaluate', { expression: 'document.querySelector("#verify a[href*=\\"sigstore\\"], #verify a[href*=\\"solana\\"]").href', returnByValue: true });
-      const href = res2.result.result.value || '';
+      const href = await evaluate('document.querySelector("#verify a[href*=\\"sigstore\\"], #verify a[href*=\\"solana\\"]").href');
       assert.ok(href.includes('sigstore'), `${pagePath} link should hold sigstore, got ${href}`);
-      const res3 = await send('Runtime.evaluate', { expression: 'document.querySelector("#verify").innerText', returnByValue: true });
-      const txt = res3.result.result.value || '';
+      const txt = await evaluate('document.querySelector("#verify").innerText');
       assert.equal(txt.includes('The HOME part'), false, `${pagePath} #verify should not contain The HOME part`);
     }
   });
@@ -263,23 +257,19 @@ describe('real pages', () => {
     if (skipReason) { t.skip(skipReason); return; }
     const examplePages = pages.filter((p) => p.startsWith('/example/'));
     for (const pagePath of examplePages) {
-      const send = await navigate(pagePath, 1440);
-      const resRail = await send('Runtime.evaluate', { expression: 'document.querySelectorAll(".rail li:not(.rail-extra)").length', returnByValue: true });
-      const N = resRail.result.result.value;
+      await navigate(pagePath, 1440);
+      const N = await evaluate('document.querySelectorAll(".rail li:not(.rail-extra)").length');
       assert.ok(N > 0, `${pagePath} rail count N should be >0`);
-      const resCount = await send('Runtime.evaluate', { expression: 'document.querySelector(".rail-count").textContent', returnByValue: true });
-      const railText = (resCount.result.result.value || '').trim();
+      const railText = (await evaluate('document.querySelector(".rail-count").textContent') || '').trim();
       assert.equal(railText, `Step 1 of ${N}`, `${pagePath} .rail-count should be Step 1 of ${N}, got ${railText}`);
-      const resSteps = await send('Runtime.evaluate', { expression: 'document.querySelectorAll("section.step[data-no]").length', returnByValue: true });
-      const stepCount = resSteps.result.result.value;
+      const stepCount = await evaluate('document.querySelectorAll("section.step[data-no]").length');
       assert.equal(stepCount, N, `${pagePath} section.step[data-no] should be ${N}`);
-      const resPrivate = await send('Runtime.evaluate', { expression: '(() => { const el=document.querySelector("#private"); return el ? el.hasAttribute("data-no") : false; })()', returnByValue: true });
-      const hasPrivateNo = resPrivate.result.result.value;
+      const hasPrivateNo = await evaluate('(() => { const el=document.querySelector("#private"); return el ? el.hasAttribute("data-no") : false; })()');
       assert.equal(hasPrivateNo, false, `${pagePath} #private should have no data-no`);
-      const resVerifyNo = await send('Runtime.evaluate', { expression: '(() => { const el=document.querySelector("#verify"); return el ? el.hasAttribute("data-no") : false; })()', returnByValue: true });
-      assert.equal(resVerifyNo.result.result.value, false, `${pagePath} #verify should have no data-no`);
-      const resVerifyExists = await send('Runtime.evaluate', { expression: '!!document.querySelector("#verify")', returnByValue: true });
-      assert.ok(resVerifyExists.result.result.value, `${pagePath} #verify should be on the page`);
+      const hasVerifyNo = await evaluate('(() => { const el=document.querySelector("#verify"); return el ? el.hasAttribute("data-no") : false; })()');
+      assert.equal(hasVerifyNo, false, `${pagePath} #verify should have no data-no`);
+      const verifyExists = await evaluate('!!document.querySelector("#verify")');
+      assert.ok(verifyExists, `${pagePath} #verify should be on the page`);
     }
   });
 
@@ -288,15 +278,25 @@ describe('real pages', () => {
     const checkPages = pages.filter((p) => p.startsWith('/example/'));
     checkPages.push('/', '/agent-view.html');
     for (const pagePath of checkPages) {
-      const send = await navigate(pagePath, 1440);
-      await send('Runtime.evaluate', { expression: 'document.querySelectorAll("details").forEach(d=>d.open=true)', returnByValue: true });
-      const res = await send('Runtime.evaluate', { expression: 'JSON.stringify([...document.querySelectorAll(".cmd code, .hash code")].map(e=>e.textContent.trim()))', returnByValue: true });
-      const arr = JSON.parse(res.result.result.value || '[]');
+      await navigate(pagePath, 1440);
+      await evaluate('document.querySelectorAll("details").forEach(d=>d.open=true)');
+      const arr = JSON.parse(await evaluate('JSON.stringify([...document.querySelectorAll(".cmd code, .hash code")].map(e=>e.textContent.trim()))') || '[]');
+      assert.ok(arr.length > 0, `${pagePath} should have at least one command`);
       const seen = new Set();
       for (const c of arr) {
         assert.equal(seen.has(c), false, `${pagePath} command should not repeat: ${c}`);
         seen.add(c);
       }
     }
+  });
+
+  test('a jump to a step marks it in the rail', { timeout: 180000 }, async (t) => {
+    if (skipReason) { t.skip(skipReason); return; }
+    await navigate('/example/Uniswap-v4-core.html', 1440);
+    await evaluate('document.querySelector(\'.rail [data-step-link="install"]\').click()');
+    const cur = await evaluate('document.querySelector(\'.rail [data-step-link="install"]\').getAttribute("aria-current")');
+    assert.equal(cur, 'step');
+    const count = await evaluate('document.querySelector(".rail-count").textContent');
+    assert.equal((count || '').trim(), 'Step 2 of 3');
   });
 });

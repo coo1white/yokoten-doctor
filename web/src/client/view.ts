@@ -1,4 +1,4 @@
-import type { CheckResult, FixesPayload, ViewModel, Rerun, ResultPlan, StepKey, FilesBlock, HandItem } from "./types.ts";
+import type { CheckResult, FixesPayload, ViewModel, Rerun, ResultPlan, StepKey, FilesBlock, HandItem, PlanAction, SummaryStep } from "./types.ts";
 
 export function toSentence(text: string): string {
   if (!text) return "";
@@ -180,11 +180,7 @@ export function splitErrorCommand(message: string): { text: string; command: str
   return { text: message, command: "" };
 }
 
-function handBase(id: string): HandItem {
-  return { id, title: "", wrong: "", list: [], command: "", after: "" };
-}
-
-function buildHandItem(step: { id: string; title: string; what?: string; fix?: string }, installStepNumber: number, importInfo: { file: string; line: string } | null): HandItem {
+function buildHandItem(step: SummaryStep, installStepNumber: number, importInfo: { file: string; line: string } | null): HandItem {
   if (step.id === "no-build-output") {
     const m = (step.what ?? "").match(/\(([^)]*)\)/);
     const inner = m ? m[1] : "";
@@ -286,7 +282,7 @@ export function resultPlan(result: CheckResult, fixes: FixesPayload | null, isWa
   });
   const idx = stepOrder.indexOf("install");
   const installStepNumber = idx === -1 ? 0 : idx + 1;
-  const handItems = remaining.map((step) => buildHandItem(step as { id: string; title: string; what?: string; fix?: string }, installStepNumber, importInfo));
+  const handItems = remaining.map((step) => buildHandItem(step, installStepNumber, importInfo));
   const handTitle = remaining.length === 1 && !isHandListShort ? remaining[0].title : handCount === 1 ? "Fix 1 by hand" : `Fix these ${handCount} by hand`;
   const filesTitle = (() => {
     if (filesBlock === "waiting") return "Get your files";

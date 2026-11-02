@@ -65,125 +65,110 @@ export function make<K extends keyof HTMLElementTagNameMap>(tag: K, className?: 
   if (text !== undefined) element.textContent = text;
   return element;
 }
+
 export function createRich<K extends keyof HTMLElementTagNameMap>(tag: K, className: string | undefined, text: string): HTMLElementTagNameMap[K] {
   const element = make(tag, className);
   renderRichText(text, element);
   return element;
 }
-export type IconName = 'out' | 'check' | 'circle' | 'dot' | 'right';
+
+export type IconName = "out" | "check" | "circle" | "dot" | "right";
+
+const iconTable: Record<IconName, { size: number; strokeWidth: string; shapes: { tag: string; attrs: Record<string, string> }[] }> = {
+  out: { size: 16, strokeWidth: "2", shapes: [{ tag: "path", attrs: { d: "M7 17L17 7M9 7h8v8" } }] },
+  check: { size: 18, strokeWidth: "2.2", shapes: [{ tag: "path", attrs: { d: "M5 12.5l4.5 4.5L19 7.5" } }] },
+  circle: { size: 18, strokeWidth: "1.7", shapes: [{ tag: "circle", attrs: { cx: "12", cy: "12", r: "7.5" } }] },
+  dot: {
+    size: 18,
+    strokeWidth: "1.7",
+    shapes: [
+      { tag: "circle", attrs: { cx: "12", cy: "12", r: "7.5" } },
+      { tag: "circle", attrs: { cx: "12", cy: "12", r: "3", fill: "currentColor", stroke: "none" } },
+    ],
+  },
+  right: { size: 20, strokeWidth: "1.7", shapes: [{ tag: "path", attrs: { d: "M9 6l6 6-6 6" } }] },
+};
+
 export function createIcon(name: IconName): SVGSVGElement {
-  const svgElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svgElement.setAttribute('viewBox', '0 0 24 24');
-  svgElement.setAttribute('fill', 'none');
-  svgElement.setAttribute('stroke', 'currentColor');
-  svgElement.setAttribute('stroke-linecap', 'round');
-  svgElement.setAttribute('stroke-linejoin', 'round');
-  svgElement.setAttribute('aria-hidden', 'true');
-  let sizeValue = 18;
-  let strokeWidthValue = '1.7';
-  if (name === 'right') {
-    sizeValue = 20;
-    strokeWidthValue = '1.7';
-  } else if (name === 'out') {
-    sizeValue = 16;
-    strokeWidthValue = '2';
-  } else if (name === 'check') {
-    sizeValue = 18;
-    strokeWidthValue = '2.2';
-  } else if (name === 'circle') {
-    sizeValue = 18;
-    strokeWidthValue = '1.7';
-  } else if (name === 'dot') {
-    sizeValue = 18;
-    strokeWidthValue = '1.7';
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("fill", "none");
+  svg.setAttribute("stroke", "currentColor");
+  svg.setAttribute("stroke-linecap", "round");
+  svg.setAttribute("stroke-linejoin", "round");
+  svg.setAttribute("aria-hidden", "true");
+  const config = iconTable[name];
+  svg.setAttribute("width", String(config.size));
+  svg.setAttribute("height", String(config.size));
+  svg.setAttribute("stroke-width", config.strokeWidth);
+  for (const shape of config.shapes) {
+    const element = document.createElementNS("http://www.w3.org/2000/svg", shape.tag);
+    for (const [key, value] of Object.entries(shape.attrs)) {
+      element.setAttribute(key, value);
+    }
+    svg.appendChild(element);
   }
-  svgElement.setAttribute('width', String(sizeValue));
-  svgElement.setAttribute('height', String(sizeValue));
-  svgElement.setAttribute('stroke-width', strokeWidthValue);
-  if (name === 'right') {
-    const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    pathElement.setAttribute('d', 'M9 6l6 6-6 6');
-    svgElement.appendChild(pathElement);
-  } else if (name === 'out') {
-    const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    pathElement.setAttribute('d', 'M7 17L17 7M9 7h8v8');
-    svgElement.appendChild(pathElement);
-  } else if (name === 'check') {
-    const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    pathElement.setAttribute('d', 'M5 12.5l4.5 4.5L19 7.5');
-    svgElement.appendChild(pathElement);
-  } else if (name === 'circle') {
-    const circleElement = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    circleElement.setAttribute('cx', '12');
-    circleElement.setAttribute('cy', '12');
-    circleElement.setAttribute('r', '7.5');
-    svgElement.appendChild(circleElement);
-  } else if (name === 'dot') {
-    const outerCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    outerCircle.setAttribute('cx', '12');
-    outerCircle.setAttribute('cy', '12');
-    outerCircle.setAttribute('r', '7.5');
-    svgElement.appendChild(outerCircle);
-    const innerCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    innerCircle.setAttribute('cx', '12');
-    innerCircle.setAttribute('cy', '12');
-    innerCircle.setAttribute('r', '3');
-    innerCircle.setAttribute('fill', 'currentColor');
-    innerCircle.setAttribute('stroke', 'none');
-    svgElement.appendChild(innerCircle);
-  }
-  return svgElement;
+  return svg;
 }
+
 export function createCopyButton(text: string, className: string): HTMLButtonElement {
-  const buttonElement = document.createElement('button');
-  buttonElement.type = 'button';
-  buttonElement.className = className;
-  buttonElement.textContent = 'Copy';
-  buttonElement.setAttribute('data-copy', text);
-  return buttonElement;
+  const button = make("button", className, "Copy");
+  button.type = "button";
+  button.setAttribute("data-copy", text);
+  return button;
 }
+
 export function createCommandBox(text: string, options?: { isBig?: boolean; isPrimary?: boolean }): HTMLDivElement {
-  let boxClass = 'cmd';
-  if (options?.isBig) boxClass += ' cmd-big';
-  if (text.includes('\n')) boxClass += ' cmd-multi';
-  const container = make('div', boxClass);
-  const preElement = make('pre');
-  const codeElement = make('code');
-  codeElement.textContent = text;
-  preElement.appendChild(codeElement);
-  container.appendChild(preElement);
-  let buttonClass = 'btn btn-line btn-sm ctl';
-  if (options?.isPrimary) buttonClass = 'btn btn-primary ctl';
-  else if (options?.isBig) buttonClass = 'btn btn-line ctl';
-  const copyButton = createCopyButton(text, buttonClass);
-  container.appendChild(copyButton);
+  let boxClass = "cmd";
+  if (options?.isBig) boxClass += " cmd-big";
+  if (text.includes("\n")) boxClass += " cmd-multi";
+  const container = make("div", boxClass);
+  const pre = make("pre");
+  const code = make("code");
+  code.textContent = text;
+  pre.appendChild(code);
+  container.appendChild(pre);
+  const buttonClass = getButtonClass(options);
+  const button = createCopyButton(text, buttonClass);
+  container.appendChild(button);
   return container;
 }
-export function createFold(title: string | Node[], body: Node[], options: { key: string; className?: string; id?: string }): HTMLDetailsElement {
-  const detailsElement = document.createElement('details');
-  detailsElement.className = 'fold' + (options.className ? ' ' + options.className : '');
-  detailsElement.setAttribute('data-key', options.key);
-  if (options.id) detailsElement.id = options.id;
-  const summaryElement = document.createElement('summary');
-  if (typeof title === 'string') {
-    const titleSpan = make('span', undefined, title);
-    summaryElement.appendChild(titleSpan);
-  } else {
-    for (const node of title) summaryElement.appendChild(node);
-  }
-  detailsElement.appendChild(summaryElement);
-  const bodyContainer = make('div', 'fold-body');
-  for (const node of body) bodyContainer.appendChild(node);
-  detailsElement.appendChild(bodyContainer);
-  return detailsElement;
+
+function getButtonClass(options?: { isBig?: boolean; isPrimary?: boolean }): string {
+  if (options?.isPrimary) return "btn btn-primary ctl";
+  if (options?.isBig) return "btn btn-line ctl";
+  return "btn btn-line btn-sm ctl";
 }
-export function createStepHeading(stepNumber: number, title: string): HTMLHeadingElement {
-  const headingElement = make('h2', 'step-title');
-  if (stepNumber > 0) {
-    const numberSpan = make('span', 'step-n', `Step ${stepNumber}.`);
-    headingElement.appendChild(numberSpan);
-    headingElement.appendChild(document.createTextNode(' '));
+
+export function createFold(title: string | Node[], body: Node[], options: { key: string; className?: string; id?: string }): HTMLDetailsElement {
+  const details = make("details", "fold" + (options.className ? " " + options.className : ""));
+  details.setAttribute("data-key", options.key);
+  if (options.id) details.id = options.id;
+  const summary = make("summary");
+  appendTitle(summary, title);
+  details.appendChild(summary);
+  const wrap = make("div", "fold-body");
+  for (const node of body) wrap.appendChild(node);
+  details.appendChild(wrap);
+  return details;
+}
+
+function appendTitle(summary: HTMLElement, title: string | Node[]): void {
+  if (typeof title === "string") {
+    const span = make("span", undefined, title);
+    summary.appendChild(span);
+  } else {
+    for (const node of title) summary.appendChild(node);
   }
-  renderRichText(title, headingElement);
-  return headingElement;
+}
+
+export function createStepHeading(stepNumber: number, title: string): HTMLHeadingElement {
+  const heading = make("h2", "step-title");
+  if (stepNumber > 0) {
+    const number = make("span", "step-n", `Step ${stepNumber}.`);
+    heading.appendChild(number);
+    heading.appendChild(document.createTextNode(" "));
+  }
+  renderRichText(title, heading);
+  return heading;
 }

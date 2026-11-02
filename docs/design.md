@@ -80,41 +80,35 @@ Not in v1 (said out loud so nobody builds it):
 
 ## 4. User flow (one page, three states)
 
-**State A, empty.**
+**State A, empty.** The first screen is one headline, one input with the cursor
+already in it, and one button: Check. Under it are real saved results, what the
+page reads and sends, and the same check for a terminal.
 
-- Headline: "A health check for repos that AI agents work in."
-- One input: GitHub repo URL. One button: Check.
-- Under the button, before any click, the privacy line (always visible):
-  "We copy the public files of this repo into a throwaway sandbox, run yokoten
-  on them, and send some of them to Muse Spark Open (Meta's open model, run by
-  Baseten) to write the fixes. Public repos only. We keep nothing."
-- Three example repos as links, so a judge can try it in one click.
+**State B, working.** The running screen takes the whole page. It shows the
+stages from the server's `progress` events, and nothing fakes a percent.
 
-**State B, working.** Shows the steps as they happen, so the wait is honest:
-"Copying the repo… yokoten is checking… Muse is writing AGENTS.md…" The checks
-appear the moment yokoten is done; the Muse part streams in after.
+**State C, result.** Zones, from the top:
 
-**State C, result.** Laid out like `yokoten doctor` in a terminal, so a user
-who moves to the CLI sees the same thing:
+1. A summary band: the repo, the count, a bar split by what fixes each check,
+   and a legend that adds up to the total (for example 4 pass, +3 with files,
+   +5 with yokoten, +1 by hand). Beside it, "Do this first" with one button.
+   "See all 13 checks" folds out every check.
+2. Numbered steps. Only what moves the count is a step, and "Step 1 of 3" counts
+   those. The first step is always what "Do this first" points at. A rail (from
+   1024 px) or a small bar (below it) shows where you are on the page. The site
+   can't see GitHub, so it never marks a step done.
+3. Unnumbered zones: files that change nothing, "Is this meant to be public?",
+   and the record ("On record since <time>").
 
-1. Top line: "done 8 of 13 file checks · next: <the first step not done>" (the
-   counts come from yokoten's output, never hard-coded).
-2. One sentence, written by Muse, about this repo, e.g. "An agent here would
-   not know how to run the tests, because nothing in the repo says how."
-3. The next step only: yokoten's own what, why and fix for it, and the file
-   Muse wrote for it (path, content, Copy button).
-4. "Show all checks" folds out the rest, in yokoten's road order, each with its
-   mark (done / to do / needs your machine), and its own file if any.
-5. One button for all fixes: "Download patch" (a `git apply` patch), with the
-   two commands to apply it.
-6. **Check it yourself** (always visible, small): "Checked by yokoten 0.2.0 at
-   commit abc1234" and the command to re-run it, with a Copy button
-   (section 6.4).
-7. Two folds that make the page open:
-   - **How this was judged**, inside each check: yokoten's own "how" text for
-     that step and a link to that step in yokoten's source.
-   - **What we sent to Muse**: the list of files read, their sizes, and the full
-     prompt, as sent.
+A file row has one button, in one column. The first row not yet opened has the
+filled button. A long file gets "Copy and open GitHub": one click copies it,
+then opens the new-file page. A check that `yokoten init` alone makes pass
+counts under the install step, so one command never shows twice on a page.
+The function `resultPlan` in `web/src/client/view.ts` decides all of this.
+
+Every page uses one container width from one token, `--wide`. Blue means you can
+press it, green means passing, yellow means needs work, and red is only for a
+run that stopped.
 
 Mobile width works. No sign-in, no cookies apart from what the host needs.
 
@@ -387,8 +381,9 @@ shows `git apply yokoten-doctor.patch` under the button.
   the user reads it and clicks "Commit changes", choosing a new branch and a
   pull request. No install, no terminal, and we still hold no write access.
   GitHub accepted a 6,000-character link and failed from 7,000 (measured without
-  a login, 2026-10-31). A file too long for the link, such as AGENTS.md, gets two
-  steps: copy the text, then open the new-file page with the name filled in.
+  a login, 2026-10-31). A file too long for the link, such as AGENTS.md, gets one
+  button, "Copy and open GitHub": it copies the text, then opens the new-file
+  page with the name filled in.
 - Then the patch download above, folded.
 - Last, folded, a copyable block turns the patch into a pull request from
   the user's own machine, with the user's own account (we still hold no write
@@ -425,16 +420,15 @@ OpenSSF Scorecard: the hosted run is a convenience, and anyone can re-run it.
   code, not tested offline). The sandbox has none of these, so its result is
   repo-only; on a user's own laptop the same command may add findings from the
   user's own marks. So the page's re-run line for check uses a throwaway home
-  folder, and says why:
+  folder:
 
   ```
   HOME="$(mktemp -d)" npx yokoten@<version> check --json
   ```
 
   The page shows both commands in one box, in order, because `check` must run
-  in the same folder: "The HOME part runs the check with an empty home folder,
-  so your own settings don't change the result." (A matching mode in yokoten
-  may come later; noted on yokoten issue #1256.)
+  in the same folder. (A matching mode in yokoten may come later; noted on
+  yokoten issue #1256.)
 - The result JSON (what the page shows, minus Muse's files) can be downloaded,
   with its SHA-256 shown, so a user can keep it and compare later.
 
@@ -457,8 +451,8 @@ Two records, both free (decided by the owner 2026-10-28: Solana devnet):
    a later decision of the owner's, not part of this build. Claude and Muse
    never move funds on any network.
 
-The result page links to both entries. If only one fits in the time, Rekor
-first.
+The server writes both. The result page links to one entry: Rekor, or the
+Solana memo, labelled as a test network, only when Rekor is missing.
 
 ## 7. Safety and abuse
 

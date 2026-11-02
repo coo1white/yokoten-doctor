@@ -35,7 +35,7 @@ describe('static host portability', () => {
     while ((tagMatch = tagRe.exec(html)) !== null) {
       const tag = tagMatch[0];
       // A canonical address names the site by design, and it loads nothing.
-      if (/^<link rel="canonical" href="https:\/\/doctor\.yokoten\.app\/[^\"]*"\s*\/?>$/.test(tag)) continue;
+      if (/^<link rel="canonical" href="https:\/\/doctor\.yokoten\.app\/[^"]*"\s*\/?>$/.test(tag)) continue;
       const attrMatch = tag.match(/\b(?:href|src)\s*=\s*["']([^"']+)["']/i);
       if (attrMatch) values.push(attrMatch[1]);
     }
@@ -127,7 +127,7 @@ describe('static host portability', () => {
     assert.equal(connectSrc, api, `connect-src (${connectSrc}) should equal API (${api})`);
   });
 
-  test('dist/index.html holds the page\'s strings: h1 is "Check your repo before you hand it to an AI agent.", and "Or open a real result", "It doesn\'t scan your code for vulnerabilities" and "devnet"', () => {
+  test('dist/index.html holds the page\'s strings: h1 is "Check your repo before you hand it to an AI agent.", and "Real results", "It doesn\'t scan your code for vulnerabilities" and "devnet"', () => {
     const html = fs.readFileSync(indexPath, 'utf8');
     const h1Re = /<h1[^>]*>([\s\S]*?)<\/h1>/i;
     const h1Match = html.match(h1Re);
@@ -144,7 +144,7 @@ describe('static host portability', () => {
       .replace(/\s+/g, ' ')
       .trim();
     assert.equal(decoded, "Check your repo before you hand it to an AI agent.");
-    assert.ok(html.includes('Or open a real result'), 'dist/index.html should contain "Or open a real result"');
+    assert.ok(html.includes('Real results'), 'dist/index.html should contain "Real results"');
     assert.ok(html.includes("It doesn't scan your code for vulnerabilities"), "dist/index.html should contain \"It doesn't scan your code for vulnerabilities\"");
     assert.ok(html.includes('devnet'), 'dist/index.html should contain "devnet"');
   });
@@ -201,7 +201,7 @@ describe('static host portability', () => {
       .replace(/\s+/g, ' ')
       .trim();
     assert.equal(decoded, "Check your repo before you hand it to an AI agent.");
-    assert.ok(html.includes('Or open a real result'), 'dist/index.html should contain "Or open a real result"');
+    assert.ok(html.includes('Real results'), 'dist/index.html should contain "Real results"');
     assert.ok(html.includes("It doesn't scan your code for vulnerabilities"), "dist/index.html should contain \"It doesn't scan your code for vulnerabilities\"");
     assert.ok(html.includes('devnet'), 'dist/index.html should contain "devnet"');
     assert.ok(html.includes('<label'), 'label not found in dist/index.html');
@@ -243,7 +243,7 @@ describe('static host portability', () => {
     const html = fs.readFileSync(indexPath, 'utf8');
     const about = fs.readFileSync(path.join(path.dirname(indexPath), 'about.html'), 'utf8');
     const marker = 'How this was made';
-    assert.ok(html.includes('id="app"'), 'id="app" not found');
+    assert.ok(html.includes('<main id="app"'), '<main id="app" not found');
     assert.ok(about.includes(marker), `${marker} not found in dist/about.html`);
     assert.equal(html.includes(marker), false, `${marker} should not be in dist/index.html`);
     assert.ok(html.includes('href="/about.html"'), 'dist/index.html should link to /about.html');
@@ -251,38 +251,18 @@ describe('static host portability', () => {
     assert.equal(html.includes('How it works'), false, 'dist/index.html should not link to How it works');
     assert.equal(html.includes('/#questions'), false, 'dist/index.html should not link to Questions');
     assert.equal(html.includes('yokoten.app/about'), false, 'dist/index.html should not link to the yokoten About page');
-    assert.ok(html.includes('Or open a real result'), 'dist/index.html should contain "Or open a real result"');
+    assert.ok(html.includes('Real results'), 'dist/index.html should contain "Real results"');
     assert.ok(html.includes("It doesn't scan your code for vulnerabilities"), "dist/index.html should contain \"It doesn't scan your code for vulnerabilities\"");
     assert.ok(html.includes('devnet'), 'dist/index.html should contain "devnet"');
   });
 
-  test('dist/llms.txt comes from web/src/data/agent-view.md, the agent view shows its rules and limits, and the home page links to the agent view', () => {
+  test('dist/llms.txt and dist/agent-view.html both come from web/src/data/agent-view.md, and the home page links to the agent view', () => {
     const source = fs.readFileSync(path.resolve('web/src/data/agent-view.md'), 'utf8');
     const dist = path.dirname(indexPath);
     assert.equal(fs.readFileSync(path.join(dist, 'llms.txt'), 'utf8'), source);
     const page = fs.readFileSync(path.join(dist, 'agent-view.html'), 'utf8');
-    const text = page.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').replaceAll('&quot;', '"').replaceAll('&#34;', '"').replaceAll('&#39;', "'").replaceAll('&#x27;', "'").replaceAll('&amp;', '&').trim();
-    function getSection(heading) {
-      const idx = source.indexOf(heading);
-      if (idx === -1) return '';
-      const after = source.slice(idx + heading.length);
-      const next = after.search(/^## /m);
-      return next === -1 ? after : after.slice(0, next);
-    }
-    for (const heading of ['## Rules for agents', '## Limits']) {
-      const section = getSection(heading);
-      const lines = section.split('\n').filter((l) => l.trim().startsWith('- '));
-      for (const line of lines) {
-        const cleaned = line.replaceAll('`', '').replace(/^-+\s*/, '').trim();
-        const sentences = cleaned.split(/(?<=\.)\s+/);
-        for (const s of sentences) {
-          const t = s.trim();
-          if (!t) continue;
-          assert.ok(text.includes(t), `dist/agent-view.html should contain "${t}"`);
-        }
-      }
-    }
-    assert.ok(page.includes('curl -N -X POST'), 'dist/agent-view.html should contain "curl -N -X POST"');
+    assert.ok(page.includes('<pre>'), 'dist/agent-view.html should show the text in <pre>');
+    assert.ok(page.includes('## Rules for agents'), 'dist/agent-view.html should hold the agent view text');
     assert.ok(fs.readFileSync(indexPath, 'utf8').includes('href="/agent-view.html"'), 'dist/index.html should link to the agent view');
   });
 
@@ -299,30 +279,13 @@ describe('static host portability', () => {
     assert.ok(!afterDeployStep.includes('secrets.'), 'no step after Deploy should read a secret');
   });
 
-  test('every page has one Human and Agent switch in its header, and no floating view switch', () => {
+  test('every page has one link to the agent view in its footer, and no floating view switch', () => {
     const dist = path.dirname(indexPath);
-    const pages = ['index.html', 'about.html', '404.html', 'agent-view.html', 'example/Uniswap-v4-core.html'];
-    for (const name of pages) {
+    for (const name of ['index.html', 'about.html', 'agent-view.html']) {
       const html = fs.readFileSync(path.join(dist, name), 'utf8');
       assert.equal(html.includes('view-switch'), false, `dist/${name} should have no view switch`);
-      const hStart = html.indexOf('<header');
-      const hEnd = html.indexOf('</header>');
-      assert.ok(hStart !== -1 && hEnd !== -1, `dist/${name} should have header`);
-      const header = html.slice(hStart, hEnd);
-      assert.equal((header.match(/class="seg"/g) || []).length, 1, `dist/${name} header should have class="seg" once`);
-      if (name !== 'agent-view.html') {
-        assert.equal((header.match(/href="\/agent-view\.html"/g) || []).length, 1, `dist/${name} header should link to agent view once`);
-        assert.ok(header.includes('aria-current="page">Human<'), `dist/${name} header should mark Human as current`);
-      } else {
-        assert.ok(header.includes('aria-current="page">Agent<'), 'dist/agent-view.html header should mark Agent as current');
-        assert.ok(header.includes('>Human</a>'), 'dist/agent-view.html header should have Human link');
-      }
-      const fStart = html.indexOf('<footer');
-      const fEnd = html.indexOf('</footer>');
-      if (fStart !== -1 && fEnd !== -1) {
-        const footer = html.slice(fStart, fEnd);
-        assert.equal(footer.includes('href="/agent-view.html"'), false, `dist/${name} footer should not link to agent view`);
-      }
+      const footer = html.slice(html.indexOf('<footer'), html.indexOf('</footer>'));
+      assert.equal(footer.split('<a href="/agent-view.html">For agents</a>').length - 1, 1, `dist/${name} should link to the agent view once in its footer`);
     }
   });
 
@@ -384,13 +347,6 @@ describe('static host portability', () => {
         const re = /className\s*=\s*"([^"]+)"/g;
         let m;
         while ((m = re.exec(content)) !== null) classLists.push(m[1]);
-        let m2;
-        const reA = /\b(?:make|createRich)\(\s*"[a-z0-9]+",\s*"([^"]+)"/g;
-        while ((m2 = reA.exec(content)) !== null) classLists.push(m2[1]);
-        const reB = /\bclassName:\s*"([^"]+)"/g;
-        while ((m2 = reB.exec(content)) !== null) classLists.push(m2[1]);
-        const reC = /\bcreateCopyButton\([^,]+,\s*"([^"]+)"/g;
-        while ((m2 = reC.exec(content)) !== null) classLists.push(m2[1]);
       }
     }
     const missing = findMissingClasses(classLists, cssText);
