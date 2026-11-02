@@ -7,7 +7,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const CODE_PATH = /^(?:(?:web|server|test)\/.*|[^/]+)\.(?:ts|astro|css|js|mjs|py|html)$/;
+const CODE_PATH = /^(?:(?:web|server|test)\/.*|[^/]+)\.(?:ts|tsx|jsx|astro|css|js|mjs|py|html|sh)$/;
 
 export function isCodePath(path) {
   return CODE_PATH.test(path);
@@ -28,7 +28,7 @@ export function findUnreceipted(repo, changedPaths, receipts) {
 }
 
 export function run(repo, baseSha) {
-  const output = execFileSync('git', ['-C', repo, 'diff', '--name-only', '--diff-filter=ACMR', baseSha, 'HEAD'], { encoding: 'utf8' });
+  const output = execFileSync('git', ['-C', repo, '-c', 'core.quotepath=off', 'diff', '--name-only', '--diff-filter=ACMR', baseSha, 'HEAD'], { encoding: 'utf8' });
   const changedPaths = output.split('\n').filter(Boolean);
   const receiptsFile = join(repo, 'muse-receipts.json');
   const receipts = existsSync(receiptsFile) ? JSON.parse(readFileSync(receiptsFile, 'utf8')) : {};

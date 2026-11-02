@@ -30,7 +30,7 @@ function commitChange(context, path, text, receipts) {
 }
 
 test('code paths cover the site, the server, the tests and root config', () => {
-  for (const path of ['web/src/a.ts', 'web/src/a.astro', 'web/public/js/a.js', 'web/src/styles/a.css', 'server/a.py', 'test/web/a.test.mjs', 'astro.config.mjs', 'conftest.py']) {
+  for (const path of ['web/src/a.tsx', 'server/a.sh', 'web/src/a.ts', 'web/src/a.astro', 'web/public/js/a.js', 'web/src/styles/a.css', 'server/a.py', 'test/web/a.test.mjs', 'astro.config.mjs', 'conftest.py']) {
     assert.equal(isCodePath(path), true, path);
   }
   for (const path of ['README.md', 'docs/design.md', '.github/workflows/test.yml', '.github/workflows/check-muse-receipts.mjs', 'web/src/data/examples/a.json', 'muse-receipts.json']) {
