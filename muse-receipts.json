@@ -135,9 +135,9 @@
     "reply": "chatcmpl-114303c7ee4e41bb94266c59700951f2"
   },
   "web/src/pages/about.astro": {
-    "sha256": "da078561c11cb4efe7d4654b7ae9016a15941c9b7386f9b97b5039ed2104bb0b",
+    "sha256": "655a9732a27b94af5c463690151900a49b89286d0760a02414313a979ebc4fb7",
     "model": "meta-models/muse-spark-open-1026",
-    "reply": "chatcmpl-bd5334f568ac40968df14158868d7f70"
+    "reply": "chatcmpl-d362dc97739643c4a36bf9f3155076de"
   },
   "web/src/pages/agent-view.astro": {
     "sha256": "c4236142c802f2eae35538e323d6d1df1433c9902b1954bd1d33ae09a7323d89",
