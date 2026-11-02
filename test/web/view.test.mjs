@@ -306,14 +306,14 @@ test("shownMark: with nextId null, mark next stays next", () => {
   assert.equal(shownMark("next", "step-a", null), "next");
 });
 
-test("nextAction: file step with file present -> Fix it", () => {
+test("nextAction: file step with file present -> Get the files", () => {
   const r = nextAction({ id: "rules" }, [], [{ path: "AGENTS.md", content: "x" }], "owner", "repo", false);
-  assert.deepEqual(r, { label: "Fix it", href: "#files", opensChart: false });
+  assert.deepEqual(r, { label: "Get the files", href: "#files", opensChart: false });
 });
 
 test("nextAction: install-only step -> Install yokoten", () => {
   const r = nextAction({ id: "ci" }, [{ id: "ci" }], [], "owner", "repo", false);
-  assert.deepEqual(r, { label: "Install yokoten", href: "#needs-yokoten", opensChart: false });
+  assert.deepEqual(r, { label: "Install yokoten", href: "#install", opensChart: false });
 });
 
 test("nextAction: repo setting step -> Open repo settings", () => {

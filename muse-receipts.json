@@ -64,6 +64,11 @@
     "model": "meta-models/muse-spark-open-1026",
     "reply": "chatcmpl-10db6f12e8bc48ffa3c36f12d4fb3a98"
   },
+  "test/site/result-plan.test.mjs": {
+    "sha256": "512a33ad487d53235b5cdae3b1411b97d56613bca11412aaacc933b029a5dabf",
+    "model": "meta-models/muse-spark-open-1026",
+    "reply": "chatcmpl-60b7b5b70b584994acf231fdd1fde850"
+  },
   "test/web/fixes.test.mjs": {
     "sha256": "368e541311c9f84cccf6e247fe8c6d7a46c66eb80fb11594e882fe7a7bcad34e",
     "model": "meta-models/muse-spark-open-1026",
@@ -73,6 +78,11 @@
     "sha256": "7e75d7dfb18b0d1071abfca44c7dee13377051029fecd36376dfa559df8b5f78",
     "model": "meta-models/muse-spark-open-1026",
     "reply": "chatcmpl-c922b8b6fb6f4376bdf3b55d84f98396"
+  },
+  "test/web/view.test.mjs": {
+    "sha256": "5b324e1ae0dedfff09d66bdcdabf3addbd4740dd6b1c944ac5216396e07376bf",
+    "model": "meta-models/muse-spark-open-1026",
+    "reply": "chatcmpl-60b7b5b70b584994acf231fdd1fde850"
   },
   "web/public/js/theme.js": {
     "sha256": "a176eaf756c4b609ef97c2c401797cd154c5c63a30b31a7a964680372a3fe6ea",
@@ -88,6 +98,11 @@
     "sha256": "661faa874dddde9c5e8dd89f6a992ab501067559004890c7f4ce2ccccd84141c",
     "model": "meta-models/muse-spark-open-1026",
     "reply": "chatcmpl-be29388fb3c0485d80ad864a8e9970d3"
+  },
+  "web/src/client/types.ts": {
+    "sha256": "bce76f2a0dc06bf8759856bd264c125878fbb374c4dfdb26fba383ce7ff0129a",
+    "model": "meta-models/muse-spark-open-1026",
+    "reply": "chatcmpl-60b7b5b70b584994acf231fdd1fde850"
   },
   "web/src/client/ui/chart.ts": {
     "sha256": "c2ae8b1c3ba1ede538884a5fc4d9d7c6e5e3757cf66913416f9e9edb89287757",
@@ -113,6 +128,11 @@
     "sha256": "9c63babcac15f2bb5cc444536a1a2c3c4f6443edc3304a24065e6bca3d6c9e35",
     "model": "meta-models/muse-spark-open-1026",
     "reply": "chatcmpl-0bfd003f941a4ebabf129e115d19f22b"
+  },
+  "web/src/client/view.ts": {
+    "sha256": "f6bc69a6aff77a64c97e1a7b189680298e938972bba193908133948758060bbe",
+    "model": "meta-models/muse-spark-open-1026",
+    "reply": "chatcmpl-60b7b5b70b584994acf231fdd1fde850"
   },
   "web/src/components/ExampleRows.astro": {
     "sha256": "fec010cb42701b4a1e49d4e977075affc559b9c13c3f4a2ffe147cea9ba39f67",
