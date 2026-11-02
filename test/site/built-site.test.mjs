@@ -48,7 +48,7 @@ describe('built site', () => {
     const lastOpen = before.lastIndexOf('{');
     const selectorStart = before.lastIndexOf('}', lastOpen) + 1;
     const selector = before.slice(selectorStart, lastOpen).trim();
-    assert.match(selector, /^\.wide\s*,\s*\.sum-in\s*,\s*\.steps-grid\s*$/, `selector should be .wide,.sum-in,.steps-grid, got "${selector}"`);
+    assert.match(selector, /^\.wide\s*$/, `selector should be .wide, got "${selector}"`);
   });
 
   test('one container: every static page\'s header, footer and zones sit in it', () => {

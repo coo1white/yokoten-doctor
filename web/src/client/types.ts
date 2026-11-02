@@ -134,8 +134,6 @@ export interface ResultPlan {
   handCount: number;
   handItems: HandItem[];
   isHandListShort: boolean;
-  segments: string[];
-  legend: { swatch: string; text: string }[];
   action: PlanAction | null;
   filesBlock: FilesBlock;
   filesTitle: string;
@@ -143,4 +141,10 @@ export interface ResultPlan {
   stepOrder: StepKey[];
   installStepNumber: number;
   handTitle: string;
+}
+
+export interface PlanStep {
+  key: StepKey;
+  target: number | null;
+  isMovingCount: boolean;
 }

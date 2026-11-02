@@ -1,20 +1,17 @@
-import { createFold, createStepHeading, make, renderRichText } from "./dom.ts";
+import { createFold, createRow, make, renderRichText } from "./dom.ts";
 import { toSentence } from "../view.ts";
 import type { ViewModel } from "../types.ts";
 
-export function renderPrivateSection({ vm }: { vm: ViewModel }): HTMLElement | null {
+export function renderPrivateRow({ vm }: { vm: ViewModel }): HTMLElement | null {
   if (vm.secretCount === 0) {
     return null;
   }
-  const section = make("section", "step step-aside");
-  section.id = "private";
-  section.appendChild(createStepHeading(0, "Is this meant to be public?"));
+  const side = vm.secretCount === 1 ? "1 place" : `${vm.secretCount} places`;
   const list = make("ul", "items");
   vm.secretGroups.forEach((group, index) => {
     list.appendChild(createGroupRow(group, index));
   });
-  section.appendChild(list);
-  return section;
+  return createRow("Is this meant to be public?", side, [list], { key: "private", id: "private", isSideTodo: true });
 }
 
 function createGroupRow(group: ViewModel["secretGroups"][number], index: number): HTMLElement {

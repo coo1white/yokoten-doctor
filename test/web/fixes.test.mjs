@@ -10,7 +10,6 @@ import {
   fileLinkPlan,
   buildPatch,
   orderFiles,
-  fixMessage,
   PATCH_COMMANDS,
   MAX_GITHUB_LINK,
   isFilesSectionHidden,
@@ -333,39 +332,6 @@ describe("orderFiles", () => {
     const { first, rest } = orderFiles([{ path: "../x", content: "h" }]);
     assert.equal(first, null);
     assert.deepEqual(rest, []);
-  });
-});
-
-describe("fixMessage", () => {
-  test('"failed" gives the Muse message, even with files', () => {
-    const msg = fixMessage({ files: [{ path: "a.txt" }], muse: "failed" });
-    assert.equal(
-      msg,
-      "Muse couldn't write the “This project” section this time. Fill it in yourself.",
-    );
-  });
-  test('"failed" with no files also gives Muse message', () => {
-    const msg = fixMessage({ files: [], muse: "failed" });
-    assert.equal(
-      msg,
-      "Muse couldn't write the “This project” section this time. Fill it in yourself.",
-    );
-  });
-  test("no files gives the no-files message", () => {
-    const msg = fixMessage({ files: [], muse: "ok" });
-    assert.equal(msg, "yokoten has nothing to add to this repo.");
-  });
-  test("no files with not needed also gives no-files message", () => {
-    const msg = fixMessage({ files: [], muse: "not needed" });
-    assert.equal(msg, "yokoten has nothing to add to this repo.");
-  });
-  test('files with "ok" give empty string', () => {
-    const msg = fixMessage({ files: [{ path: "AGENTS.md" }], muse: "ok" });
-    assert.equal(msg, "");
-  });
-  test('files with "not needed" give empty string', () => {
-    const msg = fixMessage({ files: [{ path: "AGENTS.md" }], muse: "not needed" });
-    assert.equal(msg, "");
   });
 });
 

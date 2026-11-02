@@ -66,21 +66,12 @@ export function make<K extends keyof HTMLElementTagNameMap>(tag: K, className?: 
   return element;
 }
 
-
-export type IconName = "out" | "check" | "circle" | "dot" | "right";
+export type IconName = "out" | "check" | "circle" | "right";
 
 const iconTable: Record<IconName, { size: number; strokeWidth: string; shapes: { tag: string; attrs: Record<string, string> }[] }> = {
   out: { size: 16, strokeWidth: "2", shapes: [{ tag: "path", attrs: { d: "M7 17L17 7M9 7h8v8" } }] },
   check: { size: 18, strokeWidth: "2.2", shapes: [{ tag: "path", attrs: { d: "M5 12.5l4.5 4.5L19 7.5" } }] },
   circle: { size: 18, strokeWidth: "1.7", shapes: [{ tag: "circle", attrs: { cx: "12", cy: "12", r: "7.5" } }] },
-  dot: {
-    size: 18,
-    strokeWidth: "1.7",
-    shapes: [
-      { tag: "circle", attrs: { cx: "12", cy: "12", r: "7.5" } },
-      { tag: "circle", attrs: { cx: "12", cy: "12", r: "3", fill: "currentColor", stroke: "none" } },
-    ],
-  },
   right: { size: 20, strokeWidth: "1.7", shapes: [{ tag: "path", attrs: { d: "M9 6l6 6-6 6" } }] },
 };
 
@@ -157,13 +148,14 @@ function appendTitle(summary: HTMLElement, title: string | Node[]): void {
   }
 }
 
-export function createStepHeading(stepNumber: number, title: string): HTMLHeadingElement {
-  const heading = make("h2", "step-title");
-  if (stepNumber > 0) {
-    const number = make("span", "step-n", `Step ${stepNumber}.`);
-    heading.appendChild(number);
-    heading.appendChild(document.createTextNode(" "));
+export function createRow(title: string, side: string, body: Node[], options: { key: string; id?: string; isSideTodo?: boolean }): HTMLDetailsElement {
+  const titleNodes: Node[] = [];
+  const titleSpan = make("span", "f-row-title", title);
+  titleNodes.push(titleSpan);
+  if (side !== "") {
+    const sideClass = options.isSideTodo ? "f-side todo" : "f-side";
+    const sideSpan = make("span", sideClass, side);
+    titleNodes.push(sideSpan);
   }
-  renderRichText(title, heading);
-  return heading;
+  return createFold(titleNodes, body, { key: options.key, id: options.id, className: "f-row" });
 }

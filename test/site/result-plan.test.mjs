@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import fs from "node:fs";
 import path from "node:path";
-import { resultPlan, resultCommands, nextAction, splitErrorCommand, INSTALL_COMMAND } from "../../web/src/client/view.ts";
+import { resultPlan, resultCommands, nextAction, splitErrorCommand, INSTALL_COMMAND, planSteps, stepsHeadline, stepGetsText, singleStepTitle } from "../../web/src/client/view.ts";
 import { PATCH_COMMANDS } from "../../web/src/client/fixes.ts";
 
 const EXPECTED = {
@@ -36,11 +36,10 @@ for (const [slug, exp] of Object.entries(EXPECTED)) {
     assert.equal(plan.action?.label, exp.label);
     assert.equal(plan.done + plan.gain + plan.installSteps.length + plan.handCount, plan.total);
     assert.equal(plan.isHandListShort, false);
-    assert.equal(plan.segments.length, plan.total);
   });
 }
 
-test("only steps that move the count are numbered, and the first step is what \"Do this first\" points at", () => {
+test("the first step is the one the plan's action points at", () => {
   const map = { "#files": "files", "#install": "install", "#hand": "hand" };
   for (const slug of Object.keys(EXPECTED)) {
     const data = loadExample(slug);
@@ -150,7 +149,7 @@ test("waiting for files: no count is claimed beyond what is known", () => {
   const data = loadExample("Uniswap-v4-core");
   const plan = resultPlan(data.result, null, true);
   assert.equal(plan.filesBlock, "waiting");
-  assert.equal(plan.legend.length, 0);
+  assert.ok(planSteps(plan).every((step) => step.target === null));
   assert.equal(plan.action?.label, "See how");
   assert.equal(plan.stepOrder[0], "files");
 });
@@ -167,6 +166,55 @@ test("lost files: the one primary is run it again", () => {
 test("an install step is a link inside the page, and repo settings go to GitHub", () => {
   assert.equal(nextAction({ id: 'ci' }, [{ id: 'ci' }], [], 'o', 'r', false).href, "#install");
   assert.equal(nextAction({ id: 'issues' }, [], [], 'o', 'r', false).href, "https://github.com/o/r/settings");
+});
+
+test("targets come from the plan", () => {
+  let data = loadExample("Uniswap-v4-core");
+  let plan = resultPlan(data.result, data.fixes, false);
+  assert.deepEqual(planSteps(plan).map((s) => s.target), [7, 12, 13]);
+  data = loadExample("jup-ag-jupiter-quote-api-node");
+  plan = resultPlan(data.result, data.fixes, false);
+  assert.deepEqual(planSteps(plan).map((s) => s.target), [6, 11, 13]);
+  data = loadExample("cline-cline");
+  plan = resultPlan(data.result, data.fixes, false);
+  assert.deepEqual(planSteps(plan).map((s) => s.target), [13]);
+});
+
+test("a step that moves nothing says so", () => {
+  const data = loadExample("OpenZeppelin-openzeppelin-contracts");
+  const plan = resultPlan(data.result, data.fixes, false);
+  const steps = planSteps(plan);
+  assert.equal(steps[0].isMovingCount, false);
+  assert.equal(stepGetsText(steps[0], plan.total), "the count stays at 7");
+  assert.equal(stepGetsText(steps[1], plan.total), "gets you to 12 of 13");
+});
+
+test("a short list never claims the total", () => {
+  const result = { summary: { done: 10, total: 13, next: null, steps: [{ id: 'titles', title: 'Check pull request titles', mark: 'to do', what: 'x', fix: 'y' }], install_only: [] } };
+  const fixes = { files: [], muse: 'ok', after: { done: 10, total: 13 } };
+  const plan = resultPlan(result, fixes, false);
+  assert.equal(plan.isHandListShort, true);
+  const steps = planSteps(plan);
+  assert.equal(steps[steps.length - 1].target, 11);
+  const headline = stepsHeadline(steps);
+  const lastText = stepGetsText(steps[steps.length - 1], plan.total);
+  assert.equal(headline.includes("13 of 13"), false);
+  assert.equal(lastText.includes("13 of 13"), false);
+});
+
+test("the headline", () => {
+  let data = loadExample("Uniswap-v4-core");
+  let plan = resultPlan(data.result, data.fixes, false);
+  assert.equal(stepsHeadline(planSteps(plan)), "Three steps get you to 13. Do them in order.");
+  plan = resultPlan(data.result, null, true);
+  assert.equal(stepsHeadline(planSteps(plan)), "Two steps. Do them in order.");
+});
+
+test("the single-step title", () => {
+  const data = loadExample("cline-cline");
+  const plan = resultPlan(data.result, data.fixes, false);
+  const steps = planSteps(plan);
+  assert.equal(singleStepTitle(plan, steps[0]), "Run one command to get to 13 of 13");
 });
 
 test("splitErrorCommand splits a trailing npx yokoten", () => {

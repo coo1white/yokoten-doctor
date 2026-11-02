@@ -1,4 +1,4 @@
-import type { CheckResult, FixesPayload, ViewModel, Rerun, ResultPlan, StepKey, FilesBlock, HandItem, PlanAction, SummaryStep } from "./types.ts";
+import type { CheckResult, FixesPayload, ViewModel, Rerun, ResultPlan, StepKey, FilesBlock, HandItem, PlanAction, SummaryStep, PlanStep } from "./types.ts";
 
 export function toSentence(text: string): string {
   if (!text) return "";
@@ -103,12 +103,6 @@ export function markLabel(mark: string, reason: string | undefined): string {
   }
   if (mark === "can't check") return "can't tell from here";
   return "unknown";
-}
-
-export function shownMark(mark: string, stepId: string, nextId: string | null): string {
-  if (nextId !== null && stepId === nextId) return "next";
-  if (mark === "next" && nextId !== null && stepId !== nextId) return "to do";
-  return mark;
 }
 
 export function secretFolders(places: string[]): { folder: string; count: number }[] {
@@ -248,21 +242,6 @@ export function resultPlan(result: CheckResult, fixes: FixesPayload | null, isWa
   const nInstall = installSteps.length;
   const handCount = Math.max(0, countedHand - movedToInstall.length);
   const isHandListShort = remaining.length < handCount;
-  const segments: string[] = [];
-  for (let i = 0; i < total; i++) {
-    if (i < done) segments.push("s-done");
-    else if (i < done + gain) segments.push("s-files");
-    else if (i < done + gain + nInstall) segments.push("s-install");
-    else if (isAfterKnown) segments.push("s-hand");
-    else segments.push("");
-  }
-  const legend: { swatch: string; text: string }[] = [];
-  if (isAfterKnown) {
-    legend.push({ swatch: "s-done", text: `${done} pass` });
-    if (gain > 0) legend.push({ swatch: "s-files", text: `+${gain} with files` });
-    if (nInstall > 0) legend.push({ swatch: "s-install", text: `+${nInstall} with yokoten` });
-    if (handCount > 0) legend.push({ swatch: "s-hand", text: `+${handCount} by hand` });
-  }
   const filesBlock: FilesBlock = !fixes ? "waiting" : isLost ? "lost" : isFailed || files.length > 0 ? "list" : nInstall > 0 ? "hidden" : "nothing";
   const owner = String(result.owner ?? "");
   const repo = String(result.repo ?? "");
@@ -305,8 +284,6 @@ export function resultPlan(result: CheckResult, fixes: FixesPayload | null, isWa
     handCount,
     handItems,
     isHandListShort,
-    segments,
-    legend,
     action,
     filesBlock,
     filesTitle,
@@ -324,6 +301,53 @@ export function resultCommands(plan: ResultPlan): string[] {
     if (item.command) out.push(item.command);
   }
   return out;
+}
+
+export function planSteps(plan: ResultPlan): PlanStep[] {
+  if (!plan.isAfterKnown) {
+    return plan.stepOrder.map((key) => ({ key, target: null, isMovingCount: false }));
+  }
+  let running = plan.done;
+  const out: PlanStep[] = [];
+  for (const key of plan.stepOrder) {
+    let add = 0;
+    if (key === "files") add = plan.gain;
+    else if (key === "install") add = plan.installSteps.length;
+    else if (key === "hand") add = plan.handItems.length;
+    running += add;
+    out.push({ key, target: running, isMovingCount: add > 0 });
+  }
+  return out;
+}
+
+export function stepTitle(plan: ResultPlan, key: StepKey): string {
+  if (key === "files") return plan.filesTitle;
+  if (key === "install") return "Install yokoten";
+  return plan.handTitle;
+}
+
+export function stepsHeadline(steps: PlanStep[]): string {
+  const count = steps.length;
+  let word: string;
+  if (count === 2) word = "Two";
+  else if (count === 3) word = "Three";
+  else if (count === 4) word = "Four";
+  else word = String(count);
+  const last = steps[steps.length - 1];
+  const target = last?.target ?? null;
+  if (target !== null) return `${word} steps get you to ${target}. Do them in order.`;
+  return `${word} steps. Do them in order.`;
+}
+
+export function stepGetsText(step: PlanStep, total: number): string {
+  if (step.target === null) return "";
+  if (!step.isMovingCount) return `the count stays at ${step.target}`;
+  return `gets you to ${step.target} of ${total}`;
+}
+
+export function singleStepTitle(plan: ResultPlan, step: PlanStep): string {
+  if (step.key === "install" && step.target !== null) return `Run one command to get to ${step.target} of ${plan.total}`;
+  return stepTitle(plan, step.key);
 }
 
 export function viewModel(result: CheckResult): ViewModel {

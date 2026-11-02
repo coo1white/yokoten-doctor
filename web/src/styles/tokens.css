@@ -19,8 +19,7 @@
   --bg: #ecece8;             /* the page behind the blocks */
   --surface: #ffffff;        /* a block */
   --panel: #f1f1ee;          /* a box inside a block */
-  --aside: #e1e1dc;          /* a block that matters less */
-  --next-bg: #17171a;        /* the one thing to do. Dark in both themes */
+  --next-bg: #17171a;        /* the Rules for agents block. Dark in both themes */
   --line: #d9d9d4;
   --line-strong: #8d8d87;    /* 3:1 on the page: outlines that carry meaning */
   --fg: #141413;
@@ -33,7 +32,6 @@
   --pass-wash: color-mix(in srgb, var(--pass) 11%, transparent);
   --todo: #7a4e00;           /* needs work: text and icons. Darker amber, since yellow fails AA on light */
   --todo-fill: #c08300;      /* needs work: bar segments, swatches */
-  --todo-wash: color-mix(in srgb, var(--todo-fill) 15%, transparent);
   --bad: #b3261e;            /* the run stopped or failed. Never a check status */
   --code: #17171a;
   --on-code: #e9e9e6;
@@ -81,7 +79,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0d0d0e; --surface: #1b1b1e; --panel: #26262a; --aside: #141416; --next-bg: #2a2a30; --line: #303035; --line-strong: #77777d;
+    --bg: #0d0d0e; --surface: #1b1b1e; --panel: #26262a; --next-bg: #2a2a30; --line: #303035; --line-strong: #77777d;
     --fg: #efefec; --muted: #a6a6a2;
     --press: #86adff; --on-press: #0a1224;
     --pass: #5ad69a; --pass-fill: #3fbf83; --todo: #f2bb3d; --todo-fill: #e0a526; --bad: #ff8d84;
@@ -96,7 +94,7 @@
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0d0d0e; --surface: #1b1b1e; --panel: #26262a; --aside: #141416; --next-bg: #2a2a30; --line: #303035; --line-strong: #77777d;
+  --bg: #0d0d0e; --surface: #1b1b1e; --panel: #26262a; --next-bg: #2a2a30; --line: #303035; --line-strong: #77777d;
   --fg: #efefec; --muted: #a6a6a2;
   --press: #86adff; --on-press: #0a1224;
   --pass: #5ad69a; --pass-fill: #3fbf83; --todo: #f2bb3d; --todo-fill: #e0a526; --bad: #ff8d84;

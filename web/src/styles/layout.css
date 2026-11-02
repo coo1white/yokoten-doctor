@@ -90,40 +90,16 @@
 .bar i { display: block; height: 10px; border-radius: 2px; background: var(--seg-empty); transform-origin: left; }
 .bar i.s-done { background: var(--seg-done); }
 .bar i.s-files { background: var(--seg-files); }
-.bar i.s-install { background: repeating-linear-gradient(135deg, var(--seg-files) 0 2px, transparent 2px 4.5px); box-shadow: inset 0 0 0 1px var(--seg-files); }
-.bar i.s-hand { background: transparent; box-shadow: inset 0 0 0 1px var(--seg-files); }
-.swatch { flex: none; display: block; width: 14px; height: 14px; border-radius: 3px; }
-.swatch.s-done { background: var(--seg-done); }
-.swatch.s-files { background: var(--seg-files); }
-.swatch.s-install { background: repeating-linear-gradient(135deg, var(--seg-files) 0 2px, transparent 2px 4.5px); box-shadow: inset 0 0 0 1px var(--seg-files); }
-.swatch.s-hand { box-shadow: inset 0 0 0 1px var(--seg-files); }
-.bar-anim i.s-done, .bar-anim i.s-files, .bar-anim i.s-install, .bar-anim i.s-hand { animation: fill var(--dur-slow) var(--ease-out) both; animation-delay: calc(var(--n, 0) * 25ms); }
+.bar-anim i.s-done, .bar-anim i.s-files { animation: fill var(--dur-slow) var(--ease-out) both; animation-delay: calc(var(--n, 0) * 25ms); }
 .bar-anim i:nth-child(2) { --n: 1; } .bar-anim i:nth-child(3) { --n: 2; } .bar-anim i:nth-child(4) { --n: 3; }
 .bar-anim i:nth-child(5) { --n: 4; } .bar-anim i:nth-child(6) { --n: 5; } .bar-anim i:nth-child(7) { --n: 6; }
 .bar-anim i:nth-child(8) { --n: 7; } .bar-anim i:nth-child(9) { --n: 8; } .bar-anim i:nth-child(10) { --n: 9; }
 .bar-anim i:nth-child(11) { --n: 10; } .bar-anim i:nth-child(12) { --n: 11; } .bar-anim i:nth-child(13) { --n: 12; }
 
-/* section rhythm on reading pages */
-
-.sec-lede { color: var(--muted); margin-bottom: var(--s5); }
-/* a step: a real h2 with the page's largest heading style. "Step N." sits inside it, quieter */
-.step { padding: var(--s5) var(--s4); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); scroll-margin-top: 84px; transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
-.step-aside { background: var(--aside); }
-.step + .step, .step + .close { margin-top: var(--s5); }
-.zones-after { margin-top: var(--s7); }
-.zones-after > * + * { margin-top: var(--s5); }
-.close + .zones-after, .step + .zones-after { margin-top: var(--s7); }
-.step.is-current { border-color: var(--line-strong); }
-@media (min-width: 48rem) { .step { padding: var(--s6); } }
-@media (min-width: 64rem) { .step { scroll-margin-top: var(--s5); } }
-.step-quiet { position: relative; margin-top: var(--s2); }
-.quiet-end { position: absolute; right: 0; top: 0; }
 .hand-wrong { margin-bottom: var(--s3); color: var(--muted); }
 .hand-files { margin-bottom: var(--s4); padding: var(--s2) var(--s3); border-left: 2px solid var(--line); color: var(--muted); font: var(--w-normal) var(--t-sm)/1.6 var(--mono); overflow-wrap: anywhere; }
 .hand-after { margin-top: var(--s3); }
 .outcomes { display: grid; gap: var(--s3); margin-top: var(--s2); }
 @media (min-width: 40rem) { .outcomes { grid-template-columns: 1fr 1fr; } }
-.outcome { padding: var(--s3) var(--s4); border-radius: var(--r-md); background: var(--surface); font-size: var(--t-sm); }
+.outcome { font-size: var(--t-sm); }
 .outcome .strong { margin-bottom: 2px; }
-.step-title { margin-bottom: var(--s3); font-size: var(--t-2xl); letter-spacing: -0.028em; }
-.step-n { color: var(--muted); font-weight: var(--w-normal); }

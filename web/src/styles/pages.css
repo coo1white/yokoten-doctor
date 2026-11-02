@@ -132,7 +132,8 @@
 .api-go dd { color: var(--fg); }
 .api-blocks { display: grid; gap: var(--s5); }
 @media (min-width: 64rem) { .api-blocks { grid-template-columns: 1fr 1fr; } .api-rules { grid-column: 1 / -1; } .api-rules ul { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s6); } }
-.api-rules { align-items: stretch; }
+.api-rules { display: flex; flex-direction: column; align-items: stretch; padding: var(--s5); border-radius: var(--r-lg); background: var(--next-bg); color: #f4f4f1; }
+@media (min-width: 48rem) { .api-rules { padding: var(--s6); } }
 .api-rules h2 { margin-bottom: var(--s4); font-size: var(--t-xl); letter-spacing: -0.02em; }
 .api-rules li { color: #e6e6e2; line-height: 1.5; }
 .api-rules li + li { margin-top: var(--s3); }

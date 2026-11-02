@@ -1,15 +1,11 @@
 const API = "https://yokoten-doctor--yokoten-doctor-fastapi-app.us-east.modal.run";
 
 import { viewModel, repoFromInput, repoFromQuery, resultPlan, splitErrorCommand } from "./view.ts";
-import { make, createCommandBox, captureDetailsState, restoreDetailsState } from "./ui/dom.ts";
-import { renderSummary } from "./ui/hero.ts";
-import { clearOpenedFiles, renderFilesSection, renderInstallSection, renderHandSection } from "./ui/fix.ts";
-import { renderPrivateSection } from "./ui/private.ts";
-import { proofNavTitle, renderProofSection } from "./ui/proof.ts";
+import { createCommandBox, captureDetailsState, restoreDetailsState } from "./ui/dom.ts";
+import { clearOpenedFiles } from "./ui/fix.ts";
 import { renderWorking } from "./ui/working.ts";
-import { renderStepNav, startStepSpy } from "./stepper.ts";
-import { rerunHref } from "./fixes.ts";
-import type { CheckResult, FixesPayload, RecordPayload, ViewModel, ResultPlan } from "./types.ts";
+import { renderResultPage, clearStepProgress } from "./ui/page.ts";
+import type { CheckResult, FixesPayload, RecordPayload } from "./types.ts";
 
 const appEl = document.getElementById("app");
 const landingEl = document.getElementById("landing");
@@ -30,7 +26,6 @@ let isWaitingForFixes = false;
 let lastRecord: RecordPayload | null = null;
 const openDetailsKeys = new Set<string>();
 let isStreamOpen = false;
-let stopStepSpy: () => void = () => {};
 let hasEntered = false;
 let lastShownState = "";
 
@@ -148,7 +143,6 @@ function handleCheckError(message: string): void {
 
 function render(): void {
   if (appEl) captureDetailsState(appEl, openDetailsKeys);
-  stopStepSpy();
   if (!appEl) return;
   while (appEl.firstChild) appEl.removeChild(appEl.firstChild);
   if (state === "empty") {
@@ -179,27 +173,10 @@ function renderResult(): void {
   hasEntered = true;
   const vm = viewModel(lastResult);
   const plan = resultPlan(lastResult, lastFixes, isWaitingForFixes);
-  appEl.appendChild(renderSummary({ lastResult, vm, plan, lastFixes, isEntering }));
-  const zone = buildStepsZone(lastResult, plan, vm);
-  if (zone) appEl.appendChild(zone);
+  appEl.appendChild(renderResultPage({ lastResult, vm, plan, lastFixes, lastRecord, isRecordShown: lastRecord !== null || isStreamOpen === false, isEntering }));
   lastShownState = "result";
   restoreDetailsState(appEl, openDetailsKeys);
-  stopStepSpy = startStepSpy(appEl);
   if (isEntering) openCheckFromHash();
-}
-
-function buildClosing(result: CheckResult): HTMLElement {
-  const owner = String(result.owner ?? "");
-  const repo = String(result.repo ?? "");
-  const closeSec = make("section", "close");
-  const heading = make("h2", undefined, "Made the changes?");
-  const paragraph = make("p", undefined, "Run the check again to see the new count.");
-  const link = make("a", "btn btn-primary ctl", "Run it again");
-  link.setAttribute("href", rerunHref(owner, repo));
-  closeSec.appendChild(heading);
-  closeSec.appendChild(paragraph);
-  closeSec.appendChild(link);
-  return closeSec;
 }
 
 function openCheckFromHash(): void {
@@ -214,70 +191,10 @@ function openCheckFromHash(): void {
   target.scrollIntoView();
 }
 
-function buildStepsZone(result: CheckResult, plan: ResultPlan, vm: ViewModel): HTMLElement | null {
-  const numberedSections: HTMLElement[] = [], unnumberedSections: HTMLElement[] = [];
-  const numberedNavItems: { id: string; stepNumber: number; title: string }[] = [], unnumberedNavItems: { id: string; stepNumber: number; title: string }[] = [];
-  const clean = (value: string): string => value.replaceAll("`", "");
-  let stepCounter = 1;
-  for (const key of plan.stepOrder) {
-    let section: HTMLElement | null = null, title = "";
-    if (key === "files") {
-      section = renderFilesSection({ plan, lastFixes, lastResult: result, stepNumber: stepCounter });
-      title = clean(plan.filesTitle);
-    } else if (key === "install") {
-      section = renderInstallSection(plan, stepCounter);
-      title = "Install yokoten";
-    } else if (key === "hand") {
-      section = renderHandSection(plan, stepCounter);
-      title = clean(plan.handTitle);
-    }
-    if (section) {
-      numberedSections.push(section);
-      numberedNavItems.push({ id: section.id, stepNumber: stepCounter, title });
-      stepCounter += 1;
-    }
-  }
-  if (plan.filesBlock !== "hidden" && plan.filesAreStep === false) {
-    const sec = renderFilesSection({ plan, lastFixes, lastResult: result, stepNumber: 0 });
-    if (sec) {
-      unnumberedSections.push(sec);
-      unnumberedNavItems.push({ id: sec.id, stepNumber: 0, title: clean(plan.filesTitle) });
-    }
-  }
-  const priv = renderPrivateSection({ vm });
-  if (priv) {
-    unnumberedSections.push(priv);
-    unnumberedNavItems.push({ id: priv.id, stepNumber: 0, title: "Is this meant to be public?" });
-  }
-  if (lastRecord !== null || isStreamOpen === false) {
-    const proof = renderProofSection({ vm, lastRecord });
-    unnumberedSections.push(proof);
-    unnumberedNavItems.push({ id: proof.id, stepNumber: 0, title: proofNavTitle(lastRecord) });
-  }
-  const navItems = [...numberedNavItems, ...unnumberedNavItems];
-  if (navItems.length === 0) return null;
-  const { rail, bar } = renderStepNav(navItems);
-  const zoneSteps = make("div", "zone-steps");
-  zoneSteps.appendChild(bar);
-  const grid = make("div", "steps-grid");
-  grid.appendChild(rail);
-  const stepsContainer = make("div");
-  stepsContainer.setAttribute("data-steps", "");
-  for (const item of numberedSections) stepsContainer.appendChild(item);
-  if (numberedSections.length > 0 && plan.filesBlock !== "waiting" && plan.filesBlock !== "lost") stepsContainer.appendChild(buildClosing(result));
-  if (unnumberedSections.length > 0) {
-    const zonesAfter = make("div", "zones-after");
-    for (const item of unnumberedSections) zonesAfter.appendChild(item);
-    stepsContainer.appendChild(zonesAfter);
-  }
-  grid.appendChild(stepsContainer);
-  zoneSteps.appendChild(grid);
-  return zoneSteps;
-}
-
 async function startCheck(): Promise<void> {
   hasEntered = false;
   clearOpenedFiles();
+  clearStepProgress();
   isStreamOpen = true;
   clearError();
   const url = getCheckUrl();

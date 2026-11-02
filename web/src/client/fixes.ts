@@ -96,16 +96,6 @@ export function orderFiles(files: { path: string; content: string; source?: stri
   return { first, rest };
 }
 
-export function fixMessage(fixes: { files?: { path: string }[]; muse: string }): string {
-  if (fixes.muse === "failed") {
-    return "Muse couldn't write the “This project” section this time. Fill it in yourself.";
-  }
-  if (!fixes.files || fixes.files.length === 0) {
-    return "yokoten has nothing to add to this repo.";
-  }
-  return "";
-}
-
 export function claudeImportMessage(fixes: { claude_import?: { file: string; line: string } | null }): string {
   if (fixes && fixes.claude_import && fixes.claude_import.file && fixes.claude_import.line) {
     return `Your repo already has ${fixes.claude_import.file}. Add this line to it so Claude Code picks up the new rules: ${fixes.claude_import.line}`;

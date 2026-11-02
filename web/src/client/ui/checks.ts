@@ -1,47 +1,43 @@
-import { toSentence, shownMark, markLabel } from "../view.ts";
-import { createFold, createIcon, createLink, make, renderRichText } from "./dom.ts";
+import { toSentence, markLabel } from "../view.ts";
+import { createFold, createIcon, createLink, make, renderRichText, createRow } from "./dom.ts";
 import type { IconName } from "./dom.ts";
-import type { CheckResult, ViewModel, ResultPlan, SummaryStep } from "../types.ts";
+import type { CheckResult, ResultPlan, SummaryStep } from "../types.ts";
 
-export function renderAllChecks(result: CheckResult, viewModel: ViewModel, plan: ResultPlan): HTMLElement {
+export function renderChecksRow(result: CheckResult, plan: ResultPlan): HTMLElement {
   const installIds = new Set(plan.installSteps.map((step) => step.id));
   const steps = result.summary?.steps ?? [];
   const total = plan.total;
+  const done = plan.done;
+  const side = done === total ? `${done} pass` : `${done} pass, ${total - done} to go`;
+  const note = make("p", "small muted", "These checks read files. They don't judge your code.");
   const container = make("div", "checks");
   for (const step of steps) {
-    const row = buildRow(step, viewModel, installIds);
+    const row = buildRow(step, installIds);
     container.appendChild(row);
   }
-  const outer = createFold(`See all ${total} checks`, [container], { key: "all-checks" });
-  const section = make("section", "plan");
-  section.setAttribute("aria-label", "All checks");
-  section.appendChild(outer);
-  return section;
+  return createRow(`See all ${total} checks`, side, [note, container], { key: "all-checks" });
 }
 
-function buildRow(step: SummaryStep, viewModel: ViewModel, installIds: Set<string>): HTMLDetailsElement {
+function buildRow(step: SummaryStep, installIds: Set<string>): HTMLDetailsElement {
   const id = step.id;
   const isDone = step.mark === "done";
-  const nextId = viewModel.next?.id ?? null;
-  const isNext = shownMark(step.mark, id, nextId) === "next";
-  const rowClass = "ck" + (isDone ? " is-done" : "") + (isNext ? " ck-next" : "");
-  const tag = getTag(step, isDone, isNext, installIds);
-  const title = buildTitle(step, tag, isDone, isNext);
+  const rowClass = "ck" + (isDone ? " is-done" : "");
+  const tag = getTag(step, isDone, installIds);
+  const title = buildTitle(step, tag, isDone);
   const body = buildBody(step, id);
   return createFold(title, body, { key: "check-" + id, id: "check-" + id, className: rowClass });
 }
 
-function getTag(step: SummaryStep, isDone: boolean, isNext: boolean, installIds: Set<string>): string {
+function getTag(step: SummaryStep, isDone: boolean, installIds: Set<string>): string {
   if (isDone) return "";
-  if (isNext) return "do this first";
   if (installIds.has(step.id)) return "needs yokoten";
   const reason = step.reason ?? "";
   return markLabel(step.mark, reason);
 }
 
-function buildTitle(step: SummaryStep, tag: string, isDone: boolean, isNext: boolean): Node[] {
+function buildTitle(step: SummaryStep, tag: string, isDone: boolean): Node[] {
   const mark = make("span", "ck-mark");
-  const iconName = getIconName(isDone, isNext);
+  const iconName = getIconName(isDone);
   const icon = createIcon(iconName);
   mark.appendChild(icon);
   const title = make("span", "ck-title");
@@ -54,9 +50,8 @@ function buildTitle(step: SummaryStep, tag: string, isDone: boolean, isNext: boo
   return nodes;
 }
 
-function getIconName(isDone: boolean, isNext: boolean): IconName {
+function getIconName(isDone: boolean): IconName {
   if (isDone) return "check";
-  if (isNext) return "dot";
   return "circle";
 }
 

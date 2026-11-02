@@ -1,13 +1,7 @@
-import { make, createIcon, createCommandBox, createFold, createStepHeading, createLink } from "./dom.ts";
+import { make, createIcon, createCommandBox, createLink, createRow } from "./dom.ts";
 import { formatRecordTime } from "../view.ts";
 import { recordView } from "../fixes.ts";
 import type { ViewModel } from "../types.ts";
-
-export function proofNavTitle(lastRecord: unknown): string {
-  const rv = recordView(lastRecord);
-  const hasRecord = !!(rv && (rv.rekorUrl || rv.solanaUrl));
-  return hasRecord ? "On record" : "No public record";
-}
 
 function makeRunWay(vm: ViewModel): HTMLElement {
   const way = document.createElement("div");
@@ -36,22 +30,12 @@ function makeRunWay(vm: ViewModel): HTMLElement {
   return way;
 }
 
-export function renderProofSection({ vm, lastRecord }: { vm: ViewModel; lastRecord: unknown }): HTMLElement {
-  const section = document.createElement("section");
-  section.className = "step step-aside";
-  section.id = "verify";
+export function renderProofRow({ vm, lastRecord }: { vm: ViewModel; lastRecord: unknown }): HTMLElement {
   const rv = recordView(lastRecord);
   const hasRecord = !!(rv && (rv.rekorUrl || rv.solanaUrl));
   if (hasRecord && rv) {
-    const heading = createStepHeading(0, "");
-    heading.appendChild(document.createTextNode("On record since "));
-    const span = document.createElement("span");
-    span.className = "nowrap";
-    span.textContent = formatRecordTime(rv.recordedAt);
-    heading.appendChild(span);
-    section.appendChild(heading);
-    const lede = make("p", "sec-lede", "Nothing to do here.");
-    section.appendChild(lede);
+    const side = `On record since ${formatRecordTime(rv.recordedAt)}`;
+    const intro = make("p", undefined, "Download the result, hash it, and compare it with the record. You can also run the same check yourself.");
     const confirmWay = document.createElement("div");
     confirmWay.className = "way";
     const strong = make("p", "strong", "Confirm the record");
@@ -107,17 +91,10 @@ export function renderProofSection({ vm, lastRecord }: { vm: ViewModel; lastReco
     }
     ol.appendChild(liThree);
     confirmWay.appendChild(ol);
-    const runWay = makeRunWay(vm);
-    const fold = createFold("Check it yourself", [confirmWay, runWay], { key: "proof-check" });
-    section.appendChild(fold);
+    return createRow("Confirm this result", side, [intro, confirmWay, makeRunWay(vm)], { key: "verify", id: "verify" });
   } else {
-    const heading = createStepHeading(0, "No public record for this result");
-    section.appendChild(heading);
-    const lede = make("p", "sec-lede", "The public record couldn't be written this time. The check still ran. Nothing to do here.");
-    section.appendChild(lede);
-    const runWay = makeRunWay(vm);
-    const fold = createFold("Check it yourself", [runWay], { key: "proof-check" });
-    section.appendChild(fold);
+    const side = "No public record";
+    const intro = make("p", undefined, "The public record couldn't be written this time. The check still ran. Nothing to do here.");
+    return createRow("Confirm this result", side, [intro, makeRunWay(vm)], { key: "verify", id: "verify" });
   }
-  return section;
 }

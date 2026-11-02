@@ -84,7 +84,7 @@ describe('real pages', () => {
     }
     if (pagePath.includes('/example/')) {
       for (let i = 0; i < 30; i++) {
-        const has = await evaluate('!!document.querySelector("[data-steps]")');
+        const has = await evaluate('!!document.querySelector(".f-job")');
         if (has) break;
         await new Promise((res) => setTimeout(res, 200));
       }
@@ -218,7 +218,7 @@ describe('real pages', () => {
     for (const pagePath of pages) {
       for (const { w, left: expLeft, right: expRight } of widths) {
         await navigate(pagePath, w);
-        const items = await evaluate(`(() => { const els = [...document.querySelectorAll('.wide, .sum-in, .steps-grid')]; const out=[]; for (const el of els) { const rect = el.getBoundingClientRect(); if (rect.width===0 || rect.height===0) continue; const style=getComputedStyle(el); const left=Math.round(rect.left+parseFloat(style.paddingLeft)); const right=Math.round(rect.right-parseFloat(style.paddingRight)); out.push({cls: el.className, left, right}); } return out; })()`);
+        const items = await evaluate(`(() => { const els = [...document.querySelectorAll('.wide')]; const out=[]; for (const el of els) { const rect = el.getBoundingClientRect(); if (rect.width===0 || rect.height===0) continue; const style=getComputedStyle(el); const left=Math.round(rect.left+parseFloat(style.paddingLeft)); const right=Math.round(rect.right-parseFloat(style.paddingRight)); out.push({cls: el.className, left, right}); } return out; })()`);
         for (const it of items) {
           assert.equal(it.left, expLeft, `${pagePath} width ${w} ${it.cls} left ${it.left} != ${expLeft}`);
           assert.equal(it.right, expRight, `${pagePath} width ${w} ${it.cls} right ${it.right} != ${expRight}`);
@@ -253,26 +253,6 @@ describe('real pages', () => {
     }
   });
 
-  test('step counts: only steps that move the count are numbered', { timeout: 180000 }, async (t) => {
-    if (skipReason) { t.skip(skipReason); return; }
-    const examplePages = pages.filter((p) => p.startsWith('/example/'));
-    for (const pagePath of examplePages) {
-      await navigate(pagePath, 1440);
-      const N = await evaluate('document.querySelectorAll(".rail li:not(.rail-extra)").length');
-      assert.ok(N > 0, `${pagePath} rail count N should be >0`);
-      const railText = (await evaluate('document.querySelector(".rail-count").textContent') || '').trim();
-      assert.equal(railText, `Step 1 of ${N}`, `${pagePath} .rail-count should be Step 1 of ${N}, got ${railText}`);
-      const stepCount = await evaluate('document.querySelectorAll("section.step[data-no]").length');
-      assert.equal(stepCount, N, `${pagePath} section.step[data-no] should be ${N}`);
-      const hasPrivateNo = await evaluate('(() => { const el=document.querySelector("#private"); return el ? el.hasAttribute("data-no") : false; })()');
-      assert.equal(hasPrivateNo, false, `${pagePath} #private should have no data-no`);
-      const hasVerifyNo = await evaluate('(() => { const el=document.querySelector("#verify"); return el ? el.hasAttribute("data-no") : false; })()');
-      assert.equal(hasVerifyNo, false, `${pagePath} #verify should have no data-no`);
-      const verifyExists = await evaluate('!!document.querySelector("#verify")');
-      assert.ok(verifyExists, `${pagePath} #verify should be on the page`);
-    }
-  });
-
   test('no command shows twice on a page', { timeout: 180000 }, async (t) => {
     if (skipReason) { t.skip(skipReason); return; }
     const checkPages = pages.filter((p) => p.startsWith('/example/'));
@@ -290,13 +270,111 @@ describe('real pages', () => {
     }
   });
 
-  test('a jump to a step marks it in the rail', { timeout: 180000 }, async (t) => {
+  test('one step is open at a time', { timeout: 180000 }, async (t) => {
     if (skipReason) { t.skip(skipReason); return; }
     await navigate('/example/Uniswap-v4-core.html', 1440);
-    await evaluate('document.querySelector(\'.rail [data-step-link="install"]\').click()');
-    const cur = await evaluate('document.querySelector(\'.rail [data-step-link="install"]\').getAttribute("aria-current")');
-    assert.equal(cur, 'step');
-    const count = await evaluate('document.querySelector(".rail-count").textContent');
-    assert.equal((count || '').trim(), 'Step 2 of 3');
+    const count = await evaluate('document.querySelectorAll(\'details[name="steps"]\').length');
+    assert.equal(count, 3);
+    const openIds = JSON.parse(await evaluate('JSON.stringify([...document.querySelectorAll(\'details[name="steps"][open]\')].map(e=>e.id))') || '[]');
+    assert.deepEqual(openIds, ['step-files']);
+    await evaluate('document.querySelector("#step-install summary").click()');
+    await new Promise((r) => setTimeout(r, 100));
+    const openIds2 = JSON.parse(await evaluate('JSON.stringify([...document.querySelectorAll(\'details[name="steps"][open]\')].map(e=>e.id))') || '[]');
+    assert.deepEqual(openIds2, ['step-install']);
+  });
+
+  test('marking a step done leaves the count and the bar alone', { timeout: 180000 }, async (t) => {
+    if (skipReason) { t.skip(skipReason); return; }
+    await navigate('/example/Uniswap-v4-core.html', 1440);
+    const startVerdict = await evaluate('document.querySelector("h1.f-verdict").textContent.trim()');
+    const startBar = await evaluate('JSON.stringify([...document.querySelectorAll(".f-main .bar i")].map(e=>e.className))');
+    for (let i = 0; i < 3; i++) {
+      await evaluate('document.querySelector(".f-step[open] [data-done]").click()');
+      await new Promise((r) => setTimeout(r, 100));
+      const verdict = await evaluate('document.querySelector("h1.f-verdict").textContent.trim()');
+      assert.equal(verdict, startVerdict);
+      const bar = await evaluate('JSON.stringify([...document.querySelectorAll(".f-main .bar i")].map(e=>e.className))');
+      assert.equal(bar, startBar);
+      if (i === 0) {
+        const isDone = await evaluate('document.getElementById("step-files").classList.contains("is-done")');
+        assert.equal(isDone, true);
+        const openIds = JSON.parse(await evaluate('JSON.stringify([...document.querySelectorAll(\'details[name="steps"][open]\')].map(e=>e.id))') || '[]');
+        assert.deepEqual(openIds, ['step-install']);
+      }
+      if (i === 2) {
+        const openCount = await evaluate('document.querySelectorAll(\'details[name="steps"][open]\').length');
+        assert.equal(openCount, 0);
+        const hidden = await evaluate('document.querySelector("[data-all-done]").hidden');
+        assert.equal(hidden, false);
+        const href = await evaluate('document.querySelector("[data-all-done] a").href');
+        assert.ok(href.includes("/?repo="));
+        const activeIsLink = await evaluate('document.activeElement === document.querySelector("[data-all-done] a")');
+        assert.equal(activeIsLink, true);
+      }
+    }
+  });
+
+  test('each step row says where it gets you', { timeout: 180000 }, async (t) => {
+    if (skipReason) { t.skip(skipReason); return; }
+    await navigate('/example/Uniswap-v4-core.html', 1440);
+    const texts = JSON.parse(await evaluate('JSON.stringify([...document.querySelectorAll(".f-gets")].map(e=>e.textContent.trim()))') || '[]');
+    assert.deepEqual(texts, ['gets you to 7 of 13', 'gets you to 12 of 13', 'gets you to 13 of 13']);
+  });
+
+  test('a page with one step has no number and no accordion', { timeout: 180000 }, async (t) => {
+    if (skipReason) { t.skip(skipReason); return; }
+    await navigate('/example/cline-cline.html', 1440);
+    assert.equal(await evaluate('document.querySelectorAll(\'details[name="steps"]\').length'), 0);
+    assert.equal(await evaluate('document.querySelectorAll(".f-num").length'), 0);
+    assert.equal(await evaluate('document.querySelectorAll("[data-done]").length'), 0);
+    const h2 = await evaluate('document.querySelector(".f-single h2").textContent.trim()');
+    assert.equal(h2, 'Run one command to get to 13 of 13');
+    const linkText = await evaluate('document.querySelector(".f-single .f-next a").textContent.trim()');
+    assert.equal(linkText, 'Done? Run the check again');
+  });
+
+  test('what is required and what is optional are separate', { timeout: 180000 }, async (t) => {
+    if (skipReason) { t.skip(skipReason); return; }
+    const examplePages = pages.filter((p) => p.startsWith('/example/'));
+    for (const pagePath of examplePages) {
+      await navigate(pagePath, 1440);
+      assert.equal(await evaluate('document.querySelectorAll(".f-rest .f-job").length'), 0, `${pagePath} .f-rest .f-job should be 0`);
+      assert.equal(await evaluate('document.querySelectorAll(".f-job .f-rest").length'), 0, `${pagePath} .f-job .f-rest should be 0`);
+      assert.equal(await evaluate('document.querySelectorAll(".f-rest [data-done]").length'), 0, `${pagePath} .f-rest [data-done] should be 0`);
+      assert.equal(await evaluate('document.querySelectorAll(".f-job .f-row").length'), 0, `${pagePath} .f-job .f-row should be 0`);
+      const h2 = await evaluate('document.querySelector(".f-rest > h2").textContent.trim()');
+      assert.equal(h2, 'Nothing below is required', `${pagePath} .f-rest > h2 should be Nothing below is required, got ${h2}`);
+      const before = await evaluate('!!(document.querySelector(".f-job").compareDocumentPosition(document.querySelector(".f-rest")) & 4)');
+      assert.ok(before, `${pagePath} .f-job should come before .f-rest`);
+      const rowCount = await evaluate('document.querySelectorAll(".f-rest .f-row").length');
+      assert.ok(rowCount >= 2, `${pagePath} .f-rest .f-row should be at least 2, got ${rowCount}`);
+    }
+  });
+
+  test('no rail, no step bar, no legend, no dark card, no closing block', { timeout: 180000 }, async (t) => {
+    if (skipReason) { t.skip(skipReason); return; }
+    const examplePages = pages.filter((p) => p.startsWith('/example/'));
+    for (const pagePath of examplePages) {
+      for (const w of [1440, 390]) {
+        await navigate(pagePath, w);
+        const count = await evaluate('document.querySelectorAll(".rail, .stepbar, .legend, .next, .close, [data-steps]").length');
+        assert.equal(count, 0, `${pagePath} width ${w} should have no old blocks`);
+        const text = await evaluate('document.body.innerText');
+        for (const s of ['Do this first', 'Made the changes?', 'Step 1 of']) {
+          assert.equal(text.includes(s), false, `${pagePath} should not contain "${s}"`);
+        }
+      }
+    }
+  });
+
+  test('nothing scrolls sideways with every row open', { timeout: 180000 }, async (t) => {
+    if (skipReason) { t.skip(skipReason); return; }
+    const examplePages = pages.filter((p) => p.startsWith('/example/'));
+    for (const pagePath of examplePages) {
+      await navigate(pagePath, 390);
+      await evaluate('document.querySelectorAll(".f-rest details").forEach(d=>d.open=true); document.querySelectorAll(".f-rest details details").forEach(d=>d.open=true)');
+      const ok = await evaluate('document.documentElement.scrollWidth <= window.innerWidth');
+      assert.ok(ok, `${pagePath} should not scroll sideways with every row open`);
+    }
   });
 });
