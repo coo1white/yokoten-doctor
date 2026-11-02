@@ -75,6 +75,7 @@
 .ck-next > summary { margin-inline: -10px; padding-inline: 10px; background: var(--todo-wash); }
 .ck-next > summary::after { inset-inline: 0; }
 .ck-next .ck-title, .ck-next .ck-tag { font-weight: var(--w-strong); }
+.ck > .fold-body { padding-left: calc(18px + 18px + var(--s2)); }
 .ck-next .ck-title { color: var(--fg); }
 .ck-field { font-size: var(--t-sm); }
 .ck-field b { font-weight: var(--w-strong); }
