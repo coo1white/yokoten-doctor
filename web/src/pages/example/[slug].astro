@@ -23,8 +23,10 @@ const pagePath = `/example/${slug}.html`;
 ---
 <Page noindex title={pageTitle} description={pageDescription} path={pagePath}>
 <Header />
-<noscript><p class="saved-note small muted">Showing a saved check needs JavaScript. You can also run it on your machine: npx yokoten</p></noscript>
-<main id="app" hidden></main>
+<main id="main">
+<noscript><p class="wide small muted">Showing a saved check needs JavaScript. You can also run it on your machine: npx yokoten</p></noscript>
+<div id="app" hidden></div>
+</main>
 <Footer />
 <div id="saved-check" data-check={text} data-saved={date} hidden></div>
 <script src="../../client/app.ts"></script>

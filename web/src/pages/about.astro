@@ -9,59 +9,34 @@ import Footer from "../components/Footer.astro";
   path="/about.html"
 >
 <Header />
-<main id="top" class="section-inner about">
-  <h1>About yokoten doctor</h1>
-  <p class="about-lede">A free page that checks a public GitHub repo for the files AI agents need. No terminal needed.</p>
-
-  <section>
-    <h2>How a check runs</h2>
-    <ol>
-      <li>A throwaway sandbox copies the repo, then its network is cut.</li>
-      <li><code>yokoten</code> reads the copy. Your code never runs: no install, no build, no tests.</li>
-      <li>Some of the repo's files go to Muse Spark Open, on Baseten. Muse writes the “This project” section of <code>AGENTS.md</code>.</li>
-      <li>You get the result and the files. Nothing changes until you commit.</li>
-      <li>A hash of the result goes to Sigstore Rekor and a Solana devnet memo. Devnet is a test network; nothing on it has real value.</li>
-    </ol>
-  </section>
-
-  <section>
-    <h2>Limits</h2>
-    <ul>
-      <li>Public repos only.</li>
-      <li>It doesn't scan your code for vulnerabilities.</li>
-      <li>A very large repo may not finish in time.</li>
-      <li>Five checks need <code>yokoten</code> installed, so a repo without it tops out at 8 of 13.</li>
-      <li>Muse's text is cached for 24 hours.</li>
-      <li>Free, no account. 10 checks an hour.</li>
-    </ul>
-  </section>
-
-  <section class="about-made">
-    <h2>How this was made</h2>
-    <dl>
-      <div>
-        <dt>Muse Spark Open</dt>
-        <dd>Most of the code, and each repo's project section</dd>
-      </div>
-      <div>
-        <dt>Claude</dt>
-        <dd>Design, copy, task briefs, code review, some changes by hand</dd>
-      </div>
-      <div>
-        <dt>yokoten</dt>
-        <dd>The checks and the logo. Older than this project</dd>
-      </div>
-    </dl>
-    <p>The full note is in the <a href="https://github.com/coo1white/yokoten-doctor#disclosure">README</a>.</p>
-  </section>
-
-  <section>
-    <h2>Something wrong?</h2>
-    <ul>
-      <li>A wrong check result: the <a href="https://github.com/yokoten-labs/yokoten/issues">yokoten repo</a>. This page only shows its checks.</li>
-      <li>A broken page: <a href="https://github.com/coo1white/yokoten-doctor/issues">this repo</a>.</li>
-    </ul>
-  </section>
-</main>
+<main id="main"><section class="band"><div class="wide doc-head"><h1>About yokoten doctor</h1>
+  <p class="doc-lede">A free page that checks a public GitHub repo for the files AI agents need. No terminal needed.</p></div></section>
+<div class="zone"><div class="wide doc-grid">
+  <section class="card"><h2>How a check runs</h2><ol>
+    <li><span>A throwaway sandbox copies the repo, then its network is cut.</span></li>
+    <li><span><code>yokoten</code> reads the copy. Your code never runs: no install, no build, no tests.</span></li>
+    <li><span>Some of the repo's files go to Muse Spark Open, on Baseten. Muse writes the &ldquo;This project&rdquo; section of <code>AGENTS.md</code>.</span></li>
+    <li><span>You get the result and the files. Nothing changes until you commit.</span></li>
+    <li><span>A hash of the result goes to Sigstore Rekor and a Solana devnet memo. Only the hash goes there. Devnet is a test network; nothing on it has real value.</span></li>
+  </ol></section>
+  <section class="card"><h2>Limits</h2><ul>
+    <li>Public repos only.</li>
+    <li>It doesn't scan your code for vulnerabilities.</li>
+    <li>A very large repo may not finish in time. A repo over 15 GB is refused.</li>
+    <li>Five checks need <code>yokoten</code> installed, so a repo without it tops out at 8 of 13.</li>
+    <li>Muse's text is cached for 24 hours.</li>
+    <li>Free, no account. 10 checks an hour.</li>
+  </ul></section>
+  <section class="card"><h2>Check a result yourself</h2><p>Every result shows the yokoten version, the commit, and the commands to run the same check. Its hash is in a public log, so a changed result would show.</p></section>
+  <section class="card"><h2>How this was made</h2><dl class="made">
+    <div><dt>Muse Spark Open</dt><dd>Most of the code, and each repo's project section</dd></div>
+    <div><dt>Claude</dt><dd>Design, copy, task briefs, code review, some changes by hand</dd></div>
+    <div><dt>yokoten</dt><dd>The checks and the logo. Older than this project</dd></div>
+  </dl><p class="doc-note">The full note is in the <a href="https://github.com/coo1white/yokoten-doctor#disclosure">README</a>.</p></section>
+  <section class="card"><h2>Something wrong?</h2><ul>
+    <li>A wrong check result: the <a href="https://github.com/yokoten-labs/yokoten/issues">yokoten repo</a>. This page only shows its checks.</li>
+    <li>A broken page: <a href="https://github.com/coo1white/yokoten-doctor/issues">this repo</a>.</li>
+  </ul></section>
+</div></div></main>
 <Footer />
 </Page>

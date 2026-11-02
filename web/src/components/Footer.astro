@@ -1,22 +1,16 @@
 ---
-import Mark from "./Mark.astro";
+interface Props {
+  isHome?: boolean;
+}
+const { isHome = false } = Astro.props as Props;
+const SITE_REPO = "https://github.com/coo1white/yokoten-doctor";
 ---
-<footer class="site-footer">
-  <div class="footer-top">
-    <div class="footer-brand">
-      <div class="brand-lockup">
-        <Mark id="footer-mark" size={24} />
-        <span class="brand-name">yokoten doctor</span>
-      </div>
-      <p class="brand-note">A free check for public GitHub repos.</p>
-    </div>
-    <nav class="footer-links" aria-label="Links">
-      <ul>
-        <li><a href="/about.html">About</a></li>
-        <li><a href="https://github.com/coo1white/yokoten-doctor">GitHub</a></li>
-        <li><a href="/agent-view.html">For agents</a></li>
-        <li><a href="https://github.com/coo1white/yokoten-doctor/issues">Report a problem</a></li>
-      </ul>
-    </nav>
-  </div>
-</footer>
+<footer class="foot"><div class="wide foot-in">
+  <p class="small muted">A free check for public GitHub repos.</p>
+  <nav aria-label="Links"><ul>
+    <li><a class="link link-quiet ctl" href="/about.html">About</a></li>
+    <li><a class="link link-quiet ctl" href={SITE_REPO}>GitHub</a></li>
+    {isHome ? null : <li><a class="link link-quiet ctl" href="/">Check a repo</a></li>}
+    <li><a class="link link-quiet ctl" href={`${SITE_REPO}/issues`}>Report a problem</a></li>
+  </ul></nav>
+</div></footer>
