@@ -83,3 +83,30 @@
     });
   });
 })();
+
+// Touch browsers don't all show :active, so a touch marks the control itself.
+(() => {
+  const SHORTEST_PRESS_MS = 120;
+  const LONGEST_PRESS_MS = 3000;
+  document.addEventListener("pointerdown", (event) => {
+    if (event.pointerType === "mouse") return;
+    const control = event.target.closest?.("a, button, summary, .ctl");
+    if (!control) return;
+    const pressedAt = Date.now();
+    control.classList.add("is-pressed");
+    const finishPress = () => {
+      clearTimeout(stuckTimer);
+      window.removeEventListener("pointerup", release);
+      window.removeEventListener("pointercancel", release);
+      const left = SHORTEST_PRESS_MS - (Date.now() - pressedAt);
+      setTimeout(() => control.classList.remove("is-pressed"), Math.max(0, left));
+    };
+    const release = (releaseEvent) => {
+      if (releaseEvent.pointerId === event.pointerId) finishPress();
+    };
+    // The browser can lose the release, so a press never outlasts this.
+    const stuckTimer = setTimeout(finishPress, LONGEST_PRESS_MS);
+    window.addEventListener("pointerup", release);
+    window.addEventListener("pointercancel", release);
+  }, { passive: true });
+})();

@@ -64,7 +64,6 @@
 }
 .file-list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface); overflow: hidden; }
 .file-action-primary { display: inline-flex; align-items: center; height: 44px; padding: 0 18px; border-radius: var(--radius-lg); background: var(--accent); color: var(--on-accent); font-size: 14px; font-weight: 600; text-decoration: none; min-height: 44px; }
-.file-action-primary:hover { color: var(--on-accent); filter: brightness(0.95); }
 .proof-download { align-self: flex-start; min-height: 44px; }
 .proof-hash { font-family: var(--font-mono); font-size: 13px; overflow-wrap: anywhere; }
 .proof-links { display: flex; flex-wrap: wrap; gap: 4px 20px; font-weight: 600; margin: 0; }
@@ -107,7 +106,6 @@
 .proof-code { margin: 0; min-width: 0; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); overflow: hidden; }
 .proof-code-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 4px 4px 14px; border-bottom: 1px solid var(--line); font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
 .proof-code-head .button-quiet { min-height: 32px; padding: 0 10px; border-color: transparent; background: transparent; border-radius: var(--radius-sm); font-size: 13px; }
-.proof-code-head .button-quiet:hover { background: var(--raised); border-color: var(--line); }
 .proof-code pre { margin: 0; padding: 14px 16px; border: 0; border-radius: 0; max-height: none; background: var(--raised); font-size: 13px; line-height: 1.65; }
 .proof-record { margin: 0; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 24px; align-items: center; font-size: 14px; }
 .proof-record dt { color: var(--muted); }

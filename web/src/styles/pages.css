@@ -34,7 +34,6 @@
 .checks-group-title { margin: 0 0 4px; font-size: 13px; font-weight: 600; letter-spacing: 0.02em; color: var(--muted); }
 .checks-list { display: flex; flex-direction: column; border-bottom: 1px solid var(--line); }
 .check-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 16px; min-height: 56px; padding: 10px 0; border-top: 1px solid var(--line); text-decoration: none; color: inherit; }
-.check-row:hover { background: var(--raised); color: inherit; }
 .check-repo { flex: 1 1 180px; min-width: 0; font-size: 15px; font-weight: 500; overflow-wrap: anywhere; }
 .check-data { display: inline-flex; align-items: center; gap: 14px; white-space: nowrap; }
 .check-bar { display: inline-grid; grid-template-columns: repeat(13, 10px); gap: 3px; }
@@ -75,7 +74,6 @@
 .cta-title { margin: 0 0 8px; font-size: 28px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
 .cta-body { margin: 0; color: var(--muted); }
 .cta-link { display: inline-flex; align-items: center; height: 48px; padding: 0 24px; border-radius: var(--radius-lg); border: 1px solid var(--fg); color: var(--fg); font-weight: 600; text-decoration: none; }
-.cta-link:hover { background: var(--raised); color: var(--fg); }
 .agent-view { max-width: calc(880px + 2 * var(--gutter)); }
 .agent-view pre { margin: 0; padding: 0; max-height: none; overflow: visible; background: transparent; border: none; font-family: var(--font-mono); font-size: 13px; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
 .about { max-width: calc(832px + 2 * var(--gutter)); padding-top: 64px; padding-bottom: 0; }

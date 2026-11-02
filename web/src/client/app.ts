@@ -145,6 +145,8 @@ function render(): void {
       checkButton.textContent = "Check";
     }
     window.scrollTo(0, 0);
+    appEl.classList.toggle("is-entering", appEl.dataset.rendered !== "result");
+    appEl.dataset.rendered = "result";
     const vm = viewModel(lastResult);
     const hero = renderResultHero({ lastResult, vm, lastFixes, isWaitingForFixes });
     appEl.appendChild(hero);
@@ -162,6 +164,7 @@ function render(): void {
 }
 
 async function startCheck(): Promise<void> {
+  if (appEl) appEl.dataset.rendered = "";
   clearError();
   const url = repoInput ? repoInput.value.trim() : "";
   if (!url) {

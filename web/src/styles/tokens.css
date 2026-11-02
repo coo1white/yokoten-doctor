@@ -25,7 +25,6 @@
   --on-accent: #FFFFFF;
   --code: #1B1B19;
   --on-code: #ECEAE3;
-  --chip: rgb(27 27 25 / 0.12);
   --shadow: 0 1px 2px rgb(27 27 25 / 0.06), 0 16px 40px -20px rgb(27 27 25 / 0.25);
   --font-sans: 'Inter Variable', 'Inter Fallback', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono Fallback', ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -54,7 +53,6 @@
     --on-accent: #141412;
     --code: #0E0E0D;
     --on-code: #D6D4CC;
-    --chip: rgb(236 234 227 / 0.16);
     --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 16px 40px -20px rgb(0 0 0 / 0.7);
     color-scheme: dark;
   }
@@ -70,7 +68,41 @@
   --on-accent: #141412;
   --code: #0E0E0D;
   --on-code: #D6D4CC;
-  --chip: rgb(236 234 227 / 0.16);
   --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 16px 40px -20px rgb(0 0 0 / 0.7);
   color-scheme: dark;
+}
+
+:root {
+  /* state layers: a translucent wash of the text color, so they sit on any surface and never look pasted */
+  --state-hover: color-mix(in srgb, var(--fg) 6%, transparent);
+  --state-press: color-mix(in srgb, var(--fg) 12%, transparent);
+  --state-current: color-mix(in srgb, var(--fg) 5%, transparent);
+  --state-ring: color-mix(in srgb, var(--fg) 16%, transparent);
+  /* on a filled control (accent or fg) hover lightens and press darkens, with the two tokens that are light and dark in both themes */
+  --state-hover-on-fill: color-mix(in srgb, var(--on-code) 14%, transparent);
+  --state-press-on-fill: color-mix(in srgb, var(--code) 18%, transparent);
+  --radius-state: var(--radius-md);
+  --row-bleed: 12px;               /* how far a row's highlight reaches past its text */
+  --press: scale(0.98);
+  --dur-fast: 90ms;                /* press */
+  --dur: 160ms;                    /* hover, color, chevron */
+  --dur-slow: 260ms;               /* a fold opening, a segment filling */
+  --dur-enter: 360ms;              /* a section arriving */
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.1, 0.8, 0.2, 1);
+}
+/* dark: a wash of light on dark reads weaker, so a little more of it */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --state-hover: color-mix(in srgb, var(--fg) 8%, transparent);
+    --state-press: color-mix(in srgb, var(--fg) 15%, transparent);
+    --state-current: color-mix(in srgb, var(--fg) 7%, transparent);
+    --state-ring: color-mix(in srgb, var(--fg) 20%, transparent);
+  }
+}
+:root[data-theme="dark"] {
+  --state-hover: color-mix(in srgb, var(--fg) 8%, transparent);
+  --state-press: color-mix(in srgb, var(--fg) 15%, transparent);
+  --state-current: color-mix(in srgb, var(--fg) 7%, transparent);
+  --state-ring: color-mix(in srgb, var(--fg) 20%, transparent);
 }

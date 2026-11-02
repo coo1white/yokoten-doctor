@@ -54,8 +54,9 @@ This counts how many rounds of fixes each task needed after the first code came 
 | Shorter copy | 2 | test, review |
 | Next step and Verify | 3 | test, review, review |
 | Review gate for auto-merge | 1 | review |
+| One set of control states | 2 | real page, real page |
 
-62 rounds over 50 tasks: a mean of 1.2. Found by review 29, tests 20, the commit check 2, real runs 11.
+64 rounds over 51 tasks: a mean of 1.3. Found by review 29, tests 20, the commit check 2, real runs 13.
 
 Four of the problems no test could have caught: a deploy that left out modules, a page buried by 26 repeated warnings, a wrong import, and a worker that weakened a security test while editing nearby lines.
 
