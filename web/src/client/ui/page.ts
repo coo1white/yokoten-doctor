@@ -5,6 +5,7 @@ import { renderChecksRow } from "./checks.ts";
 import { renderPrivateRow } from "./private.ts";
 import { renderProofRow } from "./proof.ts";
 import { renderSaveStepBody, renderOtherFilesBody, renderOptionalBody } from "./fix.ts";
+import { toSentence } from "../view.ts";
 
 const doneSteps = new Set<SaveStepKey>();
 let openStepKey: SaveStepKey | "" | null = null;
@@ -217,7 +218,7 @@ function createSaveStepsSection(input: { owner: string; repo: string; branch: st
   } else {
     head.appendChild(make("h2", undefined, "Add the template to your project."));
     head.appendChild(make("p", undefined, "It goes in a file called AGENTS.md. Some AI tools read that file when they start. Check that yours does."));
-    head.appendChild(make("p", undefined, "The part about your project is empty. Fill it in on GitHub when you paste it, or later."));
+    head.appendChild(make("p", undefined, "The file has a place for how to build it, how to test it, and what not to touch. Fill them in on GitHub when you paste it, or later."));
   }
   section.appendChild(head);
   const order: SaveStepKey[] = ["copy", "paste", "save", "check"];
@@ -289,7 +290,12 @@ function renderUnderstood(context: ResultContext): { top: Node[]; job: HTMLEleme
       const t = raw.trim();
       if (!t) continue;
       if (t === "## This project") continue;
-      if (t.startsWith("### ")) continue;
+      if (t.startsWith("```")) continue;
+      if (t.startsWith("### ")) {
+        const h2 = make("h2", undefined, t.slice(4));
+        div.appendChild(h2);
+        continue;
+      }
       const p = make("p");
       renderRichText(t, p);
       div.appendChild(p);
@@ -341,6 +347,20 @@ function renderOneMoreLine(context: ResultContext): { top: Node[]; job: HTMLElem
   const { owner, repo, branch, lastResult, isSavedCheck } = context;
   const top: Node[] = [];
   const rulesStep = (lastResult.summary?.steps ?? []).find((s) => s.id === "rules");
+  const linkFix = rulesStep?.fix ?? "";
+  if (linkFix.includes("is a link to")) {
+    const h1Text = isSavedCheck ? "Saved. One more line for Claude Code." : "One more line for Claude Code.";
+    top.push(...createPageHead(h1Text));
+    const lede = make("p", "f-lede");
+    renderRichText(toSentence(linkFix), lede);
+    top.push(lede);
+    const actions = make("div", "save-actions");
+    const checkLink = make("a", "btn btn-primary ctl", "Check again");
+    checkLink.href = savedCheckHref(owner, repo);
+    actions.appendChild(checkLink);
+    top.push(actions);
+    return { top, job: null };
+  }
   const { file, line } = claudeFileFromStep(rulesStep?.what);
   const h1Text = isSavedCheck ? "Saved. One more line for Claude Code." : "One more line for Claude Code.";
   top.push(...createPageHead(h1Text, `Your project also has a ${file}, so Claude Code won't read AGENTS.md by default. Add this line to ${file}:`));
@@ -417,6 +437,22 @@ function renderFailed(context: ResultContext): { top: Node[]; job: HTMLElement |
   return { top, job };
 }
 
+function renderNoFile(context: ResultContext): { top: Node[]; job: HTMLElement | null } {
+  const { owner, repo } = context;
+  const top: Node[] = [];
+  top.push(...createPageHead("We couldn't get a file ready for this project.", "This doesn't say anything about your project. You can run it again, or run the check on your machine:"));
+  const box = createCommandBox("npx yokoten");
+  box.classList.add("save-line");
+  top.push(box);
+  const actions = make("div", "save-actions");
+  const run = make("a", "btn btn-primary ctl", "Run it again");
+  run.href = rerunHref(owner, repo);
+  actions.appendChild(run);
+  actions.appendChild(createExternalLink("Report a problem", "https://github.com/coo1white/yokoten-doctor/issues", "link ctl"));
+  top.push(actions);
+  return { top, job: null };
+}
+
 function renderScreen(screen: ResultScreen, context: ResultContext): { top: Node[]; job: HTMLElement | null } {
   switch (screen) {
     case "understood":
@@ -435,6 +471,8 @@ function renderScreen(screen: ResultScreen, context: ResultContext): { top: Node
       return renderTooBig(context);
     case "failed":
       return renderFailed(context);
+    case "no file":
+      return renderNoFile(context);
   }
 }
 

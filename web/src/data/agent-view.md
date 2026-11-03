@@ -48,7 +48,8 @@ Read these first:
 - `result.summary.next`: the first open step. Each step has `id`, `title`, `mark` and `how`.
 - `result.summary.steps`: every step. `mark` is `done`, `next` or `to do`.
 - `result.secrets`: things that look private, such as an email address, a token or a private key. Some may be public on purpose.
-- `fixes.files`: each file has `path`, `content` and `source`. In `AGENTS.md`, the AI's text is under `## This project`.
+- `fixes.files`: each file has `path`, `content` and `source`. `AGENTS.md` is yokoten's whole template, which names yokoten's own checks. When `fixes.muse` is `ok`, Muse's text is under `## This project`. The page saves only that text.
+- `fixes.muse`: `ok` means Muse wrote the text. `not needed` means Muse wasn't asked, because the repo has `AGENTS.md` or is too big, or no file could be made. `failed` means Muse couldn't write it.
 - `fixes.after`: the same two counts once the files are in. It isn't a grade.
 - `result.rerun`: the commands that repeat the check.
 
