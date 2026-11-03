@@ -113,7 +113,8 @@ and a small Python service in `server/` that runs on Modal. The design is in
   The reviewer is never a model that writes code here, so it is never Muse or Claude.
 - The lead (Claude Opus 5.5) reads every pull request. It turns on auto-merge in the step right after opening one, and never after a review has ended unless it has read that review.
 - Auto-merge merges when `test`, `pr` and `review` pass. The lead reads each review, and fixes what it finds in a new pull request.
-- The `review` check fails when the reviewer can't read the model's answer, and that also turns auto-merge off. A high finding, or a diff too large to review, turns it off too, so the lead decides.
+- The `review` check fails when the reviewer can't read the model's answer, and that also turns auto-merge off.
+- A high finding, or a diff too large to review, fails the `review` check too. It stays failed until the owner or a collaborator approves that commit and the check runs again. Incident: PR 103 merged with no review, because the check only tried to turn auto-merge off.
 - The owner approves only a pull request that changes a CODEOWNERS path.
 - The bot squash merges in UTC. A merge to main deploys what it changed: the page, the server, or both.
 
@@ -126,7 +127,7 @@ Muse Spark Open writes all code in `web/`, `server/`, `test/` and the root confi
 - CI files, `AGENTS.md`, docs and JSON config stay with the lead. Deleting a file writes no code, so the lead can delete one.
 - A wrong reply goes back to Muse with a new brief. Nobody fixes it by hand.
 - Each new brief for a long file starts from a clean git copy. Read each reply as a diff before applying it.
-- `apply-json.mjs` compares the files with Baseten's reply. It then writes them and records each hash in `muse-receipts.json`.
+- `apply-json.mjs` compares the files with Baseten's reply. It then writes them and records each hash in `muse-receipts.json`. It refuses a reply that doesn't parse, changes only backslashes, or drops a click handler, clipboard call or `window.open`.
 - Check: the `test` workflow fails when a changed code file has no receipt, or differs from its receipt.
 - Check: a local hook refuses Claude's file tools on these paths.
 - These checks stop mistakes. They do not prove authorship to an outsider, because a receipt can be forged by hand.
@@ -157,3 +158,6 @@ These come from mistakes already made in this repo. Each one was caught in revie
 - A module on Modal must be in `web_image`. A test that imports it does not prove the deploy works.
 - Client code uses only TypeScript syntax that Node can strip, and imports name the `.ts` file.
 - Text a visitor reads on the site is natural American English. The Writing rule above covers rules and docs.
+- A page that promises a screen gives a way to reach it, and a test walks the visitor's route there. Incident: the first example hid the save steps, and step 4 promised screens nobody could reach.
+- Page logic that reads yokoten's words is tested on real output in `test/fixtures/`, captured from the version the server runs.
+- What a visitor saves is what they read. Incident: visitors committed yokoten's template, which names checks their repo doesn't have.

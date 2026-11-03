@@ -1,5 +1,6 @@
 export const MAX_TEXT_CHARS = 300;
 export const MAX_FINDINGS = 10;
+export const PEOPLE_WHO_CAN_APPROVE = ["OWNER", "MEMBER", "COLLABORATOR"];
 
 export function parseAnswer(text) {
   if (typeof text !== "string") return null;
@@ -203,7 +204,7 @@ export async function stopAutoMerge(token, repo, prNumber) {
       Accept: "application/vnd.github+json"
     }
   });
-  if (!prRes.ok) throw new Error("failed to read auto-merge state");
+  if (!prRes.ok) throw new Error(`failed to read auto-merge state: ${prRes.status}`);
   const pr = await prRes.json();
   if (!pr?.auto_merge) return;
   const res = await fetch("https://api.github.com/graphql", {
@@ -219,7 +220,30 @@ export async function stopAutoMerge(token, repo, prNumber) {
     })
   });
   const data = res.ok ? await res.json() : null;
-  if (!data || data.errors) throw new Error("failed to stop auto-merge");
+  if (!data || data.errors) throw new Error(`failed to stop auto-merge: ${res.status} ${data?.errors?.[0]?.type ?? ""}`.trim());
+}
+
+export async function isApprovedByPerson(token, repo, prNumber, headSha) {
+  const res = await fetch(`https://api.github.com/repos/${repo}/pulls/${prNumber}/reviews?per_page=100`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/vnd.github+json"
+    }
+  });
+  if (!res.ok) throw new Error(`failed to read reviews: ${res.status}`);
+  const reviews = await res.json();
+  return reviews.some((review) =>
+    review.state === "APPROVED" &&
+    review.commit_id === headSha &&
+    review.user?.type === "User" &&
+    PEOPLE_WHO_CAN_APPROVE.includes(review.author_association)
+  );
+}
+
+export async function holdForPerson(token, repo, prNumber, headSha) {
+  if (await isApprovedByPerson(token, repo, prNumber, headSha)) return;
+  process.exitCode = 1;
+  await stopAutoMerge(token, repo, prNumber);
 }
 
 export async function main() {
@@ -266,9 +290,9 @@ export async function main() {
 
   if (filteredDiff.length > 200000) {
     const event = "COMMENT";
-    const body = "This diff is too large for one review. It needs a person.";
+    const body = "This diff is too large for one review. It needs a person. This check stays failed until a person approves this commit and it runs again.";
     await postReview(repo, prNumber, token, headSha, event, body);
-    await stopAutoMerge(token, repo, prNumber);
+    await holdForPerson(token, repo, prNumber, headSha);
     return;
   }
 
@@ -305,13 +329,16 @@ export async function main() {
   const event = decideEvent(answer);
   const reviewBody = buildReviewBody(answer, model, skipped);
   await postReview(repo, prNumber, token, headSha, event, reviewBody);
-  if (answer === null) process.exitCode = 1;
-  if (answer === null || event === "REQUEST_CHANGES") await stopAutoMerge(token, repo, prNumber);
+  if (answer === null) {
+    process.exitCode = 1;
+    await stopAutoMerge(token, repo, prNumber);
+  }
+  if (event === "REQUEST_CHANGES") await holdForPerson(token, repo, prNumber, headSha);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  main().catch(() => {
-    console.error("review failed");
+  main().catch((error) => {
+    console.error(`review failed: ${error.message}`);
     process.exit(1);
   });
 }
