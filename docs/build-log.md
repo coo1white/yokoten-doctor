@@ -1,6 +1,6 @@
 # Build log
 
-This counts how many rounds of fixes each task needed after the first code came back, and what found the problem. Counted from the task files on 2026-10-31.
+This counts how many rounds of fixes each task needed after the first code came back, and what found the problem. Counted from the task files on 2026-10-31. The last four rows are counted from the Muse briefs on 2026-11-03: each brief that fixed earlier code is one round, and a retry of the same brief is not.
 
 | Task | Fix rounds | Found by |
 |---|---|---|
@@ -59,8 +59,12 @@ This counts how many rounds of fixes each task needed after the first code came 
 | Next step on every screen | 7 | review (6), test |
 | Rebuild to the approved design | 14 | review (9), test (4), real page |
 | Result page: one job at a time | 2 | real page, test |
+| Show what an AI understood | 12 | review (5), test (6), real page |
+| Save steps on example pages | 2 | test, real page |
+| Review hold for a decision | 2 | review, real run |
+| Text states only what the files show | 0 | none |
 
-88 rounds over 55 tasks: a mean of 1.6. Found by review 45, tests 26, the commit check 2, real runs 15.
+104 rounds over 59 tasks: a mean of 1.8. Found by review 51, tests 33, the commit check 2, real runs 18.
 
 Four of the problems no test could have caught: a deploy that left out modules, a page buried by 26 repeated warnings, a wrong import, and a worker that weakened a security test while editing nearby lines.
 
