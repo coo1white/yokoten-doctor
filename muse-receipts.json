@@ -80,9 +80,9 @@
     "reply": "chatcmpl-20970cb4a1424f75a7d1d946d0f9a139"
   },
   "test/site/result-screen.test.mjs": {
-    "sha256": "49b7e9c590c5c20edfbec0df02852ee3bae2d8a5a128caba25f740d3952a7849",
+    "sha256": "23af8ec64abe2568b5b2115a1ee43499b9519984983c10dc157c505dee2b9795",
     "model": "meta-models/muse-spark-open-1026",
-    "reply": "chatcmpl-1343f5895b6344cd8f8f81f3ab1fac67"
+    "reply": "chatcmpl-31e668004dcd4c7cbe265c6241783b7c"
   },
   "test/site/static-host-part-2.test.mjs": {
     "sha256": "92f04017d2569e5d9763f554d68dce8cb2a52bfaa8417b6b8fc825d8d954db99",
@@ -90,9 +90,9 @@
     "reply": "chatcmpl-e8ca9352686a4ace837424a3be6e4648"
   },
   "test/web/fixes.test.mjs": {
-    "sha256": "58d3daced9624987a70c8b68bde0bd9bc423c8a9d6f5b30f6e73b2a61ea597b6",
+    "sha256": "a7f01d8dfeab119cc0fc0d51ddc17114aeae37e85f31ad008e9e97e387e8c68a",
     "model": "meta-models/muse-spark-open-1026",
-    "reply": "chatcmpl-251ceaad06c94f63b0d18a6129a4ff53"
+    "reply": "chatcmpl-66c7b12179214022884f659e17c26f07"
   },
   "test/web/static-host.test.mjs": {
     "sha256": "8e97e47c51f62e41b4ef5cb2e77dcf614dcbe07b8e5743edcccee467cd57b73e",
@@ -115,9 +115,9 @@
     "reply": "chatcmpl-18ed257bdea345d8840314f8061fb488"
   },
   "web/src/client/fixes.ts": {
-    "sha256": "41fe761cdea074ead1c8c679530dfb336b4aecee4a010f676cdaa6c3f8270f97",
+    "sha256": "fc562f2e1687a6646e8c41415e8a23f4e8b6888e9cf7b4f4c0b55062d13119a8",
     "model": "meta-models/muse-spark-open-1026",
-    "reply": "chatcmpl-251ceaad06c94f63b0d18a6129a4ff53"
+    "reply": "chatcmpl-66c7b12179214022884f659e17c26f07"
   },
   "web/src/client/stepper.ts": {
     "sha256": "3a1a138b84e9ffca051a49cf64553cbef1109cec33e5a3cbd4283788ef353428",
@@ -155,9 +155,9 @@
     "reply": "chatcmpl-aff7f2185065403ea63f2ebf7039bf7e"
   },
   "web/src/client/ui/page.ts": {
-    "sha256": "05082153507da1c0bf6014c0189c726c6d4dd7af0f98a5b17c36d329c941dc20",
+    "sha256": "d1a4366d8f7467e72a42eb31d71075c2a89d946b5ff477cf308ee4ee097efb1f",
     "model": "meta-models/muse-spark-open-1026",
-    "reply": "chatcmpl-1343f5895b6344cd8f8f81f3ab1fac67"
+    "reply": "chatcmpl-31e668004dcd4c7cbe265c6241783b7c"
   },
   "web/src/client/ui/private.ts": {
     "sha256": "f4b87b1982f14a01c0f8f064ab449c2af18a94ee8c3fe3b4ef48609c3ea1fc58",

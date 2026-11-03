@@ -1,4 +1,4 @@
-import { rerunHref, savedCheckHref, repoFileHref, claudeFileFromStep, projectSection, understoodSections } from "../fixes.ts";
+import { rerunHref, savedCheckHref, repoFileHref, claudeFileFromStep, projectSection, understoodSections, isClaudeFileLink } from "../fixes.ts";
 import type { CheckResult, ViewModel, FixesPayload, RecordPayload, SaveStepKey, ResultScreen, FixFile } from "../types.ts";
 import { make, renderRichText, createIcon, createRow, createCommandBox } from "./dom.ts";
 import { renderChecksRow } from "./checks.ts";
@@ -348,7 +348,7 @@ function renderOneMoreLine(context: ResultContext): { top: Node[]; job: HTMLElem
   const top: Node[] = [];
   const rulesStep = (lastResult.summary?.steps ?? []).find((s) => s.id === "rules");
   const linkFix = rulesStep?.fix ?? "";
-  if (linkFix.includes("is a link to")) {
+  if (isClaudeFileLink(linkFix)) {
     const h1Text = isSavedCheck ? "Saved. One more line for Claude Code." : "One more line for Claude Code.";
     top.push(...createPageHead(h1Text));
     const lede = make("p", "f-lede");

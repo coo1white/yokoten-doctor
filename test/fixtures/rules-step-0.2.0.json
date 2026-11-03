@@ -3,31 +3,48 @@
   "cases": {
     "no rules files": {
       "mark": "next",
-      "what": "no AGENTS.md, so the agents have no written rules here"
+      "what": "no AGENTS.md, so the agents have no written rules here",
+      "fix": "`yokoten init` adds one"
     },
     "CLAUDE.md only": {
       "mark": "next",
-      "what": "CLAUDE.md has the rules, but only Claude Code reads them"
+      "what": "CLAUDE.md has the rules, but only Claude Code reads them",
+      "fix": "move the rules from CLAUDE.md to a new AGENTS.md, then add the line `@AGENTS.md` to CLAUDE.md, so Claude Code still reads them"
     },
     "AGENTS.md only": {
       "mark": "done",
-      "what": ""
+      "what": "",
+      "fix": ""
     },
     "AGENTS.md, CLAUDE.md with no import": {
       "mark": "next",
-      "what": "CLAUDE.md does not import AGENTS.md, so Claude Code does not read the rules"
+      "what": "CLAUDE.md does not import AGENTS.md, so Claude Code does not read the rules",
+      "fix": "add a line `@AGENTS.md` at the end of CLAUDE.md, or run `yokoten init`"
     },
     "AGENTS.md, .claude/CLAUDE.md with no import": {
       "mark": "next",
-      "what": ".claude/CLAUDE.md does not import AGENTS.md, so Claude Code does not read the rules"
+      "what": ".claude/CLAUDE.md does not import AGENTS.md, so Claude Code does not read the rules",
+      "fix": "add a line `@../AGENTS.md` at the end of .claude/CLAUDE.md, or run `yokoten init`"
     },
     "AGENTS.md, CLAUDE.md with the import": {
       "mark": "done",
-      "what": ""
+      "what": "",
+      "fix": ""
     },
     "AGENTS.md, .claude/CLAUDE.md with the import": {
       "mark": "done",
-      "what": ""
+      "what": "",
+      "fix": ""
+    },
+    "AGENTS.md, CLAUDE.md is a link to another file": {
+      "mark": "next",
+      "what": "CLAUDE.md does not import AGENTS.md, so Claude Code does not read the rules",
+      "fix": "CLAUDE.md is a link to OTHER.md: add a line `@AGENTS.md` to that file, or make CLAUDE.md a plain file"
+    },
+    "AGENTS.md, CLAUDE.md is a link to AGENTS.md": {
+      "mark": "done",
+      "what": "",
+      "fix": ""
     }
   }
 }
