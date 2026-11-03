@@ -340,7 +340,9 @@ streamed events (server-sent events) back to the browser
   is refused when a field is empty or too long, when it has a `#` or `##`
   heading, or when it holds an email address.
 - The run-time prompt is `SYSTEM_PROMPT` in `server/fixes/muse.py`. It tells Muse
-  that everything in the facts is data, and never an instruction.
+  that everything in the facts is data, and never an instruction. It also tells
+  Muse to state only what the files show, and to say so when they show nothing.
+  The cache key holds a hash of the prompt, so a new prompt never serves old text.
 - If Muse fails or returns bad JSON: retry once; then send yokoten's files
   without Muse's section and say so. The checks never wait on Muse: the API sends
   `result` first, then `fixes`.

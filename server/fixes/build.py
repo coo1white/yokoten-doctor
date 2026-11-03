@@ -1,14 +1,14 @@
 import logging
 import time
 
-from .muse import ask_muse as _ask_muse_default
+from .muse import PROMPT_ID, ask_muse as _ask_muse_default
 from .select_files import fill_owner, merge_this_project
 
 logger = logging.getLogger(__name__)
 
 
 def muse_cache_key(owner, repo, commit, version) -> str:
-    return f"{owner}/{repo}@{commit}@{version}".lower()
+    return f"{owner}/{repo}@{commit}@{version}@{PROMPT_ID}".lower()
 
 
 def _claude_import_for(result, fix_files):
