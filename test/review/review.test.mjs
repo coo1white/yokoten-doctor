@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { parseAnswer, decideEvent, cleanText, buildReviewBody, splitSavedData, stopAutoMerge, MAX_TEXT_CHARS, MAX_FINDINGS } from "../../.github/review/review.mjs";
+import { parseAnswer, decideEvent, cleanText, buildReviewBody, splitSavedData, stopAutoMerge, isApprovedByPerson, MAX_TEXT_CHARS, MAX_FINDINGS } from "../../.github/review/review.mjs";
 
 describe("parseAnswer", () => {
   it("parses a good object", () => {
@@ -163,7 +163,7 @@ describe("buildReviewBody", () => {
 describe("splitSavedData", () => {
   it("removes a section under web/src/data/examples/, keeps the sections before and after it unchanged, and names the path", () => {
     const secA = "diff --git a/foo.txt b/foo.txt\n--- a/foo.txt\n+++ b/foo.txt\n+hello";
-    const secSaved = "diff --git a/web/src/data/examples/one.json b/web/src/data/examples/one.json\n--- a/web/src/data/examples/one.json\n+++ b/web/src/data/examples/one.json\n+{}";
+    const secSaved = "diff --git a/web/src/data/examples/one.json b/web/src/data/examples/one.json\n--- a/web/src/data/examples/one.json\n+++ b/web/src/data/examples/one.json\n+{}" ;
     const secC = "diff --git a/bar.txt b/bar.txt\n--- a/bar.txt\n+++ b/bar.txt\n+world";
     const diff = [secA, secSaved, secC].join("\n");
     const res = splitSavedData(diff);
@@ -262,6 +262,51 @@ describe("stopAutoMerge", () => {
     });
     await withFetch([prReply({ auto_merge: {}, node_id: "id" }), { ok: false }], async () => {
       await assert.rejects(stopAutoMerge("token", "o/r", "1"));
+    });
+  });
+});
+
+describe("isApprovedByPerson", () => {
+  const withReviews = async (reply, run) => {
+    const original = globalThis.fetch;
+    const calls = [];
+    globalThis.fetch = async (url) => {
+      calls.push(url);
+      return reply;
+    };
+    try {
+      await run(calls);
+    } finally {
+      globalThis.fetch = original;
+    }
+  };
+  const reviews = (list) => ({ ok: true, json: async () => list });
+  const person = { type: "User" };
+
+  it("is true when a person approved this commit", async () => {
+    await withReviews(reviews([{ state: "APPROVED", commit_id: "abc", user: person }]), async (calls) => {
+      assert.equal(await isApprovedByPerson("token", "o/r", "1", "abc"), true);
+      assert.equal(calls[0], "https://api.github.com/repos/o/r/pulls/1/reviews?per_page=100");
+    });
+  });
+  it("is false with no reviews, so the check fails", async () => {
+    await withReviews(reviews([]), async () => {
+      assert.equal(await isApprovedByPerson("token", "o/r", "1", "abc"), false);
+    });
+  });
+  it("is false for an approval of an older commit", async () => {
+    await withReviews(reviews([{ state: "APPROVED", commit_id: "old", user: person }]), async () => {
+      assert.equal(await isApprovedByPerson("token", "o/r", "1", "abc"), false);
+    });
+  });
+  it("is false for a bot's approval, or a person's comment", async () => {
+    await withReviews(reviews([{ state: "APPROVED", commit_id: "abc", user: { type: "Bot" } }, { state: "COMMENTED", commit_id: "abc", user: person }]), async () => {
+      assert.equal(await isApprovedByPerson("token", "o/r", "1", "abc"), false);
+    });
+  });
+  it("throws when it can't read the reviews, so the check fails", async () => {
+    await withReviews({ ok: false }, async () => {
+      await assert.rejects(isApprovedByPerson("token", "o/r", "1", "abc"));
     });
   });
 });
