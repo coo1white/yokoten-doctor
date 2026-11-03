@@ -1,6 +1,8 @@
 import { createFold, createRow, make, renderRichText } from "./dom.ts";
-import { toSentence } from "../view.ts";
+import { toSentence, topFolders } from "../view.ts";
 import type { ViewModel } from "../types.ts";
+
+const MANY_PLACES = 20;
 
 export function renderPrivateRow({ vm }: { vm: ViewModel }): HTMLElement | null {
   if (vm.secretCount === 0) {
@@ -17,6 +19,9 @@ export function renderPrivateRow({ vm }: { vm: ViewModel }): HTMLElement | null 
 function createGroupRow(group: ViewModel["secretGroups"][number], index: number): HTMLElement {
   const item = make("li", "item");
   item.appendChild(createTitle(group));
+  if (group.places.length > MANY_PLACES) {
+    item.appendChild(createManyNote(group.places));
+  }
   item.appendChild(createPlacesFold(group, index));
   item.appendChild(createOutcomes(group.fix));
   return item;
@@ -37,6 +42,17 @@ function createWhatSpan(what?: string): HTMLElement {
 function createCountSpan(places: string[]): HTMLElement {
   const label = places.length === 1 ? "1 place" : `${places.length} places`;
   return make("span", "n", label);
+}
+
+function createManyNote(places: string[]): HTMLElement {
+  const note = make("div", "many");
+  note.appendChild(make("p", "small", "A long list is often test data, or numbers inside images. Open a few before you change anything. Most are in:"));
+  const list = make("ul", "places");
+  for (const { folder, count } of topFolders(places, 5)) {
+    list.appendChild(make("li", undefined, `${folder} (${count})`));
+  }
+  note.appendChild(list);
+  return note;
 }
 
 function createPlacesFold(group: ViewModel["secretGroups"][number], index: number): HTMLElement {
@@ -72,7 +88,7 @@ function createFixOutcome(fix?: string): HTMLElement {
 function createAllowOutcome(): HTMLElement {
   const box = createOutcomeBox("It's fine?");
   const paragraph = make("p");
-  paragraph.appendChild(document.createTextNode("Add the exact text to "));
+  paragraph.appendChild(document.createTextNode("Leave it. Some text is public on purpose. With yokoten, add the exact text to "));
   paragraph.appendChild(make("code", undefined, "privacy.allow"));
   paragraph.appendChild(document.createTextNode(" in "));
   paragraph.appendChild(make("code", undefined, "yokoten.json"));

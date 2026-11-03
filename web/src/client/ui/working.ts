@@ -19,7 +19,7 @@ export function renderWorking({ repoName, progress }: { repoName: string; progre
   nameSpan.textContent = repoName;
   h1.appendChild(nameSpan);
   run.appendChild(h1);
-  const note = make("p", "run-note", "Checking. Usually about 15 seconds.");
+  const note = make("p", "run-note", "Checking. Usually under a minute.");
   run.appendChild(note);
   const ul = document.createElement("ul");
   ul.className = "run-steps";

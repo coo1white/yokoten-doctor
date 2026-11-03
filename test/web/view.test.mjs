@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { viewModel, markLabel, splitCode, formatRecordTime, repoFromInput, repoFromQuery, secretFolders, toSentence } from "../../web/src/client/view.ts";
+import { viewModel, markLabel, splitCode, formatRecordTime, repoFromInput, repoFromQuery, secretFolders, toSentence, topFolders } from "../../web/src/client/view.ts";
 import { projectSection } from "../../web/src/client/fixes.ts";
 
 test("viewModel: evidence has the short commit", () => {
@@ -253,4 +253,16 @@ test("toSentence: empty returns empty", () => {
 
 test("toSentence: single word", () => {
   assert.equal(toSentence("hello"), "Hello.");
+});
+
+test("topFolders: biggest folders first, ties keep their order", () => {
+  const places = ["a/x.ts:1", "b/y.ts:1", "b/z.ts:2", "c/w.ts:1", "b/y.ts:9", "c/v.ts:3"];
+  assert.deepEqual(topFolders(places, 2), [
+    { folder: "b/", count: 3 },
+    { folder: "c/", count: 2 },
+  ]);
+});
+
+test("topFolders: fewer folders than the limit gives them all", () => {
+  assert.deepEqual(topFolders(["a/x.ts:1"], 5), [{ folder: "a/", count: 1 }]);
 });

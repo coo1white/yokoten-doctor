@@ -121,6 +121,14 @@ export function secretFolders(places: string[]): { folder: string; count: number
   return order.map((folder) => ({ folder, count: counts.get(folder) as number }));
 }
 
+export function topFolders(places: string[], limit: number): { folder: string; count: number }[] {
+  return secretFolders(places)
+    .map((entry, index) => ({ ...entry, index }))
+    .sort((a, b) => b.count - a.count || a.index - b.index)
+    .slice(0, limit)
+    .map(({ folder, count }) => ({ folder, count }));
+}
+
 export const INSTALL_COMMAND = "npx yokoten init";
 
 export function splitErrorCommand(message: string): { text: string; command: string } {
