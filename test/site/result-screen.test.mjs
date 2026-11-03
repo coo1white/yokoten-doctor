@@ -56,7 +56,7 @@ describe('resultScreen', () => {
       ['next', NO, { muse: 'failed', hasA: false }, false, 'failed'],
       ['next', NO, { muse: 'lost', hasA: false }, false, 'failed'],
       ['next', NO, { muse: 'not needed', hasA: true }, false, 'too big'],
-      ['next', NO, { muse: 'not needed', hasA: false }, false, 'failed'],
+      ['next', NO, { muse: 'not needed', hasA: false }, false, 'no file'],
       ['next', GAP, null, false, 'one more line'],
       ['next', GAP, { muse: 'not needed', hasA: false }, false, 'one more line'],
       ['done', '', null, false, 'already has'],
@@ -71,6 +71,9 @@ describe('resultScreen', () => {
       ['next', NO, { muse: 'ok', hasA: true }, true, 'not found'],
       ['next', NO, { muse: 'failed', hasA: false }, true, 'not found'],
       ['next', ONLY, { muse: 'ok', hasA: true }, true, 'not found'],
+      ['not now', '', null, false, 'no file'],
+      ['not now', '', null, true, 'no file'],
+      ['not now', GAP, null, false, 'one more line'],
     ];
     for (const [mark, what, fixDesc, flag, expected] of cases) {
       const result = makeResult(mark, what);

@@ -1,6 +1,6 @@
 import { make, createIcon, createCommandBox, createFold, renderRichText } from "./dom.ts";
 import { INSTALL_COMMAND, OPTIONAL_CHECK_IDS } from "../view.ts";
-import { newFileLink, fileLinkPlan, buildPatch, orderFiles, savedCheckHref, PATCH_COMMANDS, isSafePath } from "../fixes.ts";
+import { newFileLink, fileLinkPlan, buildPatch, orderFiles, savedCheckHref, PATCH_COMMANDS, isSafePath, savedFileText } from "../fixes.ts";
 import type { CheckResult, FixesPayload, SaveStepKey, FixFile } from "../types.ts";
 
 let isWholeFileShown = false;
@@ -135,7 +135,7 @@ function createBoldLine(before: string, bold: string, after: string): HTMLElemen
 }
 
 function renderCopyStep(owner: string, repo: string, branch: string | null, agentsFile: FixFile, isWrittenByAi: boolean, isPreview: boolean, doneButton: HTMLElement | undefined): Node[] {
-  const content = agentsFile.content;
+  const content = savedFileText(agentsFile.content, isWrittenByAi);
   const say = make("div", "save-say");
   const nodes: Node[] = [say];
   say.appendChild(createBoldLine("On this page, click ", "Copy and open GitHub", ". The file is copied, and GitHub opens in a new tab."));
@@ -193,11 +193,10 @@ function renderCopyStep(owner: string, repo: string, branch: string | null, agen
   readButton.type = "button";
   nameDiv.appendChild(readButton);
   panel.appendChild(nameDiv);
-  panel.appendChild(makeSavePart("From our template", "General rules for how work gets done.", false));
   if (isWrittenByAi) {
-    panel.appendChild(makeSavePart("Written by the AI", "The three parts you just read.", true));
+    panel.appendChild(makeSavePart("Written by the AI", "What you just read. Nothing else goes in the file.", true));
   } else {
-    panel.appendChild(makeSavePart("Yours to fill in", "How to build it, how to test it, and what not to touch.", true));
+    panel.appendChild(makeSavePart("Yours to fill in", "A place for how to build it, how to test it, and what not to touch.", true));
   }
   const wholeFile = createFilePre(content);
   wholeFile.hidden = !isWholeFileShown;
@@ -270,10 +269,10 @@ function renderSaveStep(doneButton: HTMLElement | undefined): Node[] {
   const gh = make("div", "gh");
   gh.appendChild(createGitHubTop("gh-green"));
   const editor = make("div", "gh-editor");
-  editor.appendChild(document.createTextNode("# How work is done here"));
+  editor.appendChild(document.createTextNode("# How to work on this project"));
   editor.appendChild(document.createElement("br"));
   editor.appendChild(document.createElement("br"));
-  editor.appendChild(document.createTextNode("This file is for every agent..."));
+  editor.appendChild(document.createTextNode("## Build"));
   gh.appendChild(editor);
   shot.appendChild(gh);
   shot.appendChild(make("div", "gh-dim"));
@@ -310,12 +309,8 @@ function renderCheckStep(owner: string, repo: string, isPreview: boolean): Node[
   const there = makeSavePart("If it's there", "We show you how to try it with your AI tool.", true);
   const notThere = makeSavePart("If it isn't", "We tell you what's usually missing, and you can go back to the steps.", false);
   if (isPreview) {
-    const thereLink = make("a", undefined, "See this screen");
-    thereLink.href = savedCheckHref("coo1white", "yokoten-doctor");
-    there.appendChild(thereLink);
-    const notThereLink = make("a", undefined, "See this screen");
-    notThereLink.href = savedCheckHref(owner, repo);
-    notThere.appendChild(notThereLink);
+    there.appendChild(createFold("See this screen", [make("p", "save-preview-title", "Saved. AGENTS.md is in your project."), make("p", "small", "Now try it. Open your AI tool in this project, and ask it this: What should you not touch in this project?")], { key: "screen-saved" }));
+    notThere.appendChild(createFold("See this screen", [make("p", "save-preview-title", "We don't see AGENTS.md yet."), make("p", "small", "It has to reach your main branch. If GitHub showed a green Create pull request button, click it, then click Merge pull request.")], { key: "screen-not-found" }));
   }
   panel.appendChild(there);
   panel.appendChild(notThere);
@@ -389,7 +384,8 @@ export function renderOtherFilesBody(lastFixes: FixesPayload | null, lastResult:
     if (orderedAll.first) allFiles.push(orderedAll.first);
     for (const item of orderedAll.rest) allFiles.push(item);
     if (allFiles.length > 0) {
-      nodes.push(createTerminalFold(allFiles));
+      const mapped = allFiles.map((file) => file.path === "AGENTS.md" ? { ...file, content: savedFileText(file.content, file.source === "yokoten and Muse") } : file);
+      nodes.push(createTerminalFold(mapped));
     }
   }
   return nodes;

@@ -377,7 +377,7 @@ window.open = (url) => { window.__calls.push(['open', url]); return null; };`;
     }
   });
 
-  test('the route a visitor walks: the first example in each list shows what the AI understood, all four steps, and a way to reach each result', { timeout: 180000 }, async (t) => {
+  test('the route a visitor walks: the first example in each list shows what the AI understood, all four steps, and a way to reach each result and a preview of each result', { timeout: 180000 }, async (t) => {
     if (skipReason) { t.skip(skipReason); return; }
     await navigate('/', 1440);
     const firsts = JSON.parse(await evaluate(`JSON.stringify([...document.querySelectorAll('.results-group')].map((group) => group.querySelector('a.ex').getAttribute('href')))`));
@@ -391,9 +391,8 @@ window.open = (url) => { window.__calls.push(['open', url]); return null; };`;
         await evaluate(`document.querySelector('.f-step[open] [data-done]').click()`);
         await new Promise((r) => setTimeout(r, 100));
       }
-      const links = JSON.parse(await evaluate(`JSON.stringify([...document.querySelectorAll('.f-step[open] .save-part a')].map((link) => link.getAttribute('href')))`));
-      assert.equal(links.length, 2, `${href} step 4 should link to both results`);
-      for (const link of links) assert.ok(link.endsWith('&saved=1'), `${href} ${link}`);
+      const previews = JSON.parse(await evaluate(`(() => { document.querySelectorAll('.f-step[open] .save-part details').forEach((fold) => { fold.open = true; }); return JSON.stringify([...document.querySelectorAll('.f-step[open] .save-preview-title')].map((title) => title.textContent)); })()`));
+      assert.deepEqual(previews, ['Saved. AGENTS.md is in your project.', "We don't see AGENTS.md yet."], href);
     }
   });
 
@@ -407,8 +406,8 @@ window.open = (url) => { window.__calls.push(['open', url]); return null; };`;
     assert.ok((await evaluate(`document.querySelector(".save-head a").href`)).endsWith('/'), 'link href should end with /');
     assert.equal(await evaluate(`document.querySelector(".f-step[open] .btn-primary").disabled`), true);
     assert.equal(await evaluate(`document.querySelector('[data-step="check"] .btn-primary').disabled`), true);
-    const screens = JSON.parse(await evaluate(`JSON.stringify([...document.querySelectorAll('[data-step="check"] .save-part a')].map((link) => link.getAttribute('href')))`));
-    assert.deepEqual(screens, ['/?repo=coo1white/yokoten-doctor&saved=1', '/?repo=expressjs/express&saved=1']);
+    assert.equal(await evaluate(`document.querySelectorAll('[data-step="check"] .save-part a').length`), 0);
+    assert.equal(await evaluate(`document.querySelectorAll('[data-step="check"] .save-part details').length`), 2);
     assert.equal(await evaluate(`document.querySelectorAll('.f-step a[href*="github.com"]').length`), 0);
     await navigate('/example/cline-cline.html', 1440);
     assert.equal(await evaluate(`document.querySelector(".f-main h1").textContent.trim()`), 'This project already has an AGENTS.md.');
@@ -523,7 +522,6 @@ window.open = (url) => { window.__calls.push(['open', url]); return null; };`;
     assert.equal(await evaluate(`document.querySelector('section[aria-label="Save it to your project"]').hidden`), true);
     await evaluate(`[...document.querySelectorAll("button")].find(b=>b.textContent.trim()==="Add the template instead").click()`);
     await new Promise((r) => setTimeout(r, 100));
-    assert.equal(await evaluate(`document.querySelector('section[aria-label="Save it to your project"]').hidden`), false);
     assert.equal(await evaluate(`document.querySelector('section[aria-label="Save it to your project"] h2').textContent.trim()`), 'Add the template to your project.');
     await openFakeCheck(query, [['result', withRules('next', '')], ['fixes', { files, summary: '', muse: 'not needed', claude_import: null }]]);
     assert.equal(await evaluate(`document.querySelector(".f-main h1").textContent.trim()`), 'This project is too big for the AI to read here.');
@@ -546,7 +544,9 @@ window.open = (url) => { window.__calls.push(['open', url]); return null; };`;
     assert.equal(calls.length, 2);
     assert.equal(calls[0][0], 'copy');
     const agContent = liveExample.fixes.files.find((f) => f.path === 'AGENTS.md').content;
-    assert.equal(calls[0][1], agContent);
+    assert.ok(calls[0][1].startsWith('# How to work on this project'), 'the file starts with its title');
+    assert.equal(calls[0][1].includes('Tool guard'), false, 'the file holds none of yokoten\'s template');
+    assert.ok(calls[0][1].includes(agContent.split('### Test')[1].trim().split('\n')[0]), 'the file holds what the AI wrote');
     assert.equal(calls[1][0], 'open');
     assert.ok(calls[1][1].includes('/new/'), `open url should hold /new/, got ${calls[1][1]}`);
     assert.ok(calls[1][1].includes('filename=AGENTS.md'), `open url should hold filename=AGENTS.md, got ${calls[1][1]}`);
@@ -584,7 +584,7 @@ window.open = (url) => { window.__calls.push(['open', url]); return null; };`;
     const noAgents = withRules('next', 'no AGENTS.md, so the agents have no written rules here');
     const empty = { files: [], summary: '', muse: 'not needed', claude_import: null };
     await openFakeCheck('?repo=expressjs/express', [['result', noAgents], ['fixes', empty]]);
-    assert.equal(await evaluate(`document.querySelector('.f-main h1').textContent.trim()`), "The AI couldn't read this project this time.");
+    assert.equal(await evaluate(`document.querySelector('.f-main h1').textContent.trim()`), "We couldn't get a file ready for this project.");
     assert.equal((await evaluate(`document.body.innerText`)).includes('CLAUDE.md'), false);
     await openFakeCheck('?repo=expressjs/express&saved=1', [['result', noAgents], ['fixes', empty]]);
     assert.equal(await evaluate(`document.querySelector('.f-main h1').textContent.trim()`), "We don't see AGENTS.md yet.");
@@ -617,6 +617,24 @@ Object.defineProperty(navigator, 'clipboard', { value: { writeText: async (text)
     assert.equal(copied.length, 1);
     assert.equal(copied[0].includes('saved'), false);
     assert.ok(copied[0].includes('repo='));
+  });
+
+  test('Read the whole file shows only what gets saved', { timeout: 180000 }, async (t) => {
+    if (skipReason) { t.skip(skipReason); return; }
+    await navigate('/example/expressjs-express.html', 1440);
+    const text = await evaluate(`document.querySelector('.save-file .file-text').textContent`);
+    assert.ok(text.startsWith('# How to work on this project'));
+    assert.equal(text.includes('Tool guard'), false);
+    assert.equal(text.includes('yokoten doctor'), false);
+  });
+
+  test('a CLAUDE.md that is a link shows yokoten\'s own fix, and no edit link', { timeout: 180000 }, async (t) => {
+    if (skipReason) { t.skip(skipReason); return; }
+    const result = withRules('next', 'CLAUDE.md does not import AGENTS.md, so Claude Code does not read the rules');
+    result.summary.steps.find((step) => step.id === 'rules').fix = 'CLAUDE.md is a link to docs/rules.md: add a line `@AGENTS.md` to that file, or make CLAUDE.md a plain file';
+    await openFakeCheck('?repo=expressjs/express', [['result', result], ['fixes', { files: [], summary: '', muse: 'not needed', claude_import: null }]]);
+    assert.ok((await evaluate(`document.querySelector('.f-lede').textContent`)).includes('is a link to docs/rules.md'));
+    assert.equal(await evaluate(`document.querySelectorAll('a[href*="/edit/"]').length`), 0);
   });
 
   test('the file name in the picture and the green button fit at phone width', { timeout: 180000 }, async (t) => {

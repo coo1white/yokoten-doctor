@@ -17,6 +17,7 @@ import {
   repoFileHref,
   claudeFileFromStep,
   understoodSections,
+  savedFileText,
 } from "../../web/src/client/fixes.ts";
 
 describe("isSafePath", () => {
@@ -400,10 +401,9 @@ describe("understoodSections", () => {
     const content = "## This project\n### Build\n\nb1\n\nb2\n\n### Test\nt\n### What not to touch\nx\n";
     assert.deepEqual(understoodSections(content)[0].lines, ["b1", "b2"]);
   });
-  test("another heading is ignored", () => {
+  test("another heading returns null, so the page shows everything", () => {
     const content = "## This project\n### Build\nb\n### Test\nt\n### What not to touch\nx\n### Other\nignore\n";
-    const sections = understoodSections(content);
-    assert.equal(sections.length, 3);
+    assert.equal(understoodSections(content), null);
   });
   test("a missing section returns null", () => {
     const content = "## This project\n### Build\nb\n### Test\nt\n";
@@ -424,9 +424,30 @@ describe("understoodSections", () => {
   });
   test("when two headings match one section the first one's lines are kept", () => {
     const content = "## This project\n### Build\nb\n### Test\na\n### More tests\nb\n### What not to touch\nx\n";
-    const sections = understoodSections(content);
-    assert.equal(sections[1].title, "How to test it");
-    assert.deepEqual(sections[1].lines, ["a"]);
+    assert.equal(understoodSections(content), null);
+  });
+  test("a non-empty line before the first ### returns null", () => {
+    const content = "## This project\nhello\n### Build\nb\n### Test\nt\n### What not to touch\nx\n";
+    assert.equal(understoodSections(content), null);
+  });
+  test("lines starting with three backticks are dropped", () => {
+    const content = "## This project\n### Build\nb\n```js\ncode\n```\nb2\n### Test\nt\n### What not to touch\nx\n";
+    assert.deepEqual(understoodSections(content)[0].lines, ["b", "code", "b2"]);
+  });
+});
+
+describe("savedFileText", () => {
+  const content = "# How work is done here\n\nTool guard\n\n## This project\n\n### Build\n\nRun make.\n\n### Test\n\nRun tests.\n\n### What not to touch\n\nNot lib.\n";
+  test("written by the AI", () => {
+    assert.equal(savedFileText(content, true), "# How to work on this project\n\n## Build\n\nRun make.\n\n## Test\n\nRun tests.\n\n## What not to touch\n\nNot lib.\n");
+  });
+  test("not written by the AI", () => {
+    const text = savedFileText(content, false);
+    assert.ok(text.startsWith("# How to work on this project"));
+    assert.ok(text.includes("## Build"));
+    assert.ok(text.includes("## Test"));
+    assert.ok(text.includes("## What not to touch"));
+    assert.equal(text.includes("Tool guard"), false);
   });
 });
 
