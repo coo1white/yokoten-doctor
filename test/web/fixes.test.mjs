@@ -449,6 +449,12 @@ describe("savedFileText", () => {
     assert.ok(text.includes("## What not to touch"));
     assert.equal(text.includes("Tool guard"), false);
   });
+  test("an empty AI section saves the fill-in file, never a bare title", () => {
+    const empty = savedFileText("# How work is done here\n\nTool guard\n", true);
+    assert.equal(empty, savedFileText("", false));
+    assert.ok(empty.includes("## Build"));
+    assert.equal(empty.includes("Tool guard"), false);
+  });
 });
 
 describe("rerunHref", () => {

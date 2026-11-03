@@ -66,6 +66,10 @@ export function claudeFileFromStep(what: string | undefined): { file: string; li
   return { file: "CLAUDE.md", line: "@AGENTS.md" };
 }
 
+export function isClaudeFileLink(fix: string | undefined): boolean {
+  return /^\S*CLAUDE\.md is a link to /.test(fix ?? "");
+}
+
 export function buildPatch(files: { path: string; content: string }[]): string {
   const safe = files.filter((f) => isSafePath(f.path));
   if (safe.length === 0) return "";
@@ -169,10 +173,9 @@ const SAVED_FILE_TITLE = "# How to work on this project";
 const EMPTY_SAVED_FILE = "## Build\n\nWrite how to build this project.\n\n## Test\n\nWrite how to test it.\n\n## What not to touch\n\nWrite what an AI must not change.";
 
 export function savedFileText(content: string, isWrittenByAi: boolean): string {
-  if (!isWrittenByAi) return `${SAVED_FILE_TITLE}\n\n${EMPTY_SAVED_FILE}\n`;
-  const lines = projectSection(content).split("\n").slice(1);
+  const lines = isWrittenByAi ? projectSection(content).split("\n").slice(1) : [];
   const body = lines.map((line) => (line.startsWith("### ") ? line.slice(1) : line)).join("\n").trim();
-  return `${SAVED_FILE_TITLE}\n\n${body}\n`;
+  return `${SAVED_FILE_TITLE}\n\n${body || EMPTY_SAVED_FILE}\n`;
 }
 
 export function understoodSections(content: string): UnderstoodSection[] | null {

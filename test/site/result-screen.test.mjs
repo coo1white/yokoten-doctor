@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { resultScreen, OPTIONAL_CHECK_IDS, splitErrorCommand } from '../../web/src/client/view.ts';
-import { understoodSections, claudeFileFromStep } from '../../web/src/client/fixes.ts';
+import { understoodSections, claudeFileFromStep, isClaudeFileLink } from '../../web/src/client/fixes.ts';
 
 const NO = "no AGENTS.md, so the agents have no written rules here";
 const ONLY = "CLAUDE.md has the rules, but only Claude Code reads them";
@@ -36,6 +36,8 @@ describe('resultScreen', () => {
       'AGENTS.md, .claude/CLAUDE.md with no import': { saved: 'one more line', fresh: 'one more line', file: '.claude/CLAUDE.md' },
       'AGENTS.md, CLAUDE.md with the import': { saved: 'saved', fresh: 'already has', file: 'CLAUDE.md' },
       'AGENTS.md, .claude/CLAUDE.md with the import': { saved: 'saved', fresh: 'already has', file: 'CLAUDE.md' },
+      'AGENTS.md, CLAUDE.md is a link to another file': { saved: 'one more line', fresh: 'one more line', file: 'CLAUDE.md' },
+      'AGENTS.md, CLAUDE.md is a link to AGENTS.md': { saved: 'saved', fresh: 'already has', file: 'CLAUDE.md' },
     };
     assert.deepEqual(Object.keys(contract.cases).sort(), Object.keys(expected).sort());
     for (const [name, step] of Object.entries(contract.cases)) {
@@ -45,6 +47,14 @@ describe('resultScreen', () => {
       assert.equal(resultScreen(result, fixes, false), expected[name].fresh, name);
       assert.equal(claudeFileFromStep(step.what).file, expected[name].file, name);
     }
+  });
+
+  test('only a real link gets the link wording, read from real output', () => {
+    for (const [name, step] of Object.entries(contract.cases)) {
+      assert.equal(isClaudeFileLink(step.fix), name === 'AGENTS.md, CLAUDE.md is a link to another file', name);
+    }
+    assert.equal(isClaudeFileLink(undefined), false);
+    assert.equal(isClaudeFileLink('this is a link to somewhere'), false);
   });
 
   test('table', () => {
