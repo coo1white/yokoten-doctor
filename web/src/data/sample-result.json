@@ -69,7 +69,7 @@
     {
       "repo": "expressjs/express",
       "group": "web2",
-      "commit": "1c6f1b0",
+      "commit": "43fca52",
       "done": 2,
       "total": 13,
       "after": 6,
@@ -78,7 +78,7 @@
     {
       "repo": "fastapi/fastapi",
       "group": "web2",
-      "commit": "45cb225",
+      "commit": "5cb6272",
       "done": 3,
       "total": 13,
       "after": 8,
@@ -114,7 +114,7 @@
     {
       "repo": "OpenZeppelin/openzeppelin-contracts",
       "group": "web3",
-      "commit": "b7f748e",
+      "commit": "efaa6f7",
       "done": 7,
       "total": 13,
       "after": 7,
@@ -139,5 +139,5 @@
       "files": 6
     }
   ],
-  "examplesCheckedOn": "2026-11-01"
+  "examplesCheckedOn": "2026-11-03"
 }
