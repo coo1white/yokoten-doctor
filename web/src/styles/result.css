@@ -159,6 +159,7 @@
 .item-title { font-size: var(--t-lg); font-weight: var(--w-strong); letter-spacing: -0.012em; line-height: 1.3; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 var(--s3); }
 .item-title .n { font-variant-numeric: tabular-nums; }
 .places { font-family: var(--mono); font-size: var(--t-sm); line-height: 1.7; overflow-wrap: anywhere; max-height: 18rem; overflow: auto; }
+.many { margin-top: var(--s2); display: grid; gap: var(--s1); color: var(--muted); }
 
 /* result: verify */
 .steps-n { counter-reset: n; display: grid; gap: var(--s4); margin-top: var(--s4); }
