@@ -175,9 +175,9 @@
     "reply": "chatcmpl-31e668004dcd4c7cbe265c6241783b7c"
   },
   "web/src/client/ui/private.ts": {
-    "sha256": "0c7d2538b830e08ca8e55664dc5eaf69671640f2c4152a079264693bfcd47ff9",
+    "sha256": "1b24ec2ad103e8b55bce65e157566cfe7c43ef8f211dba13d95651ea14f694ba",
     "model": "meta-models/muse-spark-open-1026",
-    "reply": "chatcmpl-2c1dd4b1b5ad4e789d9d43eae5bff471"
+    "reply": "chatcmpl-4a8da0d61f5f41c68ddbb7868b785eb3"
   },
   "web/src/client/ui/proof.ts": {
     "sha256": "d5ccc5b55ff011d7480b1daeba40d1547ac30b0571dea9eb4d92431e37e9fe53",

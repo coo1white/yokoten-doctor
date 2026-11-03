@@ -46,7 +46,7 @@ function createCountSpan(places: string[]): HTMLElement {
 
 function createManyNote(places: string[]): HTMLElement {
   const note = make("div", "many");
-  note.appendChild(make("p", "small", "A long list is often test data, or numbers inside images. Open a few before you change anything. Most are in:"));
+  note.appendChild(make("p", "small", "A long list can include test data, or numbers inside images, but one real secret is enough. Open a few before you change anything. The folders with the most places:"));
   const list = make("ul", "places");
   for (const { folder, count } of topFolders(places, 5)) {
     list.appendChild(make("li", undefined, `${folder} (${count})`));
