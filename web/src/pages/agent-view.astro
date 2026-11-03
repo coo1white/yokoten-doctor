@@ -46,7 +46,8 @@ const events = [
     <div><dt><code>result.summary.next</code></dt><dd>The first open step. Each step has <code>id</code>, <code>title</code>, <code>mark</code> and <code>how</code>.</dd></div>
     <div><dt><code>result.summary.steps</code></dt><dd>Every step. <code>mark</code> is <code>done</code>, <code>next</code> or <code>to do</code>.</dd></div>
     <div><dt><code>result.secrets</code></dt><dd>Things that look private, such as an email address, a token or a private key. Some may be public on purpose.</dd></div>
-    <div><dt><code>fixes.files</code></dt><dd>Each file has <code>path</code>, <code>content</code> and <code>source</code>. In <code>AGENTS.md</code>, the AI's text is under <code>## This project</code>.</dd></div>
+    <div><dt><code>fixes.files</code></dt><dd>Each file has <code>path</code>, <code>content</code> and <code>source</code>. <code>AGENTS.md</code> is yokoten's whole template, which names yokoten's own checks. When <code>fixes.muse</code> is <code>ok</code>, Muse's text is under <code>## This project</code>. The page saves only that text.</dd></div>
+    <div><dt><code>fixes.muse</code></dt><dd><code>ok</code>: Muse wrote the text. <code>not needed</code>: Muse wasn't asked, because the repo has <code>AGENTS.md</code> or is too big, or no file could be made. <code>failed</code>: Muse couldn't write it.</dd></div>
     <div><dt><code>fixes.after</code></dt><dd>The same two counts once the files are in. It isn't a grade.</dd></div>
     <div><dt><code>result.rerun</code></dt><dd>The commands that repeat the check.</dd></div>
   </dl>
@@ -68,7 +69,8 @@ const events = [
   <div class="card"><h2>What it does</h2><ol class="api-steps">
     <li><span>Copies the repo into a throwaway sandbox, then cuts the sandbox's network.</span></li>
     <li><span>Runs <code>yokoten</code> on the copy. It doesn't install, build or test the repo.</span></li>
-    <li><span>Returns where the repo stands, the one thing to fix next, and files that add what's missing.</span></li>
+    <li><span>Asks Muse Spark Open to write how to build the repo, how to test it, and what not to touch, as the project section of <code>AGENTS.md</code>.</span></li>
+    <li><span>Returns that text, the template files, and yokoten's checks. It doesn't grade the repo.</span></li>
     <li><span>Writes a hash of the result to Sigstore Rekor and a Solana devnet memo. Devnet is a test network.</span></li>
   </ol></div>
 </div></section>

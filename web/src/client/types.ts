@@ -98,6 +98,6 @@ export interface ErrorEventData {
   message?: string;
 }
 
-export type ResultScreen = "waiting" | "understood" | "already has" | "one more line" | "too big" | "failed" | "saved" | "not found";
+export type ResultScreen = "waiting" | "understood" | "already has" | "one more line" | "too big" | "failed" | "saved" | "not found" | "no file";
 export type SaveStepKey = "copy" | "paste" | "save" | "check";
 export interface UnderstoodSection { title: string; lines: string[]; }

@@ -137,10 +137,11 @@ export function resultScreen(result: CheckResult, fixes: FixesPayload | null, is
   const rulesStep = (result.summary?.steps ?? []).find((step) => step.id === "rules");
   if (rulesStep?.mark === "done") return isSavedCheck ? "saved" : "already has";
   if ((rulesStep?.what ?? "").includes("does not import AGENTS.md")) return "one more line";
+  if (rulesStep?.mark === "not now") return "no file";
   if (isSavedCheck) return "not found";
   if (!fixes) return "waiting";
-  const hasAgentsFile = fixes.files.some((file) => file.path === "AGENTS.md");
-  if (!hasAgentsFile || fixes.muse === "failed" || fixes.muse === "lost") return "failed";
+  if (fixes.muse === "failed" || fixes.muse === "lost") return "failed";
+  if (!fixes.files.some((file) => file.path === "AGENTS.md")) return "no file";
   return fixes.muse === "ok" ? "understood" : "too big";
 }
 

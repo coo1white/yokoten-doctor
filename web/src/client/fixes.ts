@@ -165,6 +165,16 @@ export function projectSection(content: string): string {
   return out;
 }
 
+const SAVED_FILE_TITLE = "# How to work on this project";
+const EMPTY_SAVED_FILE = "## Build\n\nWrite how to build this project.\n\n## Test\n\nWrite how to test it.\n\n## What not to touch\n\nWrite what an AI must not change.";
+
+export function savedFileText(content: string, isWrittenByAi: boolean): string {
+  if (!isWrittenByAi) return `${SAVED_FILE_TITLE}\n\n${EMPTY_SAVED_FILE}\n`;
+  const lines = projectSection(content).split("\n").slice(1);
+  const body = lines.map((line) => (line.startsWith("### ") ? line.slice(1) : line)).join("\n").trim();
+  return `${SAVED_FILE_TITLE}\n\n${body}\n`;
+}
+
 export function understoodSections(content: string): UnderstoodSection[] | null {
   const section = projectSection(content);
   if (!section) return null;
@@ -178,9 +188,15 @@ export function understoodSections(content: string): UnderstoodSection[] | null 
     } else if (current) {
       const t = raw.trim();
       if (!t) continue;
+      if (t.startsWith("```")) continue;
       let v = t;
       if (v.startsWith("- ")) v = v.slice(2);
       current.lines.push(v);
+    } else {
+      const t = raw.trim();
+      if (!t) continue;
+      if (t === "## This project") continue;
+      return null;
     }
   }
   if (current) parts.push(current);
@@ -189,9 +205,18 @@ export function understoodSections(content: string): UnderstoodSection[] | null 
   let touch: string[] | null = null;
   for (const p of parts) {
     const h = p.heading.toLowerCase();
-    if (h.includes("touch")) touch ??= p.lines;
-    else if (h.includes("build")) build ??= p.lines;
-    else if (h.includes("test")) test ??= p.lines;
+    if (h.includes("touch")) {
+      if (touch !== null) return null;
+      touch = p.lines;
+    } else if (h.includes("build")) {
+      if (build !== null) return null;
+      build = p.lines;
+    } else if (h.includes("test")) {
+      if (test !== null) return null;
+      test = p.lines;
+    } else {
+      return null;
+    }
   }
   if (!build || build.length === 0 || !test || test.length === 0 || !touch || touch.length === 0) return null;
   return [

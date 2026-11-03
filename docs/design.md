@@ -100,7 +100,10 @@ real ones, and adding our own `AGENTS.md` raised the count. `resultScreen` in
 2. One task zone: "Is this right? Save it to your project." Four exclusive `details`
    with only the current one open: copy the file, paste it, save it, check that it
    saved. The first says where the reader is and what to click. The site can't
-   see GitHub, so a step marked done changes only the list.
+   see GitHub, so a step marked done changes only the list. The saved file holds
+   only what the reader just read (`savedFileText` in `fixes.ts`). yokoten's whole
+   template names checks and tools a repo without yokoten doesn't have, so a reader
+   must not commit it.
 3. "Check that it saved" runs a new check with `saved=1` and shows one of three
    screens: saved, with a question to try on the reader's own AI tool; one more
    line, when a `CLAUDE.md` still has to import `AGENTS.md`; or not found, with a
