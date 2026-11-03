@@ -2,7 +2,7 @@ The web version of `yokoten doctor`.
 
 # yokoten doctor (web)
 
-Paste a public GitHub repo URL and get the same 13 checks as `yokoten doctor`, the one thing to fix next, and the files that fix it. No terminal.
+Paste a public GitHub repo URL. An AI writes how to build it, how to test it, and what not to touch. You check if it's right, then save it as `AGENTS.md`. No terminal. It doesn't grade the repo.
 
 This repo holds the page in `web/src/` and the server in `server/`. The
 server runs on Modal, and it calls Muse Spark Open on Baseten to write each
@@ -11,7 +11,7 @@ repo's summary and project section. The design is in `docs/design.md`.
 ## How it works
 
 1. A throwaway sandbox clones the repo and runs yokoten on it.
-2. The page shows the checks, the files from yokoten's templates (Muse writes the project section of `AGENTS.md`), and a patch.
+2. Muse writes the project section of `AGENTS.md`. The page shows that text first, then the steps to save the file and check that it saved. Further down are yokoten's file checks, its other templates, and a patch.
 3. The server writes a hash of the result to Sigstore Rekor and to a Solana devnet memo. The memo also names the repo, the commit and the yokoten version. You can download the result and compare.
 
 See `docs/public-record.md`.

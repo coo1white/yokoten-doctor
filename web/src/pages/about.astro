@@ -5,12 +5,12 @@ import Footer from "../components/Footer.astro";
 ---
 <Page
   title="About · yokoten doctor"
-  description="yokoten doctor is a free page that checks a public GitHub repo for the files AI agents need. How a check runs, its limits, and how this page was made."
+  description="yokoten doctor is a free page that shows what an AI understands from a public GitHub repo. How a check runs, its limits, and how this page was made."
   path="/about.html"
 >
 <Header />
 <main id="main"><section class="band"><div class="wide doc-head"><h1>About yokoten doctor</h1>
-  <p class="doc-lede">A free page that checks a public GitHub repo for the files AI agents need. No terminal needed.</p></div></section>
+  <p class="doc-lede">A free page that shows what an AI understands from a public GitHub repo, and helps you save it as AGENTS.md. No terminal needed.</p></div></section>
 <div class="zone"><div class="wide doc-grid">
   <section class="card"><h2>How a check runs</h2><ol>
     <li><span>A throwaway sandbox copies the repo, then its network is cut.</span></li>
@@ -23,7 +23,7 @@ import Footer from "../components/Footer.astro";
     <li>Public repos only.</li>
     <li>It doesn't scan your code for vulnerabilities.</li>
     <li>A very large repo may not finish in time. A repo over 15 GB is refused.</li>
-    <li>Five checks need <code>yokoten</code> installed, so a repo without it tops out at 8 of 13.</li>
+    <li>It doesn't grade a repo. It can't tell you how well an AI will work on your project.</li>
     <li>Muse's text is cached for 24 hours.</li>
     <li>Free, no account. 10 checks an hour.</li>
   </ul></section>

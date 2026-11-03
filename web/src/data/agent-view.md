@@ -1,6 +1,6 @@
 # yokoten doctor
 
-> Check a public GitHub repo before you hand it to an AI agent. 13 file checks, the one thing to fix next, and the files that fix it. The repo's code never runs.
+> Shows what an AI understands from a public repo: how to build it, how to test it, and what not to touch. The repo's code never runs. No account and no key.
 
 This is the agent view of https://doctor.yokoten.app. The human view is the home page.
 The same text is at https://doctor.yokoten.app/llms.txt.
@@ -9,7 +9,8 @@ The same text is at https://doctor.yokoten.app/llms.txt.
 
 - Copies a public GitHub repo into a throwaway sandbox, then cuts the sandbox's network.
 - Runs `yokoten` on the copy. It doesn't install, build or test the repo.
-- Returns where the repo stands, the one thing to fix next, and files that add what's missing.
+- Asks Muse Spark Open to write how to build the repo, how to test it, and what not to touch, as the project section of `AGENTS.md`.
+- Returns that text, the template files, and yokoten's checks. It doesn't grade the repo.
 - Writes a hash of the result to Sigstore Rekor and a Solana devnet memo. Devnet is a test network.
 
 ## Limits
@@ -18,7 +19,7 @@ The same text is at https://doctor.yokoten.app/llms.txt.
 - 10 checks an hour per address, and 300 a day for the whole service.
 - A repo over 15 GB is refused. A very large repo may not finish in time.
 - It doesn't scan code for vulnerabilities.
-- Five of the 13 checks only pass once `yokoten` is installed, so a repo without it tops out at 8 of 13.
+- Five of the 13 checks only pass once `yokoten` is installed. A repo doesn't need it.
 - Some of the repo's files go to Muse Spark Open, on Baseten, to write the project section. Muse's text stays in a cache for 24 hours.
 
 ## Run a check
@@ -43,12 +44,12 @@ Events, in order:
 
 Read these first:
 
-- `result.summary.done` and `result.summary.total`: how many checks pass, and how many there are.
-- `result.summary.next`: the one thing to fix next. Each step has `id`, `title`, `mark` and `how`.
+- `result.summary.done` and `result.summary.total`: how many of yokoten's 13 checks pass. Five pass only with yokoten installed. This counts files that exist, and it isn't a grade.
+- `result.summary.next`: the first open step. Each step has `id`, `title`, `mark` and `how`.
 - `result.summary.steps`: every step. `mark` is `done`, `next` or `to do`.
 - `result.secrets`: things that look private, such as an email address, a token or a private key. Some may be public on purpose.
-- `fixes.files`: each file has `path`, `content` and `source`.
-- `fixes.after`: the `done` and `total` counts once the files are in.
+- `fixes.files`: each file has `path`, `content` and `source`. In `AGENTS.md`, the AI's text is under `## This project`.
+- `fixes.after`: the same two counts once the files are in. It isn't a grade.
 - `result.rerun`: the commands that repeat the check.
 
 ## Rules for agents

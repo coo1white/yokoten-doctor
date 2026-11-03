@@ -10,8 +10,8 @@ import sample from "../data/sample-result.json";
 <main id="main">
 <div id="landing">
 <section class="band"><div class="hero wide enter">
-  <h1>Check your repo before you hand it to an AI agent.</h1>
-  <p class="hero-sub">13 file checks, the one thing to fix next, and the files that fix it. Your code never runs.</p>
+  <h1>See what an AI understands from your repo.</h1>
+  <p class="hero-sub">It writes how to build your repo, how to test it, and what not to touch. You check if it's right. Your code never runs.</p>
   <form id="check-form" class="check" novalidate>
   <label for="repo-input">Paste a public GitHub repo</label>
   <div class="check-row">
@@ -29,7 +29,7 @@ import sample from "../data/sample-result.json";
     <div class="card results-group"><h3>Web2</h3><ExampleRows examples={sample.examples.filter((e) => e.group === "web2")} /></div>
     <div class="card results-group"><h3>Web3</h3><ExampleRows examples={sample.examples.filter((e) => e.group === "web3")} /></div>
   </div>
-  <p class="results-note">Five checks need yokoten installed, so a repo without it tops out at 8 of 13. The file checks don't judge a repo's code.</p>
+  <p class="results-note">Saved results. The AI can get things wrong, and none of this grades a repo.</p>
 </div></section>
 <section class="band" id="how"><div class="wide">
   <h2 class="home-title">It reads your repo. That's all.</h2>

@@ -1,13 +1,12 @@
 ---
-interface Example { repo: string; commit: string; done: number; total: number; after: number | null; }
+interface Example { repo: string; }
 const { examples } = Astro.props as { examples: Example[] };
 ---
 <ul>
   {examples.map((ex) => {
     const slug = ex.repo.replaceAll("/", "-");
-    const label = `${ex.done} of ${ex.total} file checks pass`;
     return (
-      <li><a class="ex" href={`/example/${slug}.html`}><span><span class="ex-name">{ex.repo}</span><div class="bar bar-mini" role="img" aria-label={label}>{Array.from({ length: ex.total }, (_, i) => (<i class={i < ex.done ? "s-done" : "s-files"}></i>))}</div></span><span class="ex-count"><b class="strong">{ex.done}</b> <span class="muted">of {ex.total}</span></span><span class="ex-go"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span></a></li>
+      <li><a class="ex" href={`/example/${slug}.html`}><span class="ex-name">{ex.repo}</span><span class="ex-go"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span></a></li>
     );
   })}
 </ul>

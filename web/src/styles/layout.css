@@ -85,20 +85,7 @@
 .file-text .h { font-weight: 700; }
 .file-text .todo { color: var(--bad); }
 
-/* the bar: 13 segments, fixed by class so the site needs no inline style */
-.bar { display: grid; grid-template-columns: repeat(13, minmax(0, 1fr)); gap: 3px; }
-.bar i { display: block; height: 10px; border-radius: 2px; background: var(--seg-empty); transform-origin: left; }
-.bar i.s-done { background: var(--seg-done); }
-.bar i.s-files { background: var(--seg-files); }
-.bar-anim i.s-done, .bar-anim i.s-files { animation: fill var(--dur-slow) var(--ease-out) both; animation-delay: calc(var(--n, 0) * 25ms); }
-.bar-anim i:nth-child(2) { --n: 1; } .bar-anim i:nth-child(3) { --n: 2; } .bar-anim i:nth-child(4) { --n: 3; }
-.bar-anim i:nth-child(5) { --n: 4; } .bar-anim i:nth-child(6) { --n: 5; } .bar-anim i:nth-child(7) { --n: 6; }
-.bar-anim i:nth-child(8) { --n: 7; } .bar-anim i:nth-child(9) { --n: 8; } .bar-anim i:nth-child(10) { --n: 9; }
-.bar-anim i:nth-child(11) { --n: 10; } .bar-anim i:nth-child(12) { --n: 11; } .bar-anim i:nth-child(13) { --n: 12; }
-
-.hand-wrong { margin-bottom: var(--s3); color: var(--muted); }
 .hand-files { margin-bottom: var(--s4); padding: var(--s2) var(--s3); border-left: 2px solid var(--line); color: var(--muted); font: var(--w-normal) var(--t-sm)/1.6 var(--mono); overflow-wrap: anywhere; }
-.hand-after { margin-top: var(--s3); }
 .outcomes { display: grid; gap: var(--s3); margin-top: var(--s2); }
 @media (min-width: 40rem) { .outcomes { grid-template-columns: 1fr 1fr; } }
 .outcome { font-size: var(--t-sm); }

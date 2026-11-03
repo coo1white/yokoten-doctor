@@ -73,6 +73,7 @@ describe('built site', () => {
     for (const s of ['--accent', '--raised', '--shadow', '.panel-head', '.score-bar']) {
       assert.equal(allCss.includes(s), false, `allCss should not contain ${s}`);
     }
+    assert.equal(allCss.includes('.bar'), false, 'no css for the old bar');
   });
 
   test('status has one color each: blue presses, green passes, yellow needs work', () => {
@@ -91,12 +92,6 @@ describe('built site', () => {
     const resultCss = fs.readFileSync(path.join(stylesDir, 'result.css'), 'utf8');
     assert.ok(resultCss.includes('.ck-mark { color: var(--todo); }'), 'result.css should have .ck-mark todo');
     assert.ok(resultCss.includes('.ck.is-done .ck-mark { color: var(--pass); }'), 'result.css should have done pass');
-    const layoutCss = fs.readFileSync(path.join(stylesDir, 'layout.css'), 'utf8');
-    assert.equal(layoutCss.includes('--seg-done:'), false, 'layout.css should not redefine --seg-done');
-    assert.ok(layoutCss.includes('.bar i.s-done { background: var(--seg-done); }'), 'layout.css should have bar s-done');
-    assert.ok(layoutCss.includes('.bar i.s-files { background: var(--seg-files); }'), 'layout.css should have bar s-files');
-    assert.ok(tokens.includes('--seg-done: var(--pass-fill);'), 'tokens should have --seg-done');
-    assert.ok(tokens.includes('--seg-files: var(--todo-fill);'), 'tokens should have --seg-files');
     const allStyles = readTokens() + others;
     const badRe = /([^\{]*\.(?:ck|bar|swatch)[^\{]*)\{[^}]*var\(--bad\)/g;
     let badMatch;

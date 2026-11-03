@@ -91,6 +91,39 @@ describe('real pages', () => {
     }
   }
 
+  const liveExample = JSON.parse(fs.readFileSync(path.join(examplesDir, 'expressjs-express.json'), 'utf8'));
+
+  async function openFakeCheck(query, events, extraScript = '', lateEvents = []) {
+    const added = await send('Page.addScriptToEvaluateOnNewDocument', { source: `${extraScript}
+      const realFetch = window.fetch;
+      window.fetch = async (url, options) => {
+        if (!String(url).includes('/api/check')) return realFetch(url, options);
+        const events = ${JSON.stringify(events)};
+        return new Response(new ReadableStream({ start(controller) {
+          const encoder = new TextEncoder();
+        const send = (list) => { for (const [name, data] of list) controller.enqueue(encoder.encode('event: ' + name + '\\ndata: ' + JSON.stringify(data) + '\\n\\n')); };
+        send(events);
+        const late = ${JSON.stringify(lateEvents)};
+        if (late.length === 0) { controller.close(); return; }
+        setTimeout(() => { send(late); controller.close(); }, 600);
+        } }), { status: 200 });
+      };` });
+    await navigate('/' + query, 1440);
+    for (let i = 0; i < 30; i++) {
+      if (await evaluate('!!document.querySelector(".f-main h1")')) break;
+      await new Promise((r) => setTimeout(r, 200));
+    }
+    await send('Page.removeScriptToEvaluateOnNewDocument', { identifier: added.result.identifier });
+  }
+
+  function withRules(mark, what) {
+    const result = structuredClone(liveExample.result);
+    const step = result.summary.steps.find((item) => item.id === 'rules');
+    step.mark = mark;
+    step.what = what;
+    return result;
+  }
+
   before(async () => {
     for (const name of ['/', '/about.html', '/agent-view.html', '/404.html']) pages.push(name);
     if (fs.existsSync(examplesDir)) {
@@ -158,7 +191,7 @@ describe('real pages', () => {
         browserProc.stderr.on('data', (chunk) => {
           const s = chunk.toString();
           stderrChunks.push(s);
-          const m = s.match(/DevTools listening on ws:\/\/[^:]+:(\d+)/);
+          const m = s.match(/DevTools listening on ws:[/][/][^:]+:([0-9]+)/);
           if (m) { clearTimeout(timer); resolve(Number(m[1])); }
         });
         browserProc.on('error', reject);
@@ -244,9 +277,9 @@ describe('real pages', () => {
     for (const pagePath of examplePages) {
       await navigate(pagePath, 1440);
       await evaluate('document.querySelectorAll("#verify details").forEach(d=>d.open=true)');
-      const count = await evaluate('document.querySelectorAll("#verify a[href*=\\"sigstore\\"], #verify a[href*=\\"solana\\"]").length');
+      const count = await evaluate(`document.querySelectorAll('#verify a[href*="sigstore"], #verify a[href*="solana"]').length`);
       assert.equal(count, 1, `${pagePath} should have exactly 1 sigstore/solana link`);
-      const href = await evaluate('document.querySelector("#verify a[href*=\\"sigstore\\"], #verify a[href*=\\"solana\\"]").href');
+      const href = await evaluate(`document.querySelector('#verify a[href*="sigstore"], #verify a[href*="solana"]').href`);
       assert.ok(href.includes('sigstore'), `${pagePath} link should hold sigstore, got ${href}`);
       const txt = await evaluate('document.querySelector("#verify").innerText');
       assert.equal(txt.includes('The HOME part'), false, `${pagePath} #verify should not contain The HOME part`);
@@ -272,73 +305,125 @@ describe('real pages', () => {
 
   test('one step is open at a time', { timeout: 180000 }, async (t) => {
     if (skipReason) { t.skip(skipReason); return; }
-    await navigate('/example/Uniswap-v4-core.html', 1440);
-    const count = await evaluate('document.querySelectorAll(\'details[name="steps"]\').length');
-    assert.equal(count, 3);
-    const openIds = JSON.parse(await evaluate('JSON.stringify([...document.querySelectorAll(\'details[name="steps"][open]\')].map(e=>e.id))') || '[]');
-    assert.deepEqual(openIds, ['step-files']);
-    await evaluate('document.querySelector("#step-install summary").click()');
+    const query = '?repo=expressjs/express';
+    await openFakeCheck(query, [['result', liveExample.result], ['fixes', liveExample.fixes]]);
+    assert.equal(await evaluate(`document.querySelectorAll('details[name="steps"]').length`), 4);
+    const openIds = JSON.parse(await evaluate(`JSON.stringify([...document.querySelectorAll('details[name="steps"][open]')].map(e=>e.id))`) || '[]');
+    assert.deepEqual(openIds, ['step-copy']);
+    await evaluate(`document.querySelector("#step-paste summary").click()`);
     await new Promise((r) => setTimeout(r, 100));
-    const openIds2 = JSON.parse(await evaluate('JSON.stringify([...document.querySelectorAll(\'details[name="steps"][open]\')].map(e=>e.id))') || '[]');
-    assert.deepEqual(openIds2, ['step-install']);
+    const openIds2 = JSON.parse(await evaluate(`JSON.stringify([...document.querySelectorAll('details[name="steps"][open]')].map(e=>e.id))`) || '[]');
+    assert.deepEqual(openIds2, ['step-paste']);
   });
 
-  test('only a long file row has a read fold', { timeout: 180000 }, async (t) => {
+  test('only a long file row has a read fold, and it copies before it opens', { timeout: 180000 }, async (t) => {
     if (skipReason) { t.skip(skipReason); return; }
-    await navigate('/example/Uniswap-v4-core.html', 1440);
-    const rowsWithFold = JSON.parse(await evaluate('JSON.stringify([...document.querySelectorAll("[data-file-list] .file")].map((row) => ({ isLong: row.querySelector("[data-add]").textContent.includes("Copy and open"), hasFold: row.querySelector(".file-read details") !== null })))'));
-    assert.ok(rowsWithFold.length > 0, 'the page lists files');
-    for (const row of rowsWithFold) assert.equal(row.hasFold, row.isLong);
+    const bigFile = { path: '.github/big.md', content: 'x'.repeat(7000), source: 'yokoten' };
+    const extraScript = `window.__calls = [];
+Object.defineProperty(navigator, 'clipboard', { value: { writeText: async (text) => { window.__calls.push(['copy', text]); } } });
+window.open = (url) => { window.__calls.push(['open', url]); return null; };`;
+    await openFakeCheck('?repo=expressjs/express', [['result', liveExample.result], ['fixes', { ...liveExample.fixes, files: [...liveExample.fixes.files, bigFile] }]], extraScript);
+    const rows = JSON.parse(await evaluate(`JSON.stringify([...document.querySelectorAll('[data-file-list] .file')].map((row) => ({ isLong: row.querySelector('[data-add]').textContent.includes('Copy and open'), hasFold: row.querySelector('.file-read details') !== null })))`));
+    assert.ok(rows.length > 1, 'the page lists files');
+    assert.equal(rows.filter((row) => row.isLong).length, 1);
+    for (const row of rows) assert.equal(row.hasFold, row.isLong);
+    await evaluate(`[...document.querySelectorAll('[data-file-list] [data-add]')].find((link) => link.textContent.includes('Copy and open')).click()`);
+    await new Promise((r) => setTimeout(r, 200));
+    const calls = JSON.parse(await evaluate(`JSON.stringify(window.__calls)`));
+    assert.deepEqual(calls.map((call) => call[0]), ['copy', 'open']);
+    assert.equal(calls[0][1], bigFile.content);
+    assert.equal(calls[1][1].includes('value='), false);
   });
 
-  test('marking a step done leaves the count and the bar alone', { timeout: 180000 }, async (t) => {
+  test('marking a step done opens the next step, and the last step checks that it saved', { timeout: 180000 }, async (t) => {
     if (skipReason) { t.skip(skipReason); return; }
-    await navigate('/example/Uniswap-v4-core.html', 1440);
-    const startVerdict = await evaluate('document.querySelector("h1.f-verdict").textContent.trim()');
-    const startBar = await evaluate('JSON.stringify([...document.querySelectorAll(".f-main .bar i")].map(e=>e.className))');
+    const query = '?repo=expressjs/express';
+    await openFakeCheck(query, [['result', liveExample.result], ['fixes', liveExample.fixes]]);
+    const h1Start = await evaluate(`document.querySelector(".f-main h1").textContent.trim()`);
+    assert.equal(h1Start, "Here's what an AI understood.");
+    const steps = ['step-copy', 'step-paste', 'step-save'];
+    const nextOpen = ['step-paste', 'step-save', 'step-check'];
     for (let i = 0; i < 3; i++) {
-      await evaluate('document.querySelector(".f-step[open] [data-done]").click()');
+      await evaluate(`document.querySelector(".f-step[open] [data-done]").click()`);
       await new Promise((r) => setTimeout(r, 100));
-      const verdict = await evaluate('document.querySelector("h1.f-verdict").textContent.trim()');
-      assert.equal(verdict, startVerdict);
-      const bar = await evaluate('JSON.stringify([...document.querySelectorAll(".f-main .bar i")].map(e=>e.className))');
-      assert.equal(bar, startBar);
-      if (i === 0) {
-        const isDone = await evaluate('document.getElementById("step-files").classList.contains("is-done")');
-        assert.equal(isDone, true);
-        const openIds = JSON.parse(await evaluate('JSON.stringify([...document.querySelectorAll(\'details[name="steps"][open]\')].map(e=>e.id))') || '[]');
-        assert.deepEqual(openIds, ['step-install']);
+      const isDone = await evaluate(`document.getElementById("${steps[i]}").classList.contains("is-done")`);
+      assert.equal(isDone, true);
+      const openIds = JSON.parse(await evaluate(`JSON.stringify([...document.querySelectorAll('details[name="steps"][open]')].map(e=>e.id))`) || '[]');
+      assert.deepEqual(openIds, [nextOpen[i]]);
+    }
+    const lastHasDone = await evaluate(`document.querySelector(".f-step[open] [data-done]") !== null`);
+    assert.equal(lastHasDone, false);
+    const href = await evaluate(`document.querySelector(".f-step[open] .save-actions a").href`);
+    assert.ok(href.endsWith('saved=1'), `href should end with saved=1, got ${href}`);
+    const h1End = await evaluate(`document.querySelector(".f-main h1").textContent.trim()`);
+    assert.equal(h1End, "Here's what an AI understood.");
+  });
+
+  test('no page shows a count of checks', { timeout: 180000 }, async (t) => {
+    if (skipReason) { t.skip(skipReason); return; }
+    const checkPages = ['/', '/about.html'];
+    if (fs.existsSync(examplesDir)) {
+      for (const f of fs.readdirSync(examplesDir).filter((f) => f.endsWith('.json'))) {
+        checkPages.push(`/example/${path.basename(f, '.json')}.html`);
       }
-      if (i === 2) {
-        const openCount = await evaluate('document.querySelectorAll(\'details[name="steps"][open]\').length');
-        assert.equal(openCount, 0);
-        const hidden = await evaluate('document.querySelector("[data-all-done]").hidden');
-        assert.equal(hidden, false);
-        const href = await evaluate('document.querySelector("[data-all-done] a").href');
-        assert.ok(href.includes("/?repo="));
-        const activeIsLink = await evaluate('document.activeElement === document.querySelector("[data-all-done] a")');
-        assert.equal(activeIsLink, true);
-      }
+    }
+    for (const pagePath of checkPages) {
+      await navigate(pagePath, 1440);
+      const text = await evaluate('document.body.innerText');
+      assert.equal(/[0-9]+ of [0-9]+/.test(text), false, `${pagePath} should not contain count`);
+      assert.equal(text.includes('checks pass'), false, `${pagePath} should not contain checks pass`);
+      const count = await evaluate('document.querySelectorAll(".bar, .ex-count").length');
+      assert.equal(count, 0, `${pagePath} should have no .bar or .ex-count`);
     }
   });
 
-  test('each step row says where it gets you', { timeout: 180000 }, async (t) => {
+  test('the route a visitor walks: the first example in each list shows what the AI understood, all four steps, and a way to reach each result', { timeout: 180000 }, async (t) => {
     if (skipReason) { t.skip(skipReason); return; }
-    await navigate('/example/Uniswap-v4-core.html', 1440);
-    const texts = JSON.parse(await evaluate('JSON.stringify([...document.querySelectorAll(".f-gets")].map(e=>e.textContent.trim()))') || '[]');
-    assert.deepEqual(texts, ['gets you to 7 of 13', 'gets you to 12 of 13', 'gets you to 13 of 13']);
+    await navigate('/', 1440);
+    const firsts = JSON.parse(await evaluate(`JSON.stringify([...document.querySelectorAll('.results-group')].map((group) => group.querySelector('a.ex').getAttribute('href')))`));
+    assert.equal(firsts.length, 2);
+    for (const href of firsts) {
+      await navigate(href, 1440);
+      assert.equal(await evaluate(`document.querySelector('.f-main h1').textContent.trim()`), "Here's what an AI understood.", href);
+      assert.equal(await evaluate(`document.querySelectorAll('.f-know > div').length`), 3, href);
+      assert.equal(await evaluate(`document.querySelectorAll('details[name="steps"]').length`), 4, href);
+      for (let i = 0; i < 3; i++) {
+        await evaluate(`document.querySelector('.f-step[open] [data-done]').click()`);
+        await new Promise((r) => setTimeout(r, 100));
+      }
+      const links = JSON.parse(await evaluate(`JSON.stringify([...document.querySelectorAll('.f-step[open] .save-part a')].map((link) => link.getAttribute('href')))`));
+      assert.equal(links.length, 2, `${href} step 4 should link to both results`);
+      for (const link of links) assert.ok(link.endsWith('&saved=1'), `${href} ${link}`);
+    }
   });
 
-  test('a page with one step has no number and no accordion', { timeout: 180000 }, async (t) => {
+  test('an example shows the steps, but nothing on it can copy or save', { timeout: 180000 }, async (t) => {
     if (skipReason) { t.skip(skipReason); return; }
+    await navigate('/example/expressjs-express.html', 1440);
+    assert.equal(await evaluate(`document.querySelectorAll('details[name="steps"]').length`), 4);
+    assert.equal(await evaluate(`document.querySelector(".f-main h1").textContent.trim()`), "Here's what an AI understood.");
+    assert.equal(await evaluate(`document.querySelectorAll(".f-know > div").length`), 3);
+    assert.equal(await evaluate(`document.querySelector(".save-head h2").textContent.trim()`), "This is someone else's project.");
+    assert.ok((await evaluate(`document.querySelector(".save-head a").href`)).endsWith('/'), 'link href should end with /');
+    assert.equal(await evaluate(`document.querySelector(".f-step[open] .btn-primary").disabled`), true);
+    assert.equal(await evaluate(`document.querySelector('[data-step="check"] .btn-primary').disabled`), true);
+    const screens = JSON.parse(await evaluate(`JSON.stringify([...document.querySelectorAll('[data-step="check"] .save-part a')].map((link) => link.getAttribute('href')))`));
+    assert.deepEqual(screens, ['/?repo=coo1white/yokoten-doctor&saved=1', '/?repo=expressjs/express&saved=1']);
+    assert.equal(await evaluate(`document.querySelectorAll('.f-step a[href*="github.com"]').length`), 0);
     await navigate('/example/cline-cline.html', 1440);
-    assert.equal(await evaluate('document.querySelectorAll(\'details[name="steps"]\').length'), 0);
-    assert.equal(await evaluate('document.querySelectorAll(".f-num").length'), 0);
-    assert.equal(await evaluate('document.querySelectorAll("[data-done]").length'), 0);
-    const h2 = await evaluate('document.querySelector(".f-single h2").textContent.trim()');
-    assert.equal(h2, 'Run one command to get to 13 of 13');
-    const linkText = await evaluate('document.querySelector(".f-single .f-next a").textContent.trim()');
-    assert.equal(linkText, 'Done? Run the check again');
+    assert.equal(await evaluate(`document.querySelector(".f-main h1").textContent.trim()`), 'This project already has an AGENTS.md.');
+    assert.equal(await evaluate(`document.querySelector(".f-job.f-single h2").textContent.trim()`), "This is someone else's project.");
+    assert.ok((await evaluate(`document.querySelector(".f-job.f-single a").href`)).endsWith('/'), 'link href should end with /');
+  });
+
+  test('Read the whole file shows and hides the file', { timeout: 180000 }, async (t) => {
+    if (skipReason) { t.skip(skipReason); return; }
+    await navigate('/example/expressjs-express.html', 1440);
+    assert.equal(await evaluate(`document.querySelector(".save-file .file-text").hidden`), true);
+    await evaluate(`document.querySelector(".save-file-name button").click()`);
+    assert.equal(await evaluate(`document.querySelector(".save-file .file-text").hidden`), false);
+    await evaluate(`document.querySelector(".save-file-name button").click()`);
+    assert.equal(await evaluate(`document.querySelector(".save-file .file-text").hidden`), true);
   });
 
   test('what is required and what is optional are separate', { timeout: 180000 }, async (t) => {
@@ -384,5 +469,167 @@ describe('real pages', () => {
       const ok = await evaluate('document.documentElement.scrollWidth <= window.innerWidth');
       assert.ok(ok, `${pagePath} should not scroll sideways with every row open`);
     }
+  });
+
+  test('checking after saving: found', { timeout: 180000 }, async (t) => {
+    if (skipReason) { t.skip(skipReason); return; }
+    const query = '?repo=expressjs/express';
+    await openFakeCheck(query + '&saved=1', [['result', withRules('done', '')], ['fixes', { files: [], summary: '', muse: 'not needed', claude_import: null }]]);
+    assert.equal(await evaluate('document.querySelector(".f-main h1").textContent.trim()'), 'Saved. AGENTS.md is in your project.');
+    const href = await evaluate('[...document.querySelectorAll("a")].find(a=>a.textContent.trim()==="See it on GitHub").href');
+    const branch = liveExample.result.default_branch || 'main';
+    assert.ok(href.endsWith(`/blob/${branch}/AGENTS.md`), `href should end with /blob/${branch}/AGENTS.md, got ${href}`);
+    const cmd = await evaluate(`document.querySelector('#app .cmd code').textContent`);
+    assert.ok(cmd.includes('What should you not touch in this project?'), `cmd should hold question, got ${cmd}`);
+    const search = await evaluate('location.search');
+    assert.ok(search.includes('saved=1'), `location.search should hold saved=1, got ${search}`);
+  });
+
+  test('checking after saving: CLAUDE.md needs one more line', { timeout: 180000 }, async (t) => {
+    if (skipReason) { t.skip(skipReason); return; }
+    const query = '?repo=expressjs/express';
+    await openFakeCheck(query + '&saved=1', [['result', withRules('next', 'CLAUDE.md does not import AGENTS.md')], ['fixes', { files: [], summary: '', muse: 'not needed', claude_import: null }]]);
+    assert.equal(await evaluate('document.querySelector(".f-main h1").textContent.trim()'), 'Saved. One more line for Claude Code.');
+    assert.equal(await evaluate(`document.querySelector('#app .cmd code').textContent.trim()`), '@AGENTS.md');
+    assert.ok((await evaluate(`document.querySelector('.save-actions a').href`)).includes('/edit/'), 'href should hold /edit/');
+    await openFakeCheck(query + '&saved=1', [['result', withRules('next', '.claude/CLAUDE.md does not import AGENTS.md')], ['fixes', { files: [], summary: '', muse: 'not needed', claude_import: null }]]);
+    assert.equal(await evaluate('document.querySelector(".f-main h1").textContent.trim()'), 'Saved. One more line for Claude Code.');
+    assert.equal(await evaluate(`document.querySelector('#app .cmd code').textContent.trim()`), '@../AGENTS.md');
+    assert.ok((await evaluate(`document.querySelector('.save-actions a').href`)).includes('/edit/'), 'href should hold /edit/');
+    await openFakeCheck(query, [['result', withRules('next', 'CLAUDE.md does not import AGENTS.md')], ['fixes', { files: [], summary: '', muse: 'not needed', claude_import: null }]]);
+    assert.equal(await evaluate('document.querySelector(".f-main h1").textContent.trim()'), 'One more line for Claude Code.');
+  });
+
+  test('checking after saving: not found, and back to the steps', { timeout: 180000 }, async (t) => {
+    if (skipReason) { t.skip(skipReason); return; }
+    const query = '?repo=expressjs/express';
+    await openFakeCheck(query + '&saved=1', [['result', liveExample.result], ['fixes', liveExample.fixes]]);
+    assert.equal(await evaluate(`document.querySelector(".f-main h1").textContent.trim()`), "We don't see AGENTS.md yet.");
+    await evaluate(`[...document.querySelectorAll("button")].find(b=>b.textContent.trim()==="Back to the steps").click()`);
+    await new Promise((r) => setTimeout(r, 200));
+    assert.equal(await evaluate(`document.querySelector(".f-main h1").textContent.trim()`), "Here's what an AI understood.");
+    assert.equal(await evaluate(`document.querySelectorAll('details[name="steps"]').length`), 4);
+    const search = await evaluate('location.search');
+    assert.equal(search.includes('saved'), false, `location.search should not hold saved, got ${search}`);
+  });
+
+  test('a template when the AI failed or the repo is too big', { timeout: 180000 }, async (t) => {
+    if (skipReason) { t.skip(skipReason); return; }
+    const query = '?repo=expressjs/express';
+    const agFile = liveExample.fixes.files.find((f) => f.path === 'AGENTS.md');
+    const files = agFile ? [agFile] : [];
+    await openFakeCheck(query, [['result', withRules('next', '')], ['fixes', { files, summary: '', muse: 'failed', claude_import: null }]]);
+    assert.equal(await evaluate(`document.querySelector(".f-main h1").textContent.trim()`), "The AI couldn't read this project this time.");
+    assert.equal(await evaluate(`document.querySelector('section[aria-label="Save it to your project"]').hidden`), true);
+    await evaluate(`[...document.querySelectorAll("button")].find(b=>b.textContent.trim()==="Add the template instead").click()`);
+    await new Promise((r) => setTimeout(r, 100));
+    assert.equal(await evaluate(`document.querySelector('section[aria-label="Save it to your project"]').hidden`), false);
+    assert.equal(await evaluate(`document.querySelector('section[aria-label="Save it to your project"] h2').textContent.trim()`), 'Add the template to your project.');
+    await openFakeCheck(query, [['result', withRules('next', '')], ['fixes', { files, summary: '', muse: 'not needed', claude_import: null }]]);
+    assert.equal(await evaluate(`document.querySelector(".f-main h1").textContent.trim()`), 'This project is too big for the AI to read here.');
+    assert.ok((await evaluate(`[...document.querySelectorAll("button")].map(b=>b.textContent.trim()).join("|")`)).includes('Add the template'), 'button should be Add the template');
+    await openFakeCheck(query, [['result', liveExample.result]]);
+    assert.equal(await evaluate(`document.querySelector(".f-main h1").textContent.trim()`), "The AI couldn't read this project this time.");
+    assert.equal(await evaluate(`document.querySelector('section[aria-label="Save it to your project"]')`), null);
+  });
+
+  test('copy and open: the file is copied first, and GitHub opens with no text in the link', { timeout: 180000 }, async (t) => {
+    if (skipReason) { t.skip(skipReason); return; }
+    const query = '?repo=expressjs/express';
+    const extraScript = `window.__calls = [];
+Object.defineProperty(navigator, 'clipboard', { value: { writeText: async (text) => { window.__calls.push(['copy', text]); } } });
+window.open = (url) => { window.__calls.push(['open', url]); return null; };`;
+    await openFakeCheck(query, [['result', liveExample.result], ['fixes', liveExample.fixes]], extraScript);
+    await evaluate('document.querySelector(".f-step[open] .btn-primary").click()');
+    await new Promise((r) => setTimeout(r, 200));
+    const calls = JSON.parse(await evaluate('JSON.stringify(window.__calls)'));
+    assert.equal(calls.length, 2);
+    assert.equal(calls[0][0], 'copy');
+    const agContent = liveExample.fixes.files.find((f) => f.path === 'AGENTS.md').content;
+    assert.equal(calls[0][1], agContent);
+    assert.equal(calls[1][0], 'open');
+    assert.ok(calls[1][1].includes('/new/'), `open url should hold /new/, got ${calls[1][1]}`);
+    assert.ok(calls[1][1].includes('filename=AGENTS.md'), `open url should hold filename=AGENTS.md, got ${calls[1][1]}`);
+    assert.equal(calls[1][1].includes('value='), false, `open url should not hold value=, got ${calls[1][1]}`);
+    const status = await evaluate(`document.querySelector('.f-step[open] [role="status"]').textContent.trim()`);
+    assert.equal(status, 'Copied. Now go to the GitHub tab.');
+  });
+
+  test('copy and open: when copying fails, the file opens on the page and GitHub still opens', { timeout: 180000 }, async (t) => {
+    if (skipReason) { t.skip(skipReason); return; }
+    const query = '?repo=expressjs/express';
+    const extraScript = `window.__calls = [];
+Object.defineProperty(navigator, 'clipboard', { value: { writeText: async () => { throw new Error('no'); } } });
+window.open = (url) => { window.__calls.push(['open', url]); return null; };`;
+    await openFakeCheck(query, [['result', liveExample.result], ['fixes', liveExample.fixes]], extraScript);
+    await evaluate('document.querySelector(".f-step[open] .btn-primary").click()');
+    await new Promise((r) => setTimeout(r, 200));
+    assert.equal(await evaluate(`document.querySelector(".save-file .file-text").hidden`), false);
+    assert.ok((await evaluate(`document.querySelector('.f-step[open] [role="status"]').textContent`)).includes("We couldn't copy it."), 'status should hold the copy failure');
+    const calls = JSON.parse(await evaluate('JSON.stringify(window.__calls)'));
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0][0], 'open');
+  });
+
+  test('an example offers no way to add files to someone else\'s project', { timeout: 180000 }, async (t) => {
+    if (skipReason) { t.skip(skipReason); return; }
+    await navigate('/example/expressjs-express.html', 1440);
+    assert.ok(await evaluate(`document.querySelectorAll('[data-file-list] .file').length`) > 0);
+    assert.equal(await evaluate(`document.querySelectorAll('[data-add]').length`), 0);
+    assert.equal(await evaluate(`[...document.querySelectorAll('.f-rest summary')].some((row) => row.textContent.includes('Prefer the terminal'))`), false);
+  });
+
+  test('when yokoten init fails on the server, the page never claims a CLAUDE.md', { timeout: 180000 }, async (t) => {
+    if (skipReason) { t.skip(skipReason); return; }
+    const noAgents = withRules('next', 'no AGENTS.md, so the agents have no written rules here');
+    const empty = { files: [], summary: '', muse: 'not needed', claude_import: null };
+    await openFakeCheck('?repo=expressjs/express', [['result', noAgents], ['fixes', empty]]);
+    assert.equal(await evaluate(`document.querySelector('.f-main h1').textContent.trim()`), "The AI couldn't read this project this time.");
+    assert.equal((await evaluate(`document.body.innerText`)).includes('CLAUDE.md'), false);
+    await openFakeCheck('?repo=expressjs/express&saved=1', [['result', noAgents], ['fixes', empty]]);
+    assert.equal(await evaluate(`document.querySelector('.f-main h1').textContent.trim()`), "We don't see AGENTS.md yet.");
+  });
+
+  test('a repo with AGENTS.md is never said to be read by an AI', { timeout: 180000 }, async (t) => {
+    if (skipReason) { t.skip(skipReason); return; }
+    await openFakeCheck('?repo=expressjs/express', [['result', withRules('done', '')]]);
+    assert.equal(await evaluate(`document.querySelector('.f-main h1').textContent.trim()`), 'This project already has an AGENTS.md.');
+  });
+
+  test('the copy message survives the page drawing itself again', { timeout: 180000 }, async (t) => {
+    if (skipReason) { t.skip(skipReason); return; }
+    const extraScript = `Object.defineProperty(navigator, 'clipboard', { value: { writeText: async () => {} } });
+window.open = () => null;`;
+    await openFakeCheck('?repo=expressjs/express', [['result', liveExample.result], ['fixes', liveExample.fixes]], extraScript, [['record', liveExample.record]]);
+    await evaluate(`document.querySelector('.f-step[open] .btn-primary').click()`);
+    await new Promise((r) => setTimeout(r, 1000));
+    assert.equal(await evaluate(`document.querySelector('.f-step[open] [role="status"]').textContent.trim()`), 'Copied. Now go to the GitHub tab.');
+  });
+
+  test('Copy link leaves out the saved flag', { timeout: 180000 }, async (t) => {
+    if (skipReason) { t.skip(skipReason); return; }
+    const extraScript = `window.__copied = [];
+Object.defineProperty(navigator, 'clipboard', { value: { writeText: async (text) => { window.__copied.push(text); } } });`;
+    await openFakeCheck('?repo=expressjs/express&saved=1', [['result', liveExample.result], ['fixes', liveExample.fixes]], extraScript);
+    await evaluate(`document.querySelector('[data-copy-url]').click()`);
+    await new Promise((r) => setTimeout(r, 200));
+    const copied = JSON.parse(await evaluate(`JSON.stringify(window.__copied)`));
+    assert.equal(copied.length, 1);
+    assert.equal(copied[0].includes('saved'), false);
+    assert.ok(copied[0].includes('repo='));
+  });
+
+  test('the file name in the picture and the green button fit at phone width', { timeout: 180000 }, async (t) => {
+    if (skipReason) { t.skip(skipReason); return; }
+    const query = '?repo=expressjs/express';
+    await openFakeCheck(query, [['result', liveExample.result], ['fixes', liveExample.fixes]]);
+    await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 900, deviceScaleFactor: 1, mobile: false });
+    await evaluate('document.querySelector(".f-step[open] [data-done]").click()');
+    await new Promise((r) => setTimeout(r, 100));
+    await evaluate('document.querySelector(".f-step[open] [data-done]").click()');
+    await new Promise((r) => setTimeout(r, 100));
+    const ok = await evaluate('(() => { const shot = document.querySelector(".save-shot").getBoundingClientRect(); const btn = document.querySelector(".gh-top .gh-green").getBoundingClientRect(); return btn.right <= shot.right + 1; })()');
+    assert.ok(ok, 'green button should fit inside save-shot');
+    await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
   });
 });

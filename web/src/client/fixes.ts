@@ -1,3 +1,5 @@
+import type { UnderstoodSection } from "./types.ts";
+
 export const MAX_GITHUB_LINK = 6000;
 
 export function isSafePath(path: string): boolean {
@@ -42,17 +44,26 @@ export function fileLinkPlan(owner: string, repo: string, branch: string | null,
   return { kind: "copy first", href };
 }
 
-export function isFilesSectionHidden(fixes: { files?: { path: string }[]; muse: string } | null, hasOpenInstallOnly: boolean): boolean {
-  if (!fixes) return false;
-  if (fixes.muse === "failed" || fixes.muse === "lost") return false;
-  const hasFiles = !!(fixes.files && fixes.files.length > 0);
-  if (hasFiles) return false;
-  if (!hasOpenInstallOnly) return false;
-  return true;
-}
-
 export function rerunHref(owner: string, repo: string): string {
   return "/?repo=" + encodeURIComponent(owner) + "/" + encodeURIComponent(repo);
+}
+
+export function savedCheckHref(owner: string, repo: string): string {
+  return rerunHref(owner, repo) + "&saved=1";
+}
+
+export function repoFileHref(owner: string, repo: string, branch: string | null, kind: "blob" | "edit", path: string): string {
+  const b = branch == null ? "main" : branch;
+  const encodedBranch = b.split("/").map(encodeURIComponent).join("/");
+  const encodedPath = path.split("/").map(encodeURIComponent).join("/");
+  return "https://github.com/" + encodeURIComponent(owner) + "/" + encodeURIComponent(repo) + "/" + kind + "/" + encodedBranch + "/" + encodedPath;
+}
+
+export function claudeFileFromStep(what: string | undefined): { file: string; line: string } {
+  if (what && what.includes(".claude/CLAUDE.md")) {
+    return { file: ".claude/CLAUDE.md", line: "@../AGENTS.md" };
+  }
+  return { file: "CLAUDE.md", line: "@AGENTS.md" };
 }
 
 export function buildPatch(files: { path: string; content: string }[]): string {
@@ -94,13 +105,6 @@ export function orderFiles(files: { path: string; content: string; source?: stri
   const first = safe[firstIdx];
   const rest = safe.filter((_, idx) => idx !== firstIdx);
   return { first, rest };
-}
-
-export function claudeImportMessage(fixes: { claude_import?: { file: string; line: string } | null }): string {
-  if (fixes && fixes.claude_import && fixes.claude_import.file && fixes.claude_import.line) {
-    return `Your repo already has ${fixes.claude_import.file}. Add this line to it so Claude Code picks up the new rules: ${fixes.claude_import.line}`;
-  }
-  return "";
 }
 
 export const PATCH_COMMANDS = [
@@ -159,4 +163,40 @@ export function projectSection(content: string): string {
   if (idx === -1) return "";
   const out = lines.slice(idx).join("\n").trim();
   return out;
+}
+
+export function understoodSections(content: string): UnderstoodSection[] | null {
+  const section = projectSection(content);
+  if (!section) return null;
+  const lines = section.split("\n");
+  const parts: { heading: string; lines: string[] }[] = [];
+  let current: { heading: string; lines: string[] } | null = null;
+  for (const raw of lines) {
+    if (raw.startsWith("### ")) {
+      if (current) parts.push(current);
+      current = { heading: raw.slice(4).trim(), lines: [] };
+    } else if (current) {
+      const t = raw.trim();
+      if (!t) continue;
+      let v = t;
+      if (v.startsWith("- ")) v = v.slice(2);
+      current.lines.push(v);
+    }
+  }
+  if (current) parts.push(current);
+  let build: string[] | null = null;
+  let test: string[] | null = null;
+  let touch: string[] | null = null;
+  for (const p of parts) {
+    const h = p.heading.toLowerCase();
+    if (h.includes("touch")) touch ??= p.lines;
+    else if (h.includes("build")) build ??= p.lines;
+    else if (h.includes("test")) test ??= p.lines;
+  }
+  if (!build || build.length === 0 || !test || test.length === 0 || !touch || touch.length === 0) return null;
+  return [
+    { title: "How to build it", lines: build },
+    { title: "How to test it", lines: test },
+    { title: "What not to touch", lines: touch },
+  ];
 }

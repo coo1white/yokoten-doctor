@@ -17,8 +17,8 @@ const record = data.record;
 const date = String(record.recorded_at).slice(0, 10);
 const text = JSON.stringify(data).replace(/</g, "\\u003c");
 const slug = Astro.params.slug ?? "";
-const pageTitle = `${result.owner}/${result.repo}: ${result.summary.done} of ${result.summary.total} file checks \u00b7 yokoten doctor`;
-const pageDescription = `A saved yokoten doctor check of ${result.owner}/${result.repo}. The file checks don't judge its code.`;
+const pageTitle = `${result.owner}/${result.repo}: a saved result \u00b7 yokoten doctor`;
+const pageDescription = `A saved yokoten doctor result for ${result.owner}/${result.repo}. It doesn't grade the repo.`;
 const pagePath = `/example/${slug}.html`;
 ---
 <Page noindex title={pageTitle} description={pageDescription} path={pagePath}>

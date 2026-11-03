@@ -1,36 +1,33 @@
-import { toSentence, markLabel } from "../view.ts";
+import { toSentence, markLabel, OPTIONAL_CHECK_IDS } from "../view.ts";
 import { createFold, createIcon, createLink, make, renderRichText, createRow } from "./dom.ts";
 import type { IconName } from "./dom.ts";
-import type { CheckResult, ResultPlan, SummaryStep } from "../types.ts";
+import type { CheckResult, SummaryStep } from "../types.ts";
 
-export function renderChecksRow(result: CheckResult, plan: ResultPlan): HTMLElement {
-  const installIds = new Set(plan.installSteps.map((step) => step.id));
+export function renderChecksRow(result: CheckResult): HTMLElement {
   const steps = result.summary?.steps ?? [];
-  const total = plan.total;
-  const done = plan.done;
-  const side = done === total ? `${done} pass` : `${done} pass, ${total - done} to go`;
-  const note = make("p", "small muted", "These checks read files. They don't judge your code.");
+  const filtered = steps.filter((s) => !OPTIONAL_CHECK_IDS.includes(s.id));
+  const note = make("p", "small muted", "We only check whether these exist. That doesn't show they're any good, and none of this judges your code.");
   const container = make("div", "checks");
-  for (const step of steps) {
-    const row = buildRow(step, installIds);
+  for (const step of filtered) {
+    const row = buildRow(step);
     container.appendChild(row);
   }
-  return createRow(`See all ${total} checks`, side, [note, container], { key: "all-checks" });
+  return createRow("Files we looked for", "Not a grade", [note, container], { key: "all-checks" });
 }
 
-function buildRow(step: SummaryStep, installIds: Set<string>): HTMLDetailsElement {
+function buildRow(step: SummaryStep): HTMLDetailsElement {
   const id = step.id;
   const isDone = step.mark === "done";
   const rowClass = "ck" + (isDone ? " is-done" : "");
-  const tag = getTag(step, isDone, installIds);
+  const tag = getTag(step, isDone);
   const title = buildTitle(step, tag, isDone);
   const body = buildBody(step, id);
   return createFold(title, body, { key: "check-" + id, id: "check-" + id, className: rowClass });
 }
 
-function getTag(step: SummaryStep, isDone: boolean, installIds: Set<string>): string {
+function getTag(step: SummaryStep, isDone: boolean): string {
   if (isDone) return "";
-  if (installIds.has(step.id)) return "needs yokoten";
+  if (step.mark === "next" || step.mark === "to do") return "not found";
   const reason = step.reason ?? "";
   return markLabel(step.mark, reason);
 }

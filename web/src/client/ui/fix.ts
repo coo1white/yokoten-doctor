@@ -1,13 +1,11 @@
 import { make, createIcon, createCommandBox, createFold, renderRichText } from "./dom.ts";
-import { toSentence, INSTALL_COMMAND } from "../view.ts";
-import { fileLinkPlan, buildPatch, orderFiles, claudeImportMessage, PATCH_COMMANDS, projectSection, rerunHref } from "../fixes.ts";
-import type { ResultPlan, CheckResult, FixesPayload, HandItem, FixFile } from "../types.ts";
+import { INSTALL_COMMAND, OPTIONAL_CHECK_IDS } from "../view.ts";
+import { newFileLink, fileLinkPlan, buildPatch, orderFiles, savedCheckHref, PATCH_COMMANDS, isSafePath } from "../fixes.ts";
+import type { CheckResult, FixesPayload, SaveStepKey, FixFile } from "../types.ts";
 
+let isWholeFileShown = false;
 const openedFiles = new Set<string>();
-
-export function clearOpenedFiles(): void {
-  openedFiles.clear();
-}
+let copyStatus = "";
 
 function createFilePre(content: string): HTMLElement {
   const pre = make("pre", "file-text");
@@ -33,13 +31,7 @@ function createFilePre(content: string): HTMLElement {
   return pre;
 }
 
-function createFileRow(file: FixFile, plan: ResultPlan, lastFixes: FixesPayload | null, owner: string, repo: string, branch: string | null): { row: HTMLElement; addLink: HTMLAnchorElement; undoButton: HTMLButtonElement; isLong: boolean } {
-  const link = fileLinkPlan(owner, repo, branch, file);
-  const isLong = link.kind !== "filled";
-  const row = make("li", "file");
-  if (openedFiles.has(file.path)) {
-    row.classList.add("is-added");
-  }
+function createFilePath(file: FixFile): HTMLElement {
   const path = make("span", "file-path");
   const slash = file.path.lastIndexOf("/");
   if (slash === -1) {
@@ -49,6 +41,15 @@ function createFileRow(file: FixFile, plan: ResultPlan, lastFixes: FixesPayload 
     path.appendChild(dir);
     path.appendChild(document.createTextNode(file.path.slice(slash + 1)));
   }
+  return path;
+}
+
+function createFileRow(file: FixFile, owner: string, repo: string, branch: string | null): { row: HTMLElement; addLink: HTMLAnchorElement; undoButton: HTMLButtonElement; isLong: boolean } {
+  const link = fileLinkPlan(owner, repo, branch, file);
+  const isLong = link.kind !== "filled";
+  const row = make("li", "file");
+  if (openedFiles.has(file.path)) row.classList.add("is-added");
+  const path = createFilePath(file);
   row.appendChild(path);
   const act = make("span", "file-act");
   const addLink = make("a", "btn btn-line file-btn ctl");
@@ -68,98 +69,13 @@ function createFileRow(file: FixFile, plan: ResultPlan, lastFixes: FixesPayload 
   act.appendChild(undoButton);
   row.appendChild(act);
   if (isLong) {
-    row.appendChild(make("p", "file-how", "Paste it there, then pick a new branch."));
-  }
-  const message = lastFixes ? claudeImportMessage(lastFixes) : null;
-  const hasImport = plan.handItems.some((item) => item.id === "import");
-  if (file.path === "AGENTS.md" && message && !hasImport) {
-    const more = make("div", "file-more");
-    const note = make("p", "small", message);
-    more.appendChild(note);
-    row.appendChild(more);
-  }
-  if (isLong) {
+    row.appendChild(make("p", "file-how", "Paste it there, then commit it."));
     const read = make("div", "file-read");
-    const body: Node[] = [];
-    const project = projectSection(file.content);
-    const isMuse = file.source === "yokoten and Muse";
-    if (file.path === "AGENTS.md" && isMuse && project) {
-      body.push(make("p", "small muted", "The part Muse wrote:"));
-      body.push(createFilePre(project));
-      const before = file.content.slice(0, file.content.indexOf("## This project")).trim();
-      body.push(createFold("The rest of the file", [createFilePre(before)], { key: "rest-AGENTS.md" }));
-    } else {
-      body.push(createFilePre(file.content));
-    }
+    const body: Node[] = [createFilePre(file.content)];
     read.appendChild(createFold("Read this file", body, { key: `read-${file.path}` }));
     row.appendChild(read);
   }
   return { row, addLink, undoButton, isLong };
-}
-
-function createFileList(files: FixFile[], plan: ResultPlan, lastFixes: FixesPayload | null, lastResult: CheckResult): { list: HTMLUListElement; count: HTMLParagraphElement } {
-  const list = make("ul", "files");
-  list.setAttribute("data-file-list", "");
-  const owner = lastResult.owner ?? "";
-  const repo = lastResult.repo ?? "";
-  const branch = lastResult.default_branch ?? lastResult.branch ?? null;
-  const rows: HTMLElement[] = [];
-  const links: HTMLAnchorElement[] = [];
-  const buttons: HTMLButtonElement[] = [];
-  const flags: boolean[] = [];
-  const paths: string[] = [];
-  const contents: string[] = [];
-  for (const file of files) {
-    const entry = createFileRow(file, plan, lastFixes, owner, repo, branch);
-    rows.push(entry.row);
-    links.push(entry.addLink);
-    buttons.push(entry.undoButton);
-    flags.push(entry.isLong);
-    paths.push(file.path);
-    contents.push(file.content);
-    list.appendChild(entry.row);
-  }
-  const count = make("p", "small muted");
-  count.setAttribute("data-file-count", "");
-  count.setAttribute("role", "status");
-  const refresh = (): void => {
-    const allAdded = rows.length > 0 && rows.every((row) => row.classList.contains("is-added"));
-    count.textContent = allAdded ? "All opened. Commit them on GitHub, then run the check again." : "";
-  };
-  for (let i = 0; i < rows.length; i++) {
-    const row = rows[i];
-    const link = links[i];
-    const button = buttons[i];
-    const isLong = flags[i];
-    const path = paths[i];
-    const content = contents[i];
-    link.addEventListener("click", (event: MouseEvent) => {
-      if (isLong) {
-        event.preventDefault();
-        const open = (): void => {
-          window.open(link.href, "_blank", "noopener,noreferrer");
-        };
-        const copy = navigator.clipboard ? navigator.clipboard.writeText(content) : Promise.reject();
-        copy.then(open, () => {
-          const details = row.querySelector<HTMLDetailsElement>(".file-read details");
-          if (details) details.open = true;
-          open();
-        });
-      }
-      setTimeout(() => {
-        row.classList.add("is-added");
-        openedFiles.add(path);
-        refresh();
-      }, 250);
-    });
-    button.addEventListener("click", () => {
-      row.classList.remove("is-added");
-      openedFiles.delete(path);
-      refresh();
-    });
-  }
-  refresh();
-  return { list, count };
 }
 
 function createTerminalFold(files: FixFile[]): HTMLElement {
@@ -182,159 +98,321 @@ function createTerminalFold(files: FixFile[]): HTMLElement {
   });
   const save = make("p", "small", "Save it in your repo's folder, then run:");
   const command = createCommandBox(PATCH_COMMANDS);
-  const fold = createFold("Prefer the terminal?", [wrap, save, command], { key: "use-terminal" });
+  const body: Node[] = [wrap, save, command];
+  if (files.some((f) => f.path === "AGENTS.md")) {
+    body.push(make("p", "small", "The patch also has AGENTS.md."));
+  }
+  const fold = createFold("Prefer the terminal?", body, { key: "use-terminal" });
   side.appendChild(fold);
   return side;
 }
 
-export function renderFilesBody(plan: ResultPlan, lastFixes: FixesPayload | null, lastResult: CheckResult): Node[] {
-  if (plan.filesBlock === "hidden" || plan.filesBlock === "nothing") return [];
-  if (plan.filesBlock === "waiting") {
-    const wait = make("div", "wait");
-    wait.setAttribute("role", "status");
-    const icon = make("i");
-    icon.setAttribute("aria-hidden", "true");
-    wait.appendChild(icon);
-    wait.appendChild(make("p", undefined, "Writing the files. This part can take a little longer."));
-    return [wait];
-  }
-  if (plan.filesBlock === "lost") {
-    const p = make("p", undefined, "The connection dropped before they came. The check above is still good.");
-    const owner = lastResult.owner ?? "";
-    const repo = lastResult.repo ?? "";
-    const link = make("a", "btn btn-primary ctl", "Run the check again");
-    link.href = rerunHref(owner, repo);
-    return [p, link];
-  }
-  const nodes: Node[] = [];
-  const files = lastFixes?.files ?? [];
-  if (files.length > 0) {
-    const lede = plan.gain > 0 || !plan.isAfterKnown ? "Each button opens GitHub with the file ready. Pick a new branch there to get a pull request. Nothing changes until you commit." : "These alone won't change the count. Add them on a new branch. We can't write to your repo.";
-    nodes.push(make("p", undefined, lede));
-  }
-  if (lastFixes?.muse === "failed") {
-    const notice = make("div", "notice");
-    notice.setAttribute("role", "status");
-    notice.appendChild(make("p", "notice-title", "Muse couldn't write the \u201cThis project\u201d section this time."));
-    const small = make("p", "small");
-    small.appendChild(document.createTextNode("Fill it in yourself. It sits at the end of "));
-    const code = make("code", undefined, "AGENTS.md");
-    small.appendChild(code);
-    small.appendChild(document.createTextNode("."));
-    notice.appendChild(small);
-    nodes.push(notice);
-  }
-  if (files.length > 0) {
-    const ordered = orderFiles(files);
-    const all: FixFile[] = [];
-    if (ordered.first) all.push(ordered.first);
-    for (const item of ordered.rest) all.push(item);
-    const { list, count } = createFileList(all, plan, lastFixes, lastResult);
-    nodes.push(list);
-    nodes.push(count);
-    nodes.push(createTerminalFold(all));
-  }
-  return nodes;
+function createGitHubTop(pushClass: string): HTMLElement {
+  const ghTop = make("div", "gh-top");
+  ghTop.appendChild(make("span", "gh-repo", "your-project"));
+  ghTop.appendChild(make("span", undefined, "/"));
+  ghTop.appendChild(make("span", "gh-name", "AGENTS.md"));
+  const push = make("span", "gh-push");
+  push.appendChild(make("span", "gh-quiet", "Cancel changes"));
+  push.appendChild(make("span", pushClass, "Commit changes..."));
+  ghTop.appendChild(push);
+  return ghTop;
 }
 
-export function renderInstallBody(plan: ResultPlan): Node[] {
-  const nodes: Node[] = [];
-  const installOnlyCount = plan.installSteps.length - plan.movedToInstall.length;
-  let ledeText = "";
-  if (installOnlyCount === 5) {
-    ledeText = "Run this in your repo, then commit and push. Five checks need yokoten running, and no file can do them.";
-  } else if (installOnlyCount === 1) {
-    ledeText = "Run this in your repo, then commit and push. 1 check needs yokoten running, and no file can do it.";
+function makeSavePart(tag: string, text: string, isAi: boolean): HTMLElement {
+  const part = make("div", isAi ? "save-part is-ai" : "save-part");
+  part.appendChild(make("span", "save-part-tag", tag));
+  part.appendChild(make("span", "save-part-text", text));
+  return part;
+}
+
+function createBoldLine(before: string, bold: string, after: string): HTMLElement {
+  const p = make("p");
+  p.appendChild(document.createTextNode(before));
+  p.appendChild(make("b", undefined, bold));
+  p.appendChild(document.createTextNode(after));
+  return p;
+}
+
+function renderCopyStep(owner: string, repo: string, branch: string | null, agentsFile: FixFile, isWrittenByAi: boolean, isPreview: boolean, doneButton: HTMLElement | undefined): Node[] {
+  const content = agentsFile.content;
+  const say = make("div", "save-say");
+  const nodes: Node[] = [say];
+  say.appendChild(createBoldLine("On this page, click ", "Copy and open GitHub", ". The file is copied, and GitHub opens in a new tab."));
+  say.appendChild(make("p", "small", "Keep this page open. The next step is here. This has to be your project, and you need to be signed in to GitHub. It's easier on a computer."));
+  const href = newFileLink(owner, repo, branch, "AGENTS.md", null);
+  if (!isPreview) {
+    const p3 = make("p", "small");
+    p3.appendChild(document.createTextNode("Nothing opened? Your browser may have blocked it. "));
+    const openLink = make("a", undefined, "Open GitHub");
+    openLink.href = href;
+    openLink.target = "_blank";
+    openLink.rel = "noopener noreferrer";
+    p3.appendChild(openLink);
+    p3.appendChild(document.createTextNode("."));
+    say.appendChild(p3);
+  }
+  const actions = make("div", "save-actions");
+  if (isPreview) {
+    const copyButton = make("button", "btn btn-primary ctl", "Copy and open GitHub");
+    copyButton.type = "button";
+    copyButton.disabled = true;
+    actions.appendChild(copyButton);
+    if (doneButton) actions.appendChild(doneButton);
+    say.appendChild(actions);
   } else {
-    ledeText = `Run this in your repo, then commit and push. ${installOnlyCount} checks need yokoten running, and no file can do them.`;
+    const copyLink = make("a", "btn btn-primary ctl", "Copy and open GitHub");
+    copyLink.href = href;
+    actions.appendChild(copyLink);
+    if (doneButton) actions.appendChild(doneButton);
+    say.appendChild(actions);
+    const status = make("p", "small muted");
+    status.setAttribute("role", "status");
+    status.textContent = copyStatus;
+    say.appendChild(status);
+    copyLink.addEventListener("click", (event: MouseEvent) => {
+      event.preventDefault();
+      const write = navigator.clipboard ? navigator.clipboard.writeText(content) : Promise.reject();
+      write.then(() => {
+        copyStatus = "Copied. Now go to the GitHub tab.";
+        status.textContent = copyStatus;
+        window.open(href, "_blank", "noopener,noreferrer");
+      }, () => {
+        showWholeFile(true);
+        copyStatus = "We couldn't copy it. Copy the text from Read the whole file, then paste it on GitHub.";
+        status.textContent = copyStatus;
+        window.open(href, "_blank", "noopener,noreferrer");
+      });
+    });
   }
-  nodes.push(make("p", undefined, ledeText));
-  nodes.push(createCommandBox(INSTALL_COMMAND, { isBig: true, isPrimary: true }));
-  for (const item of plan.movedToInstall) {
-    const paragraph = make("p", "hand-after");
-    let extra = "";
-    if (item.fix && item.fix.includes("; then ")) {
-      const index = item.fix.indexOf("; then ");
-      const after = item.fix.slice(index + "; then ".length);
-      extra = " " + toSentence("then " + after);
-    }
-    renderRichText(`It also fixes \u201c${item.title}\u201d.${extra}`, paragraph);
-    nodes.push(paragraph);
+  const panel = make("div", "save-file");
+  panel.setAttribute("aria-label", "What's in the file");
+  const nameDiv = make("div", "save-file-name");
+  nameDiv.appendChild(make("code", undefined, "AGENTS.md"));
+  const readButton = make("button", "link ctl", "Read the whole file");
+  readButton.type = "button";
+  nameDiv.appendChild(readButton);
+  panel.appendChild(nameDiv);
+  panel.appendChild(makeSavePart("From our template", "General rules for how work gets done.", false));
+  if (isWrittenByAi) {
+    panel.appendChild(makeSavePart("Written by the AI", "The three parts you just read.", true));
+  } else {
+    panel.appendChild(makeSavePart("Yours to fill in", "How to build it, how to test it, and what not to touch.", true));
   }
-  const small = make("p", "small");
-  const see = make("a", "link ctl", "See what yokoten does");
-  see.href = "https://yokoten.app/";
-  see.target = "_blank";
-  see.rel = "noopener noreferrer";
-  small.appendChild(see);
-  nodes.push(small);
+  const wholeFile = createFilePre(content);
+  wholeFile.hidden = !isWholeFileShown;
+  readButton.setAttribute("aria-expanded", String(isWholeFileShown));
+  panel.appendChild(wholeFile);
+  nodes.push(panel);
+  function showWholeFile(isShown: boolean): void {
+    isWholeFileShown = isShown;
+    wholeFile.hidden = !isWholeFileShown;
+    readButton.setAttribute("aria-expanded", String(isWholeFileShown));
+  }
+  readButton.addEventListener("click", () => {
+    showWholeFile(!isWholeFileShown);
+  });
   return nodes;
 }
 
-export function renderHandBody(plan: ResultPlan, lastResult: CheckResult): Node[] {
+function renderPasteStep(doneButton: HTMLElement | undefined): Node[] {
+  const say = make("div", "save-say");
+  const nodes: Node[] = [say];
+  const p1 = make("p");
+  p1.appendChild(document.createTextNode("On GitHub, click the big empty box. Then press "));
+  p1.appendChild(make("b", undefined, "Ctrl + V"));
+  p1.appendChild(document.createTextNode(". On a Mac, press "));
+  p1.appendChild(make("b", undefined, "Command + V"));
+  p1.appendChild(document.createTextNode("."));
+  say.appendChild(p1);
+  say.appendChild(make("p", "small", "The text appears in the box. The file name is already filled in, so leave it."));
+  if (doneButton) {
+    const actions = make("div", "save-actions");
+    actions.appendChild(doneButton);
+    say.appendChild(actions);
+  }
+  const shot = make("div", "save-shot");
+  shot.setAttribute("role", "img");
+  shot.setAttribute("aria-label", "The GitHub page, with the big empty box marked");
+  const gh = make("div", "gh");
+  gh.appendChild(createGitHubTop("gh-pale"));
+  gh.appendChild(make("div", "gh-empty", "1"));
+  shot.appendChild(gh);
+  shot.appendChild(make("span", "save-key", "Ctrl + V"));
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("aria-hidden", "true");
+  svg.classList.add("save-pointer");
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("fill", "#141413");
+  path.setAttribute("stroke", "#fff");
+  path.setAttribute("stroke-width", "1.5");
+  path.setAttribute("d", "M5 3l14 9-6.5 1.5L15 20l-3 1.5-2.6-6.4L5 19z");
+  svg.appendChild(path);
+  shot.appendChild(svg);
+  nodes.push(shot);
+  return nodes;
+}
+
+function renderSaveStep(doneButton: HTMLElement | undefined): Node[] {
+  const say = make("div", "save-say");
+  const nodes: Node[] = [say];
+  say.appendChild(createBoldLine("On GitHub, click the green ", "Commit changes", " button. A box opens. Change nothing, and click the green button at the bottom of the box."));
+  say.appendChild(make("p", "small", "See a green Create pull request button next? Your project asks for an extra step. Click it, then click Merge pull request. If you can't merge it, someone on your team has to approve it first."));
+  if (doneButton) {
+    const actions = make("div", "save-actions");
+    actions.appendChild(doneButton);
+    say.appendChild(actions);
+  }
+  const shot = make("div", "save-shot");
+  shot.setAttribute("role", "img");
+  shot.setAttribute("aria-label", "The green Commit changes button, and the green button in the box it opens");
+  const gh = make("div", "gh");
+  gh.appendChild(createGitHubTop("gh-green"));
+  const editor = make("div", "gh-editor");
+  editor.appendChild(document.createTextNode("# How work is done here"));
+  editor.appendChild(document.createElement("br"));
+  editor.appendChild(document.createElement("br"));
+  editor.appendChild(document.createTextNode("This file is for every agent..."));
+  gh.appendChild(editor);
+  shot.appendChild(gh);
+  shot.appendChild(make("div", "gh-dim"));
+  const dialog = make("div", "gh-dialog");
+  dialog.appendChild(make("strong", undefined, "Commit changes"));
+  dialog.appendChild(make("i"));
+  dialog.appendChild(make("i", "gh-tall"));
+  const go = make("div", "gh-dialog-go");
+  go.appendChild(make("span", "gh-green gh-mark", "Commit changes"));
+  dialog.appendChild(go);
+  shot.appendChild(dialog);
+  nodes.push(shot);
+  return nodes;
+}
+
+function renderCheckStep(owner: string, repo: string, isPreview: boolean): Node[] {
+  const say = make("div", "save-say");
+  const nodes: Node[] = [say];
+  say.appendChild(createBoldLine("Come back to this page, and click ", "Check that it saved", ". We'll look for AGENTS.md in your project."));
+  const actions = make("div", "save-actions");
+  if (isPreview) {
+    const button = make("button", "btn btn-primary ctl", "Check that it saved");
+    button.type = "button";
+    button.disabled = true;
+    actions.appendChild(button);
+  } else {
+    const link = make("a", "btn btn-primary ctl", "Check that it saved");
+    link.href = savedCheckHref(owner, repo);
+    actions.appendChild(link);
+  }
+  say.appendChild(actions);
+  const panel = make("div", "save-file");
+  panel.setAttribute("aria-label", "What happens next");
+  const there = makeSavePart("If it's there", "We show you how to try it with your AI tool.", true);
+  const notThere = makeSavePart("If it isn't", "We tell you what's usually missing, and you can go back to the steps.", false);
+  if (isPreview) {
+    const thereLink = make("a", undefined, "See this screen");
+    thereLink.href = savedCheckHref("coo1white", "yokoten-doctor");
+    there.appendChild(thereLink);
+    const notThereLink = make("a", undefined, "See this screen");
+    notThereLink.href = savedCheckHref(owner, repo);
+    notThere.appendChild(notThereLink);
+  }
+  panel.appendChild(there);
+  panel.appendChild(notThere);
+  nodes.push(panel);
+  return nodes;
+}
+
+export function renderSaveStepBody(key: SaveStepKey, input: { owner: string; repo: string; branch: string | null; agentsFile: FixFile; isWrittenByAi: boolean; isPreview: boolean; doneButton?: HTMLElement }): Node[] {
+  const { owner, repo, branch, agentsFile, isWrittenByAi, isPreview, doneButton } = input;
+  if (key === "copy") return renderCopyStep(owner, repo, branch, agentsFile, isWrittenByAi, isPreview, doneButton);
+  if (key === "paste") return renderPasteStep(doneButton);
+  if (key === "save") return renderSaveStep(doneButton);
+  return renderCheckStep(owner, repo, isPreview);
+}
+
+export function renderOtherFilesBody(lastFixes: FixesPayload | null, lastResult: CheckResult, isExample: boolean): Node[] {
   const nodes: Node[] = [];
-  const items = plan.handItems.slice(0, plan.handCount);
-  const short = plan.isHandListShort;
-  const isOne = items.length === 1 && !short;
-  const owner = lastResult.owner ?? "";
-  const repo = lastResult.repo ?? "";
-  const buildBody = (entry: HandItem, withTitle: boolean, isFirst: boolean): Node[] => {
-    const nodes: Node[] = [];
-    if (withTitle) {
-      const title = make("p", "item-title");
-      const line = make("span", "status-line");
-      const mark = make("span", "status-mark");
-      mark.appendChild(createIcon("circle"));
-      line.appendChild(mark);
-      const text = make("span");
-      renderRichText(entry.title, text);
-      line.appendChild(text);
-      title.appendChild(line);
-      nodes.push(title);
-    }
-    if (entry.wrong) {
-      const wrong = make("p", "hand-wrong");
-      renderRichText(entry.wrong, wrong);
-      nodes.push(wrong);
-    }
-    if (entry.list.length > 0) {
-      const list = make("ul", "hand-files");
-      for (const file of entry.list) {
-        list.appendChild(make("li", undefined, file));
+  if (isExample) {
+    nodes.push(make("p", undefined, "On your own project, you can add any of these."));
+  } else {
+    nodes.push(make("p", undefined, "Add any you want. Each button opens GitHub with the file ready. Nothing changes until you commit."));
+  }
+  const files = (lastFixes?.files ?? []).filter((f) => f.path !== "AGENTS.md");
+  const ordered = orderFiles(files);
+  const all: FixFile[] = [];
+  if (ordered.first) all.push(ordered.first);
+  for (const item of ordered.rest) all.push(item);
+  const owner = String(lastResult.owner ?? "");
+  const repo = String(lastResult.repo ?? "");
+  const branch: string | null = lastResult.default_branch ?? lastResult.branch ?? null;
+  if (all.length > 0) {
+    const list = make("ul", "files");
+    list.setAttribute("data-file-list", "");
+    for (const file of all) {
+      if (isExample) {
+        const row = make("li", "file");
+        row.appendChild(createFilePath(file));
+        list.appendChild(row);
+      } else {
+        const { row, addLink, undoButton, isLong } = createFileRow(file, owner, repo, branch);
+        list.appendChild(row);
+        addLink.addEventListener("click", (event: MouseEvent) => {
+          if (isLong) {
+            event.preventDefault();
+            const open = (): void => {
+              window.open(addLink.href, "_blank", "noopener,noreferrer");
+            };
+            const copy = navigator.clipboard ? navigator.clipboard.writeText(file.content) : Promise.reject();
+            copy.then(open, () => {
+              const details = row.querySelector<HTMLDetailsElement>(".file-read details");
+              if (details) details.open = true;
+              open();
+            });
+          }
+          setTimeout(() => {
+            row.classList.add("is-added");
+            openedFiles.add(file.path);
+          }, 250);
+        });
+        undoButton.addEventListener("click", () => {
+          row.classList.remove("is-added");
+          openedFiles.delete(file.path);
+        });
       }
-      nodes.push(list);
-    }
-    if (entry.command) {
-      nodes.push(createCommandBox(entry.command, { isBig: true, isPrimary: isFirst }));
-    }
-    if (entry.after) {
-      const after = make("p", "hand-after");
-      renderRichText(entry.after, after);
-      nodes.push(after);
-    }
-    if (entry.id === "issues") {
-      const link = make("a", "btn btn-line ctl", "Open repo settings ");
-      link.href = `https://github.com/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/settings`;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.appendChild(createIcon("out"));
-      nodes.push(link);
-    }
-    return nodes;
-  };
-  if (isOne) {
-    for (const node of buildBody(items[0], false, true)) nodes.push(node);
-  } else {
-    const list = make("ul", "items");
-    for (let i = 0; i < items.length; i++) {
-      const item = make("li", "item");
-      for (const node of buildBody(items[i], true, i === 0)) item.appendChild(node);
-      list.appendChild(item);
     }
     nodes.push(list);
   }
-  if (short) {
-    nodes.push(make("p", "small muted hand-after", `See all ${plan.total} checks below for the rest.`));
+  if (!isExample) {
+    const orderedAll = orderFiles(lastFixes?.files ?? []);
+    const allFiles: FixFile[] = [];
+    if (orderedAll.first) allFiles.push(orderedAll.first);
+    for (const item of orderedAll.rest) allFiles.push(item);
+    if (allFiles.length > 0) {
+      nodes.push(createTerminalFold(allFiles));
+    }
   }
+  return nodes;
+}
+
+export function renderOptionalBody(lastResult: CheckResult): Node[] {
+  const nodes: Node[] = [];
+  nodes.push(make("p", undefined, "yokoten is a separate tool. Install it if you want these checks running on your project. Your project isn't missing anything without them."));
+  const steps = (lastResult.summary?.steps ?? []).filter((s) => OPTIONAL_CHECK_IDS.includes(s.id));
+  const list = make("ul", "hand-files");
+  for (const step of steps) {
+    const li = make("li");
+    renderRichText(step.title, li);
+    list.appendChild(li);
+  }
+  nodes.push(list);
+  nodes.push(createCommandBox(INSTALL_COMMAND));
+  const p = make("p", "small");
+  const link = make("a", "link ctl", "See what yokoten does");
+  link.href = "https://yokoten.app/";
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  p.appendChild(link);
+  nodes.push(p);
   return nodes;
 }
