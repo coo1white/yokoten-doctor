@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { parseAnswer, decideEvent, cleanText, buildReviewBody, splitSavedData, stopAutoMerge, isApprovedByPerson, holdForPerson, MAX_TEXT_CHARS, MAX_FINDINGS } from "../../.github/review/review.mjs";
+import { parseAnswer, decideEvent, cleanText, buildReviewBody, splitSavedData, isApprovedByPerson, holdForDecision, isClearedByLead, clearLine, LEAD_LOGIN, MAX_TEXT_CHARS, MAX_FINDINGS } from "../../.github/review/review.mjs";
 
 describe("parseAnswer", () => {
   it("parses a good object", () => {
@@ -222,58 +222,6 @@ describe("buildReviewBody with skipped", () => {
   });
 });
 
-describe("stopAutoMerge", () => {
-  const withFetch = async (replies, run) => {
-    const original = globalThis.fetch;
-    const calls = [];
-    globalThis.fetch = async (url, options) => {
-      calls.push({ url, body: options.body ? JSON.parse(options.body) : null });
-      return replies[calls.length - 1];
-    };
-    try {
-      await run(calls);
-    } finally {
-      globalThis.fetch = original;
-    }
-  };
-  const prReply = (pr) => ({ ok: true, json: async () => pr });
-
-  it("calls nothing more when auto-merge is off now", async () => {
-    await withFetch([prReply({ auto_merge: null, node_id: "id" })], async (calls) => {
-      await stopAutoMerge("token", "o/r", "1");
-      assert.equal(calls.length, 1);
-    });
-  });
-  it("reads the state fresh, then turns auto-merge off", async () => {
-    const replies = [prReply({ auto_merge: { merge_method: "squash" }, node_id: "id" }), { ok: true, json: async () => ({ data: {} }) }];
-    await withFetch(replies, async (calls) => {
-      await stopAutoMerge("token", "o/r", "1");
-      assert.equal(calls.length, 2);
-      assert.equal(calls[0].url, "https://api.github.com/repos/o/r/pulls/1");
-      assert.equal(calls[1].body.variables.id, "id");
-    });
-  });
-  it("throws when it can't read or GitHub refuses, so the check fails", async () => {
-    await withFetch([{ ok: false }], async () => {
-      await assert.rejects(stopAutoMerge("token", "o/r", "1"));
-    });
-    await withFetch([prReply({ auto_merge: {}, node_id: "id" }), { ok: true, json: async () => ({ errors: [{}] }) }], async () => {
-      await assert.rejects(stopAutoMerge("token", "o/r", "1"));
-    });
-    await withFetch([prReply({ auto_merge: {}, node_id: "id" }), { ok: false }], async () => {
-      await assert.rejects(stopAutoMerge("token", "o/r", "1"));
-    });
-  });
-  it("names the status when it fails, so the log shows the cause", async () => {
-    await withFetch([{ ok: false, status: 403 }], async () => {
-      await assert.rejects(stopAutoMerge("token", "o/r", "1"), /403/);
-    });
-    await withFetch([prReply({ auto_merge: {}, node_id: "id" }), { ok: true, status: 200, json: async () => ({ errors: [{ type: "FORBIDDEN" }] }) }], async () => {
-      await assert.rejects(stopAutoMerge("token", "o/r", "1"), /FORBIDDEN/);
-    });
-  });
-});
-
 describe("isApprovedByPerson", () => {
   const withReviews = async (reply, run) => {
     const original = globalThis.fetch;
@@ -315,12 +263,13 @@ describe("isApprovedByPerson", () => {
       });
     }
   });
-  it("is true for a member or a collaborator", async () => {
-    for (const author_association of ["MEMBER", "COLLABORATOR"]) {
-      await withReviews(reviews([approval({ author_association })]), async () => {
-        assert.equal(await isApprovedByPerson("token", "o/r", "1", "abc"), true);
-      });
-    }
+  it("is true for a collaborator, and false for an org member", async () => {
+    await withReviews(reviews([approval({ author_association: "COLLABORATOR" })]), async () => {
+      assert.equal(await isApprovedByPerson("token", "o/r", "1", "abc"), true);
+    });
+    await withReviews(reviews([approval({ author_association: "MEMBER" })]), async () => {
+      assert.equal(await isApprovedByPerson("token", "o/r", "1", "abc"), false);
+    });
   });
   it("is false for a bot's approval, or a person's comment", async () => {
     await withReviews(reviews([approval({ user: { type: "Bot" } }), approval({ state: "COMMENTED" })]), async () => {
@@ -334,51 +283,77 @@ describe("isApprovedByPerson", () => {
   });
 });
 
-describe("holdForPerson", () => {
+describe("holdForDecision", () => {
   const withReplies = async (replies, run) => {
     const originalFetch = globalThis.fetch;
     const originalExitCode = process.exitCode;
+    const originalLog = console.log;
     const calls = [];
     globalThis.fetch = async (url) => {
       calls.push(url);
       return replies[calls.length - 1];
     };
+    console.log = () => {};
     process.exitCode = undefined;
     try {
       await run(calls);
     } finally {
       globalThis.fetch = originalFetch;
+      console.log = originalLog;
       process.exitCode = originalExitCode;
     }
   };
   const reply = (value) => ({ ok: true, json: async () => value });
   const ownerApproval = { state: "APPROVED", commit_id: "abc", user: { type: "User" }, author_association: "OWNER" };
+  const lead = { login: LEAD_LOGIN, type: "Bot" };
+  const comment = (user, body) => ({ user, body });
 
-  it("fails the check when nobody approved, even with auto-merge off", async () => {
-    await withReplies([reply([]), reply({ auto_merge: null, node_id: "id" })], async (calls) => {
-      await holdForPerson("token", "o/r", "1", "abc");
+  it("fails the check when nobody approved and the lead didn't clear it", async () => {
+    await withReplies([reply([]), reply([])], async (calls) => {
+      await holdForDecision("token", "o/r", "1", "abc");
       assert.equal(process.exitCode, 1);
-      assert.equal(calls.length, 2);
+      assert.equal(calls[1], "https://api.github.com/repos/o/r/issues/1/comments?per_page=100");
     });
   });
-  it("turns auto-merge off when it is on", async () => {
-    await withReplies([reply([]), reply({ auto_merge: {}, node_id: "id" }), reply({ data: {} })], async (calls) => {
-      await holdForPerson("token", "o/r", "1", "abc");
-      assert.equal(process.exitCode, 1);
-      assert.equal(calls[2], "https://api.github.com/graphql");
-    });
-  });
-  it("passes and leaves auto-merge alone once a person approved this commit", async () => {
+  it("passes once a person approved this commit, without reading comments", async () => {
     await withReplies([reply([ownerApproval])], async (calls) => {
-      await holdForPerson("token", "o/r", "1", "abc");
+      await holdForDecision("token", "o/r", "1", "abc");
       assert.equal(process.exitCode, undefined);
       assert.equal(calls.length, 1);
     });
   });
-  it("fails the check when it can't turn auto-merge off", async () => {
-    await withReplies([reply([]), { ok: false, status: 403 }], async () => {
-      await assert.rejects(holdForPerson("token", "o/r", "1", "abc"), /403/);
+  it("passes when the lead cleared this commit with a reason", async () => {
+    await withReplies([reply([]), reply([comment(lead, `${clearLine("abc")} the data files are saved output`)])], async () => {
+      await holdForDecision("token", "o/r", "1", "abc");
+      assert.equal(process.exitCode, undefined);
+    });
+  });
+  it("stays held when the lead gives no reason", async () => {
+    await withReplies([reply([]), reply([comment(lead, `${clearLine("abc")}  `)])], async () => {
+      await holdForDecision("token", "o/r", "1", "abc");
       assert.equal(process.exitCode, 1);
     });
+  });
+  it("stays held when someone else posts the line, or it names an older commit", async () => {
+    const replies = [reply([]), reply([
+      comment({ login: "stranger", type: "User" }, `${clearLine("abc")} trust me`),
+      comment({ login: LEAD_LOGIN, type: "User" }, `${clearLine("abc")} trust me`),
+      comment(lead, `${clearLine("old")} an older commit`)
+    ])];
+    await withReplies(replies, async () => {
+      await holdForDecision("token", "o/r", "1", "abc");
+      assert.equal(process.exitCode, 1);
+    });
+  });
+  it("throws when it can't read the comments, so the check fails", async () => {
+    await withReplies([reply([]), { ok: false, status: 403 }], async () => {
+      await assert.rejects(holdForDecision("token", "o/r", "1", "abc"), /403/);
+    });
+  });
+});
+
+describe("clearLine", () => {
+  it("names the exact commit", () => {
+    assert.equal(clearLine("abc"), "Review hold cleared for abc:");
   });
 });

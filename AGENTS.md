@@ -113,8 +113,9 @@ and a small Python service in `server/` that runs on Modal. The design is in
   The reviewer is never a model that writes code here, so it is never Muse or Claude.
 - The lead (Claude Opus 5.5) reads every pull request. It turns on auto-merge in the step right after opening one, and never after a review has ended unless it has read that review.
 - Auto-merge merges when `test`, `pr` and `review` pass. The lead reads each review, and fixes what it finds in a new pull request.
-- The `review` check fails when the reviewer can't read the model's answer, and that also turns auto-merge off.
-- A high finding, or a diff too large to review, fails the `review` check too. It stays failed until the owner or a collaborator approves that commit and the check runs again. Incident: PR 103 merged with no review, because the check only tried to turn auto-merge off.
+- The `review` check fails when the reviewer can't read the model's answer. A failed check holds the merge.
+- A high finding, or a diff too large to review, fails the `review` check too. Incident: PR 103 merged with no review, because the check only tried to turn auto-merge off. The reviewer's token can't do that.
+- The lead clears a held tier B pull request after it reads the finding. As the bot, it comments `Review hold cleared for <sha>: <reason>`, then reruns the `review` job. A tier A hold also clears when the owner approves that commit. Incident: the first held tier B pull request asked the owner to clear it (yokoten issue 1295).
 - The owner approves only a pull request that changes a CODEOWNERS path.
 - The bot squash merges in UTC. A merge to main deploys what it changed: the page, the server, or both.
 
