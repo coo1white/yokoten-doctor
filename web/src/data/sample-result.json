@@ -87,7 +87,7 @@
     {
       "repo": "cline/cline",
       "group": "web2",
-      "commit": "a6507a6",
+      "commit": "5b45416",
       "done": 7,
       "total": 13,
       "after": 7,
@@ -96,7 +96,7 @@
     {
       "repo": "Fission-AI/OpenSpec",
       "group": "web2",
-      "commit": "27c0515",
+      "commit": "2bd5bc3",
       "done": 8,
       "total": 13,
       "after": 8,
@@ -132,7 +132,7 @@
     {
       "repo": "NomicFoundation/hardhat",
       "group": "web3",
-      "commit": "3f9feb3",
+      "commit": "51a2cc4",
       "done": 6,
       "total": 13,
       "after": 8,

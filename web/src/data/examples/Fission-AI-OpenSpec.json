@@ -2,11 +2,11 @@
   "result": {
     "owner": "Fission-AI",
     "repo": "OpenSpec",
-    "commit": "27c0515724decc633818c735ee596481eec78a8b",
+    "commit": "2bd5bc3be964404657439f538857fcdf550f7398",
     "yokoten_version": "0.2.0",
     "about": "yokoten stops your AI coding agent from making the mistake you can't undo. One command, no setup.",
     "rerun": {
-      "doctor": "git clone --filter=blob:none https://github.com/Fission-AI/OpenSpec\ncd OpenSpec\ngit checkout 27c0515724decc633818c735ee596481eec78a8b\nnpx yokoten@0.2.0 doctor --files --json",
+      "doctor": "git clone --filter=blob:none https://github.com/Fission-AI/OpenSpec\ncd OpenSpec\ngit checkout 2bd5bc3be964404657439f538857fcdf550f7398\nnpx yokoten@0.2.0 doctor --files --json",
       "check": "HOME=\"$(mktemp -d)\" npx yokoten@0.2.0 check --json"
     },
     "summary": {
@@ -174,138 +174,138 @@
     },
     "secrets": [
       {
-        "what": "an IP address",
-        "why": "an IP address can lead to your server or your home network",
-        "fix": "use a placeholder from 192.0.2.0/24",
         "line": 9,
-        "id": "ip",
         "file": "openspec/changes/archive/2025-08-13-add-archive-command/tasks.md",
+        "why": "an IP address can lead to your server or your home network",
+        "fix": "use a placeholder from 192.0.2.0/24",
+        "what": "an IP address",
+        "id": "ip",
         "grade": "sure"
       },
       {
-        "what": "an IP address",
-        "why": "an IP address can lead to your server or your home network",
-        "fix": "use a placeholder from 192.0.2.0/24",
         "line": 10,
-        "id": "ip",
         "file": "openspec/changes/archive/2025-08-13-add-archive-command/tasks.md",
+        "why": "an IP address can lead to your server or your home network",
+        "fix": "use a placeholder from 192.0.2.0/24",
+        "what": "an IP address",
+        "id": "ip",
         "grade": "sure"
       },
       {
-        "what": "an IP address",
-        "why": "an IP address can lead to your server or your home network",
-        "fix": "use a placeholder from 192.0.2.0/24",
         "line": 11,
-        "id": "ip",
         "file": "openspec/changes/archive/2025-08-13-add-archive-command/tasks.md",
+        "why": "an IP address can lead to your server or your home network",
+        "fix": "use a placeholder from 192.0.2.0/24",
+        "what": "an IP address",
+        "id": "ip",
         "grade": "sure"
       },
       {
-        "what": "an IP address",
-        "why": "an IP address can lead to your server or your home network",
-        "fix": "use a placeholder from 192.0.2.0/24",
         "line": 12,
-        "id": "ip",
         "file": "openspec/changes/archive/2025-08-13-add-archive-command/tasks.md",
+        "why": "an IP address can lead to your server or your home network",
+        "fix": "use a placeholder from 192.0.2.0/24",
+        "what": "an IP address",
+        "id": "ip",
         "grade": "sure"
       },
       {
-        "what": "an IP address",
-        "why": "an IP address can lead to your server or your home network",
-        "fix": "use a placeholder from 192.0.2.0/24",
         "line": 13,
-        "id": "ip",
         "file": "openspec/changes/archive/2025-08-13-add-archive-command/tasks.md",
+        "why": "an IP address can lead to your server or your home network",
+        "fix": "use a placeholder from 192.0.2.0/24",
+        "what": "an IP address",
+        "id": "ip",
         "grade": "sure"
       },
       {
-        "what": "an email address",
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "line": 187,
-        "id": "email",
         "file": "test/binary-installer.test.ts",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
+        "what": "an email address",
+        "id": "email",
         "grade": "sure"
       },
       {
-        "what": "an email address",
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "line": 124,
-        "id": "email",
         "file": "test/commands/install-standalone.test.ts",
-        "grade": "sure"
-      },
-      {
-        "what": "an email address",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 11,
+        "what": "an email address",
         "id": "email",
+        "grade": "sure"
+      },
+      {
+        "line": 11,
         "file": "test/core/store/git-repo-name.test.ts",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
+        "what": "an email address",
+        "id": "email",
         "grade": "sure"
       },
       {
-        "what": "an IP address",
-        "why": "an IP address can lead to your server or your home network",
-        "fix": "use a placeholder from 192.0.2.0/24",
         "line": 229,
-        "id": "ip",
         "file": "test/core/version-check.test.ts",
+        "why": "an IP address can lead to your server or your home network",
+        "fix": "use a placeholder from 192.0.2.0/24",
+        "what": "an IP address",
+        "id": "ip",
         "grade": "sure"
       },
       {
-        "what": "an IP address",
-        "why": "an IP address can lead to your server or your home network",
-        "fix": "use a placeholder from 192.0.2.0/24",
         "line": 446,
-        "id": "ip",
         "file": "test/core/version-check.test.ts",
+        "why": "an IP address can lead to your server or your home network",
+        "fix": "use a placeholder from 192.0.2.0/24",
+        "what": "an IP address",
+        "id": "ip",
         "grade": "sure"
       },
       {
-        "what": "an IP address",
-        "why": "an IP address can lead to your server or your home network",
-        "fix": "use a placeholder from 192.0.2.0/24",
         "line": 462,
-        "id": "ip",
         "file": "test/core/version-check.test.ts",
+        "why": "an IP address can lead to your server or your home network",
+        "fix": "use a placeholder from 192.0.2.0/24",
+        "what": "an IP address",
+        "id": "ip",
         "grade": "sure"
       },
       {
-        "what": "an IP address",
-        "why": "an IP address can lead to your server or your home network",
-        "fix": "use a placeholder from 192.0.2.0/24",
         "line": 50,
-        "id": "ip",
         "file": "test/utils/task-progress.list-markers.test.ts",
+        "why": "an IP address can lead to your server or your home network",
+        "fix": "use a placeholder from 192.0.2.0/24",
+        "what": "an IP address",
+        "id": "ip",
         "grade": "sure"
       },
       {
-        "what": "an IP address",
-        "why": "an IP address can lead to your server or your home network",
-        "fix": "use a placeholder from 192.0.2.0/24",
         "line": 202,
-        "id": "ip",
         "file": "test/utils/task-progress.test.ts",
+        "why": "an IP address can lead to your server or your home network",
+        "fix": "use a placeholder from 192.0.2.0/24",
+        "what": "an IP address",
+        "id": "ip",
         "grade": "sure"
       },
       {
-        "what": "an IP address",
-        "why": "an IP address can lead to your server or your home network",
-        "fix": "use a placeholder from 192.0.2.0/24",
         "line": 228,
-        "id": "ip",
         "file": "test/utils/task-progress.test.ts",
+        "why": "an IP address can lead to your server or your home network",
+        "fix": "use a placeholder from 192.0.2.0/24",
+        "what": "an IP address",
+        "id": "ip",
         "grade": "sure"
       },
       {
-        "what": "an IP address",
+        "line": 234,
+        "file": "test/utils/task-progress.test.ts",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 234,
+        "what": "an IP address",
         "id": "ip",
-        "file": "test/utils/task-progress.test.ts",
         "grade": "sure"
       }
     ],
@@ -333,18 +333,18 @@
     }
   },
   "record": {
-    "sha256": "25a37675b063013bc590eaf97c65f24675c9128bd9a069b048b057f53bde4a89",
-    "recorded_at": "2026-11-01T12:09:32Z",
-    "document": "{\n  \"recorded_at\": \"2026-11-01T12:09:32Z\",\n  \"result\": {\n    \"about\": \"yokoten stops your AI coding agent from making the mistake you can't undo. One command, no setup.\",\n    \"commit\": \"27c0515724decc633818c735ee596481eec78a8b\",\n    \"default_branch\": \"main\",\n    \"owner\": \"Fission-AI\",\n    \"repo\": \"OpenSpec\",\n    \"rerun\": {\n      \"check\": \"HOME=\\\"$(mktemp -d)\\\" npx yokoten@0.2.0 check --json\",\n      \"doctor\": \"git clone --filter=blob:none https://github.com/Fission-AI/OpenSpec\\ncd OpenSpec\\ngit checkout 27c0515724decc633818c735ee596481eec78a8b\\nnpx yokoten@0.2.0 doctor --files --json\"\n    },\n    \"secrets\": [\n      {\n        \"file\": \"openspec/changes/archive/2025-08-13-add-archive-command/tasks.md\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 9,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"openspec/changes/archive/2025-08-13-add-archive-command/tasks.md\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 10,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"openspec/changes/archive/2025-08-13-add-archive-command/tasks.md\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 11,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"openspec/changes/archive/2025-08-13-add-archive-command/tasks.md\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 12,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"openspec/changes/archive/2025-08-13-add-archive-command/tasks.md\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 13,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"test/binary-installer.test.ts\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 187,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"test/commands/install-standalone.test.ts\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 124,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"test/core/store/git-repo-name.test.ts\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 11,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"test/core/version-check.test.ts\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 229,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"test/core/version-check.test.ts\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 446,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"test/core/version-check.test.ts\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 462,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"test/utils/task-progress.list-markers.test.ts\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 50,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"test/utils/task-progress.test.ts\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 202,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"test/utils/task-progress.test.ts\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 228,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"test/utils/task-progress.test.ts\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 234,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      }\n    ],\n    \"summary\": {\n      \"done\": 8,\n      \"install_only\": [\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json has a PreToolUse hook that runs `yokoten hook`. With a .muse/hooks.json, Muse Code must also trust the folder: doctor reads its trust.json, read-only\",\n          \"id\": \"tool-hook\",\n          \"mark\": \"next\",\n          \"title\": \"Turn on the guard for your agents' commands\",\n          \"what\": \"no tool-call guard in .claude/settings.json\",\n          \"why\": \"the guard stops a risky command, like a force push, before the agent runs it\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".yokoten/VERSION is the version of the yokoten that runs doctor; yokoten's own repo needs no copy\",\n          \"id\": \"runtime\",\n          \"mark\": \"to do\",\n          \"title\": \"Add the yokoten runtime to the project\",\n          \"what\": \"no .yokoten/ runtime\",\n          \"why\": \"the hooks and CI run this copy, so they work with no network and no global install\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds .github/workflows/yokoten.yml\",\n          \"how\": \"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check` (by its path, or with npx, bunx or pnpm dlx), or has a step that uses yokoten-labs/yokoten\",\n          \"id\": \"ci\",\n          \"mark\": \"to do\",\n          \"title\": \"Run the checks on every pull request\",\n          \"what\": \"CI does not run `yokoten check`\",\n          \"why\": \"a commit made with the hook off would reach main unchecked\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds .github/workflows/pr.yml\",\n          \"how\": \"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check --pr`, or runs on pull requests with a step that uses yokoten-labs/yokoten and does not set `pr-check: false`\",\n          \"id\": \"titles\",\n          \"mark\": \"to do\",\n          \"title\": \"Check pull request titles\",\n          \"what\": \"CI does not check pull requests (`yokoten check --pr`)\",\n          \"why\": \"a pull request title becomes the commit on main, so it must say what changed and why\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json turns the sandbox on with no * host; .codex/config.toml pins workspace-write, on-request and no network; .gemini/settings.json blocks YOLO mode; .grok/sandbox.toml holds a workspace profile; writable paths stay in the project\",\n          \"id\": \"sandbox\",\n          \"mark\": \"to do\",\n          \"title\": \"Keep your agents in a sandbox\",\n          \"what\": \"no sandbox in .claude/settings.json\",\n          \"why\": \"a worker writes only where the sandbox allows, so it must cover the worktree\"\n        }\n      ],\n      \"next\": {\n        \"fix\": \"`yokoten init` adds it\",\n        \"how\": \".claude/settings.json has a PreToolUse hook that runs `yokoten hook`. With a .muse/hooks.json, Muse Code must also trust the folder: doctor reads its trust.json, read-only\",\n        \"id\": \"tool-hook\",\n        \"mark\": \"next\",\n        \"title\": \"Turn on the guard for your agents' commands\",\n        \"what\": \"no tool-call guard in .claude/settings.json\",\n        \"why\": \"the guard stops a risky command, like a force push, before the agent runs it\"\n      },\n      \"steps\": [\n        {\n          \"how\": \"AGENTS.md is at the repo root, and a CLAUDE.md (at the root or in .claude/), when there is one, imports it (`@AGENTS.md`, or `@../AGENTS.md` from .claude/; a Markdown link is not an import): with a CLAUDE.md, Claude Code reads AGENTS.md only through it\",\n          \"id\": \"rules\",\n          \"mark\": \"done\",\n          \"title\": \"Write the rules for your agents (AGENTS.md)\",\n          \"why\": \"an agent follows the rules it can read, and only those\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json has a PreToolUse hook that runs `yokoten hook`. With a .muse/hooks.json, Muse Code must also trust the folder: doctor reads its trust.json, read-only\",\n          \"id\": \"tool-hook\",\n          \"mark\": \"next\",\n          \"title\": \"Turn on the guard for your agents' commands\",\n          \"what\": \"no tool-call guard in .claude/settings.json\",\n          \"why\": \"the guard stops a risky command, like a force push, before the agent runs it\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".yokoten/VERSION is the version of the yokoten that runs doctor; yokoten's own repo needs no copy\",\n          \"id\": \"runtime\",\n          \"mark\": \"to do\",\n          \"title\": \"Add the yokoten runtime to the project\",\n          \"what\": \"no .yokoten/ runtime\",\n          \"why\": \"the hooks and CI run this copy, so they work with no network and no global install\"\n        },\n        {\n          \"how\": \"package.json has a real \\\"test\\\" script and a `run:` step in a workflow runs it, or a `run:` step starts a test runner such as `node --test`, `go test`, `pytest`, `tox`, `make test` or `npx vitest`; in a workspaces repo, `npm test --workspaces` or `pnpm -r test` counts too\",\n          \"id\": \"tests\",\n          \"mark\": \"done\",\n          \"title\": \"Run your tests on every push\",\n          \"why\": \"tests that run on every push catch a broken change before it reaches main\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds .github/workflows/yokoten.yml\",\n          \"how\": \"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check` (by its path, or with npx, bunx or pnpm dlx), or has a step that uses yokoten-labs/yokoten\",\n          \"id\": \"ci\",\n          \"mark\": \"to do\",\n          \"title\": \"Run the checks on every pull request\",\n          \"what\": \"CI does not run `yokoten check`\",\n          \"why\": \"a commit made with the hook off would reach main unchecked\"\n        },\n        {\n          \"how\": \"there is no TODO.md, TODO, todo.md or docs/todo\",\n          \"id\": \"issues\",\n          \"mark\": \"done\",\n          \"title\": \"Turn on issues\",\n          \"why\": \"an issue has an owner, a state and a history; a todo file has none\"\n        },\n        {\n          \"how\": \".github/ISSUE_TEMPLATE holds a template, and .github holds a pull request template\",\n          \"id\": \"templates\",\n          \"mark\": \"done\",\n          \"title\": \"Add issue and pull request templates\",\n          \"why\": \"a template asks for what a reviewer needs, so nothing is forgotten\"\n        },\n        {\n          \"how\": \"no tracked file is in a dist/, build/ or out/ folder or is a built file by its name, apart from yokoten.json \\\"allowBuild\\\"\",\n          \"id\": \"no-build-output\",\n          \"mark\": \"done\",\n          \"title\": \"Keep build output out of git\",\n          \"why\": \"a build makes these files again from the source, and a reviewer can't read a binary\"\n        },\n        {\n          \"how\": \"CHANGELOG.md has an Unreleased heading, or the repo has a changes/ folder or a .changeset/ folder (Changesets)\",\n          \"id\": \"changelog\",\n          \"mark\": \"done\",\n          \"title\": \"Keep a changelog\",\n          \"why\": \"each pull request adds its entry as it goes, so a release needs no digging\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds .github/workflows/pr.yml\",\n          \"how\": \"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check --pr`, or runs on pull requests with a step that uses yokoten-labs/yokoten and does not set `pr-check: false`\",\n          \"id\": \"titles\",\n          \"mark\": \"to do\",\n          \"title\": \"Check pull request titles\",\n          \"what\": \"CI does not check pull requests (`yokoten check --pr`)\",\n          \"why\": \"a pull request title becomes the commit on main, so it must say what changed and why\"\n        },\n        {\n          \"how\": \"a CODEOWNERS file is in .github/, at the root or in docs/, and the first one GitHub reads names an owner, not init's placeholder @YOUR_GITHUB_HANDLE; full doctor also reads whether the repo belongs to an organization, and an organization alone (@org, not @org/team) is not an owner\",\n          \"id\": \"codeowners\",\n          \"mark\": \"done\",\n          \"title\": \"Name the owner (CODEOWNERS)\",\n          \"why\": \"the host then asks you to review a pull request that changes those paths, and `check --pr` makes it tier A\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json turns the sandbox on with no * host; .codex/config.toml pins workspace-write, on-request and no network; .gemini/settings.json blocks YOLO mode; .grok/sandbox.toml holds a workspace profile; writable paths stay in the project\",\n          \"id\": \"sandbox\",\n          \"mark\": \"to do\",\n          \"title\": \"Keep your agents in a sandbox\",\n          \"what\": \"no sandbox in .claude/settings.json\",\n          \"why\": \"a worker writes only where the sandbox allows, so it must cover the worktree\"\n        },\n        {\n          \"how\": \"a SECURITY.md, a Dependabot config and a license file are in the repo\",\n          \"id\": \"security-files\",\n          \"mark\": \"done\",\n          \"title\": \"Add a license and a security policy\",\n          \"why\": \"people can then report a hole in private, old dependencies get updates, and others know how they may use the code\"\n        }\n      ],\n      \"total\": 13\n    },\n    \"yokoten_version\": \"0.2.0\"\n  },\n  \"schema\": \"yokoten-doctor/1\"\n}\n",
+    "sha256": "76b49358a811452708ea1a2edd060b7bf47ba45562a69a976d4f9ea5eb183c53",
+    "recorded_at": "2026-11-02T23:23:57Z",
+    "document": "{\n  \"recorded_at\": \"2026-11-02T23:23:57Z\",\n  \"result\": {\n    \"about\": \"yokoten stops your AI coding agent from making the mistake you can't undo. One command, no setup.\",\n    \"commit\": \"2bd5bc3be964404657439f538857fcdf550f7398\",\n    \"default_branch\": \"main\",\n    \"owner\": \"Fission-AI\",\n    \"repo\": \"OpenSpec\",\n    \"rerun\": {\n      \"check\": \"HOME=\\\"$(mktemp -d)\\\" npx yokoten@0.2.0 check --json\",\n      \"doctor\": \"git clone --filter=blob:none https://github.com/Fission-AI/OpenSpec\\ncd OpenSpec\\ngit checkout 2bd5bc3be964404657439f538857fcdf550f7398\\nnpx yokoten@0.2.0 doctor --files --json\"\n    },\n    \"secrets\": [\n      {\n        \"file\": \"openspec/changes/archive/2025-08-13-add-archive-command/tasks.md\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 9,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"openspec/changes/archive/2025-08-13-add-archive-command/tasks.md\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 10,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"openspec/changes/archive/2025-08-13-add-archive-command/tasks.md\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 11,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"openspec/changes/archive/2025-08-13-add-archive-command/tasks.md\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 12,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"openspec/changes/archive/2025-08-13-add-archive-command/tasks.md\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 13,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"test/binary-installer.test.ts\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 187,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"test/commands/install-standalone.test.ts\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 124,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"test/core/store/git-repo-name.test.ts\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 11,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"test/core/version-check.test.ts\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 229,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"test/core/version-check.test.ts\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 446,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"test/core/version-check.test.ts\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 462,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"test/utils/task-progress.list-markers.test.ts\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 50,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"test/utils/task-progress.test.ts\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 202,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"test/utils/task-progress.test.ts\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 228,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"test/utils/task-progress.test.ts\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 234,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      }\n    ],\n    \"summary\": {\n      \"done\": 8,\n      \"install_only\": [\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json has a PreToolUse hook that runs `yokoten hook`. With a .muse/hooks.json, Muse Code must also trust the folder: doctor reads its trust.json, read-only\",\n          \"id\": \"tool-hook\",\n          \"mark\": \"next\",\n          \"title\": \"Turn on the guard for your agents' commands\",\n          \"what\": \"no tool-call guard in .claude/settings.json\",\n          \"why\": \"the guard stops a risky command, like a force push, before the agent runs it\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".yokoten/VERSION is the version of the yokoten that runs doctor; yokoten's own repo needs no copy\",\n          \"id\": \"runtime\",\n          \"mark\": \"to do\",\n          \"title\": \"Add the yokoten runtime to the project\",\n          \"what\": \"no .yokoten/ runtime\",\n          \"why\": \"the hooks and CI run this copy, so they work with no network and no global install\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds .github/workflows/yokoten.yml\",\n          \"how\": \"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check` (by its path, or with npx, bunx or pnpm dlx), or has a step that uses yokoten-labs/yokoten\",\n          \"id\": \"ci\",\n          \"mark\": \"to do\",\n          \"title\": \"Run the checks on every pull request\",\n          \"what\": \"CI does not run `yokoten check`\",\n          \"why\": \"a commit made with the hook off would reach main unchecked\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds .github/workflows/pr.yml\",\n          \"how\": \"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check --pr`, or runs on pull requests with a step that uses yokoten-labs/yokoten and does not set `pr-check: false`\",\n          \"id\": \"titles\",\n          \"mark\": \"to do\",\n          \"title\": \"Check pull request titles\",\n          \"what\": \"CI does not check pull requests (`yokoten check --pr`)\",\n          \"why\": \"a pull request title becomes the commit on main, so it must say what changed and why\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json turns the sandbox on with no * host; .codex/config.toml pins workspace-write, on-request and no network; .gemini/settings.json blocks YOLO mode; .grok/sandbox.toml holds a workspace profile; writable paths stay in the project\",\n          \"id\": \"sandbox\",\n          \"mark\": \"to do\",\n          \"title\": \"Keep your agents in a sandbox\",\n          \"what\": \"no sandbox in .claude/settings.json\",\n          \"why\": \"a worker writes only where the sandbox allows, so it must cover the worktree\"\n        }\n      ],\n      \"next\": {\n        \"fix\": \"`yokoten init` adds it\",\n        \"how\": \".claude/settings.json has a PreToolUse hook that runs `yokoten hook`. With a .muse/hooks.json, Muse Code must also trust the folder: doctor reads its trust.json, read-only\",\n        \"id\": \"tool-hook\",\n        \"mark\": \"next\",\n        \"title\": \"Turn on the guard for your agents' commands\",\n        \"what\": \"no tool-call guard in .claude/settings.json\",\n        \"why\": \"the guard stops a risky command, like a force push, before the agent runs it\"\n      },\n      \"steps\": [\n        {\n          \"how\": \"AGENTS.md is at the repo root, and a CLAUDE.md (at the root or in .claude/), when there is one, imports it (`@AGENTS.md`, or `@../AGENTS.md` from .claude/; a Markdown link is not an import): with a CLAUDE.md, Claude Code reads AGENTS.md only through it\",\n          \"id\": \"rules\",\n          \"mark\": \"done\",\n          \"title\": \"Write the rules for your agents (AGENTS.md)\",\n          \"why\": \"an agent follows the rules it can read, and only those\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json has a PreToolUse hook that runs `yokoten hook`. With a .muse/hooks.json, Muse Code must also trust the folder: doctor reads its trust.json, read-only\",\n          \"id\": \"tool-hook\",\n          \"mark\": \"next\",\n          \"title\": \"Turn on the guard for your agents' commands\",\n          \"what\": \"no tool-call guard in .claude/settings.json\",\n          \"why\": \"the guard stops a risky command, like a force push, before the agent runs it\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".yokoten/VERSION is the version of the yokoten that runs doctor; yokoten's own repo needs no copy\",\n          \"id\": \"runtime\",\n          \"mark\": \"to do\",\n          \"title\": \"Add the yokoten runtime to the project\",\n          \"what\": \"no .yokoten/ runtime\",\n          \"why\": \"the hooks and CI run this copy, so they work with no network and no global install\"\n        },\n        {\n          \"how\": \"package.json has a real \\\"test\\\" script and a `run:` step in a workflow runs it, or a `run:` step starts a test runner such as `node --test`, `go test`, `pytest`, `tox`, `make test` or `npx vitest`; in a workspaces repo, `npm test --workspaces` or `pnpm -r test` counts too\",\n          \"id\": \"tests\",\n          \"mark\": \"done\",\n          \"title\": \"Run your tests on every push\",\n          \"why\": \"tests that run on every push catch a broken change before it reaches main\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds .github/workflows/yokoten.yml\",\n          \"how\": \"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check` (by its path, or with npx, bunx or pnpm dlx), or has a step that uses yokoten-labs/yokoten\",\n          \"id\": \"ci\",\n          \"mark\": \"to do\",\n          \"title\": \"Run the checks on every pull request\",\n          \"what\": \"CI does not run `yokoten check`\",\n          \"why\": \"a commit made with the hook off would reach main unchecked\"\n        },\n        {\n          \"how\": \"there is no TODO.md, TODO, todo.md or docs/todo\",\n          \"id\": \"issues\",\n          \"mark\": \"done\",\n          \"title\": \"Turn on issues\",\n          \"why\": \"an issue has an owner, a state and a history; a todo file has none\"\n        },\n        {\n          \"how\": \".github/ISSUE_TEMPLATE holds a template, and .github holds a pull request template\",\n          \"id\": \"templates\",\n          \"mark\": \"done\",\n          \"title\": \"Add issue and pull request templates\",\n          \"why\": \"a template asks for what a reviewer needs, so nothing is forgotten\"\n        },\n        {\n          \"how\": \"no tracked file is in a dist/, build/ or out/ folder or is a built file by its name, apart from yokoten.json \\\"allowBuild\\\"\",\n          \"id\": \"no-build-output\",\n          \"mark\": \"done\",\n          \"title\": \"Keep build output out of git\",\n          \"why\": \"a build makes these files again from the source, and a reviewer can't read a binary\"\n        },\n        {\n          \"how\": \"CHANGELOG.md has an Unreleased heading, or the repo has a changes/ folder or a .changeset/ folder (Changesets)\",\n          \"id\": \"changelog\",\n          \"mark\": \"done\",\n          \"title\": \"Keep a changelog\",\n          \"why\": \"each pull request adds its entry as it goes, so a release needs no digging\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds .github/workflows/pr.yml\",\n          \"how\": \"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check --pr`, or runs on pull requests with a step that uses yokoten-labs/yokoten and does not set `pr-check: false`\",\n          \"id\": \"titles\",\n          \"mark\": \"to do\",\n          \"title\": \"Check pull request titles\",\n          \"what\": \"CI does not check pull requests (`yokoten check --pr`)\",\n          \"why\": \"a pull request title becomes the commit on main, so it must say what changed and why\"\n        },\n        {\n          \"how\": \"a CODEOWNERS file is in .github/, at the root or in docs/, and the first one GitHub reads names an owner, not init's placeholder @YOUR_GITHUB_HANDLE; full doctor also reads whether the repo belongs to an organization, and an organization alone (@org, not @org/team) is not an owner\",\n          \"id\": \"codeowners\",\n          \"mark\": \"done\",\n          \"title\": \"Name the owner (CODEOWNERS)\",\n          \"why\": \"the host then asks you to review a pull request that changes those paths, and `check --pr` makes it tier A\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json turns the sandbox on with no * host; .codex/config.toml pins workspace-write, on-request and no network; .gemini/settings.json blocks YOLO mode; .grok/sandbox.toml holds a workspace profile; writable paths stay in the project\",\n          \"id\": \"sandbox\",\n          \"mark\": \"to do\",\n          \"title\": \"Keep your agents in a sandbox\",\n          \"what\": \"no sandbox in .claude/settings.json\",\n          \"why\": \"a worker writes only where the sandbox allows, so it must cover the worktree\"\n        },\n        {\n          \"how\": \"a SECURITY.md, a Dependabot config and a license file are in the repo\",\n          \"id\": \"security-files\",\n          \"mark\": \"done\",\n          \"title\": \"Add a license and a security policy\",\n          \"why\": \"people can then report a hole in private, old dependencies get updates, and others know how they may use the code\"\n        }\n      ],\n      \"total\": 13\n    },\n    \"yokoten_version\": \"0.2.0\"\n  },\n  \"schema\": \"yokoten-doctor/1\"\n}\n",
     "rekor": {
-      "uuid": "108e9186e8c5677a17eca5750e80f9da6dbb8e7a35f89014aa1e94291e0e94f7f3bb56a5c37a88f3",
-      "log_index": 3629158670,
-      "integrated_time": 1793534972,
-      "url": "https://search.sigstore.dev/?logIndex=3629158670"
+      "uuid": "108e9186e8c5677ae55131189b5bec291e8dca703d6700a31f5b65b8e476b0f8df30362b2d43c699",
+      "log_index": 3652384991,
+      "integrated_time": 1793661838,
+      "url": "https://search.sigstore.dev/?logIndex=3652384991"
     },
     "solana": {
-      "signature": "2vj9hMNjvrdkoG1tLSVfiyNwHFWTwtXTnPUh45tHf4Gbh7WvXL4cw1uzpGxb16ypvmtvd5N5X5xSg4iSiffxetq7",
-      "url": "https://explorer.solana.com/tx/2vj9hMNjvrdkoG1tLSVfiyNwHFWTwtXTnPUh45tHf4Gbh7WvXL4cw1uzpGxb16ypvmtvd5N5X5xSg4iSiffxetq7?cluster=devnet"
+      "signature": "56o6NRVkwi1Q9ybMabyqBVTpNQr2XUVYBnbL2NRBViRgx4Vde9rPjzN8wEdtW7RbC5rCisEPg7CzFxcng5gB7Q2b",
+      "url": "https://explorer.solana.com/tx/56o6NRVkwi1Q9ybMabyqBVTpNQr2XUVYBnbL2NRBViRgx4Vde9rPjzN8wEdtW7RbC5rCisEPg7CzFxcng5gB7Q2b?cluster=devnet"
     }
   }
 }
