@@ -64,9 +64,9 @@ This counts how many rounds of fixes each task needed after the first code came 
 | Review hold for a decision | 2 | review, real run |
 | Text states only what the files show | 0 | none |
 | Large repos: a true wait and a map of places | 2 | test, review |
-| Rebuild review leftovers | 4 | test (3), review |
+| Rebuild review leftovers | 6 | test (4), review (2) |
 
-110 rounds over 61 tasks: a mean of 1.8. Found by review 53, tests 37, the commit check 2, real runs 18.
+112 rounds over 61 tasks: a mean of 1.8. Found by review 54, tests 38, the commit check 2, real runs 18.
 
 Four of the problems no test could have caught: a deploy that left out modules, a page buried by 26 repeated warnings, a wrong import, and a worker that weakened a security test while editing nearby lines.
 

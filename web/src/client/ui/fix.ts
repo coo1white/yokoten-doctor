@@ -359,7 +359,13 @@ export function renderOtherFilesBody(lastFixes: FixesPayload | null, lastResult:
             }, 250);
             return;
           }
-          if (row.classList.contains("is-blocked")) return;
+          if (row.classList.contains("is-blocked")) {
+            row.classList.remove("is-blocked");
+            row.querySelector(".blocked-note")?.remove();
+            row.classList.add("is-added");
+            openedFiles.add(file.path);
+            return;
+          }
           event.preventDefault();
           const openRow = (): void => {
             if (openTab(addLink.href)) {
