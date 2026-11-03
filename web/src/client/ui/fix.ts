@@ -174,14 +174,13 @@ function renderCopyStep(owner: string, repo: string, branch: string | null, agen
       event.preventDefault();
       const write = navigator.clipboard ? navigator.clipboard.writeText(content) : Promise.reject();
       write.then(() => {
-        copyStatus = "Copied. Now go to the GitHub tab.";
+        copyStatus = openTab(href) ? "Copied. Now go to the GitHub tab." : "Copied. Your browser blocked the new tab, so use Open GitHub above.";
         status.textContent = copyStatus;
-        window.open(href, "_blank", "noopener,noreferrer");
       }, () => {
         showWholeFile(true);
-        copyStatus = "We couldn't copy it. Copy the text from Read the whole file, then paste it on GitHub.";
+        const isOpen = openTab(href);
+        copyStatus = isOpen ? "We couldn't copy it. Copy the text from Read the whole file, then paste it on GitHub." : "We couldn't copy it, and your browser blocked the new tab. Copy the text from Read the whole file, then use Open GitHub above.";
         status.textContent = copyStatus;
-        window.open(href, "_blank", "noopener,noreferrer");
       });
     });
   }
@@ -353,22 +352,26 @@ export function renderOtherFilesBody(lastFixes: FixesPayload | null, lastResult:
         const { row, addLink, undoButton, isLong } = createFileRow(file, owner, repo, branch);
         list.appendChild(row);
         addLink.addEventListener("click", (event: MouseEvent) => {
-          if (isLong) {
-            event.preventDefault();
-            const open = (): void => {
-              window.open(addLink.href, "_blank", "noopener,noreferrer");
-            };
-            const copy = navigator.clipboard ? navigator.clipboard.writeText(file.content) : Promise.reject();
-            copy.then(open, () => {
-              const details = row.querySelector<HTMLDetailsElement>(".file-read details");
-              if (details) details.open = true;
-              open();
-            });
+          if (!isLong) {
+            setTimeout(() => {
+              row.classList.add("is-added");
+              openedFiles.add(file.path);
+            }, 250);
+            return;
           }
-          setTimeout(() => {
-            row.classList.add("is-added");
-            openedFiles.add(file.path);
-          }, 250);
+          event.preventDefault();
+          const openRow = (): void => {
+            if (openTab(addLink.href)) {
+              row.classList.add("is-added");
+              openedFiles.add(file.path);
+            }
+          };
+          const copy = navigator.clipboard ? navigator.clipboard.writeText(file.content) : Promise.reject();
+          copy.then(openRow, () => {
+            const details = row.querySelector<HTMLDetailsElement>(".file-read details");
+            if (details) details.open = true;
+            openRow();
+          });
         });
         undoButton.addEventListener("click", () => {
           row.classList.remove("is-added");
@@ -411,4 +414,11 @@ export function renderOptionalBody(lastResult: CheckResult): Node[] {
   p.appendChild(link);
   nodes.push(p);
   return nodes;
+}
+
+function openTab(href: string): boolean {
+  const tab = window.open(href, "_blank");
+  if (!tab) return false;
+  tab.opener = null;
+  return true;
 }

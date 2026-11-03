@@ -54,7 +54,6 @@
 
 /* fold. Rule: the title has a chevron in a fixed gutter. The content sits on a guide line
    under the chevron, and its text starts where the title's text starts. Nested folds repeat it. */
-.fold { --fold-gut: 28px; }
 .fold > summary { position: relative; isolation: isolate; display: flex; align-items: center; gap: var(--s2); min-height: var(--tap);
   padding-block: var(--s2); list-style: none; cursor: pointer; color: var(--muted); font-size: var(--t-sm); border-radius: var(--r-md); -webkit-tap-highlight-color: transparent; }
 .fold > summary::-webkit-details-marker { display: none; }

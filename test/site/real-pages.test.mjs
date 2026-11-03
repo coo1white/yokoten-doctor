@@ -276,7 +276,7 @@ describe('real pages', () => {
     const examplePages = pages.filter((p) => p.startsWith('/example/'));
     for (const pagePath of examplePages) {
       await navigate(pagePath, 1440);
-      await evaluate('document.querySelectorAll("#verify details").forEach(d=>d.open=true)');
+      await evaluate(`document.querySelectorAll("#verify details").forEach(d=>d.open=true)`);
       const count = await evaluate(`document.querySelectorAll('#verify a[href*="sigstore"], #verify a[href*="solana"]').length`);
       assert.equal(count, 1, `${pagePath} should have exactly 1 sigstore/solana link`);
       const href = await evaluate(`document.querySelector('#verify a[href*="sigstore"], #verify a[href*="solana"]').href`);
@@ -292,8 +292,8 @@ describe('real pages', () => {
     checkPages.push('/', '/agent-view.html');
     for (const pagePath of checkPages) {
       await navigate(pagePath, 1440);
-      await evaluate('document.querySelectorAll("details").forEach(d=>d.open=true)');
-      const arr = JSON.parse(await evaluate('JSON.stringify([...document.querySelectorAll(".cmd code, .hash code")].map(e=>e.textContent.trim()))') || '[]');
+      await evaluate(`document.querySelectorAll("details").forEach(d=>d.open=true)`);
+      const arr = JSON.parse(await evaluate(`JSON.stringify([...document.querySelectorAll(".cmd code, .hash code")].map(e=>e.textContent.trim()))`) || '[]');
       assert.ok(arr.length > 0, `${pagePath} should have at least one command`);
       const seen = new Set();
       for (const c of arr) {
@@ -321,7 +321,7 @@ describe('real pages', () => {
     const bigFile = { path: '.github/big.md', content: 'x'.repeat(7000), source: 'yokoten' };
     const extraScript = `window.__calls = [];
 Object.defineProperty(navigator, 'clipboard', { value: { writeText: async (text) => { window.__calls.push(['copy', text]); } } });
-window.open = (url) => { window.__calls.push(['open', url]); return null; };`;
+window.open = (url) => { window.__calls.push(['open', url]); return {}; };`;
     await openFakeCheck('?repo=expressjs/express', [['result', liveExample.result], ['fixes', { ...liveExample.fixes, files: [...liveExample.fixes.files, bigFile] }]], extraScript);
     const rows = JSON.parse(await evaluate(`JSON.stringify([...document.querySelectorAll('[data-file-list] .file')].map((row) => ({ isLong: row.querySelector('[data-add]').textContent.includes('Copy and open'), hasFold: row.querySelector('.file-read details') !== null })))`));
     assert.ok(rows.length > 1, 'the page lists files');
@@ -522,6 +522,7 @@ window.open = (url) => { window.__calls.push(['open', url]); return null; };`;
     assert.equal(await evaluate(`document.querySelector('section[aria-label="Save it to your project"]').hidden`), true);
     await evaluate(`[...document.querySelectorAll("button")].find(b=>b.textContent.trim()==="Add the template instead").click()`);
     await new Promise((r) => setTimeout(r, 100));
+    assert.equal(await evaluate(`document.querySelector('section[aria-label="Save it to your project"]').hidden`), false);
     assert.equal(await evaluate(`document.querySelector('section[aria-label="Save it to your project"] h2').textContent.trim()`), 'Add the template to your project.');
     await openFakeCheck(query, [['result', withRules('next', '')], ['fixes', { files, summary: '', muse: 'not needed', claude_import: null }]]);
     assert.equal(await evaluate(`document.querySelector(".f-main h1").textContent.trim()`), 'This project is too big for the AI to read here.');
@@ -536,11 +537,11 @@ window.open = (url) => { window.__calls.push(['open', url]); return null; };`;
     const query = '?repo=expressjs/express';
     const extraScript = `window.__calls = [];
 Object.defineProperty(navigator, 'clipboard', { value: { writeText: async (text) => { window.__calls.push(['copy', text]); } } });
-window.open = (url) => { window.__calls.push(['open', url]); return null; };`;
+window.open = (url) => { window.__calls.push(['open', url]); return {}; };`;
     await openFakeCheck(query, [['result', liveExample.result], ['fixes', liveExample.fixes]], extraScript);
-    await evaluate('document.querySelector(".f-step[open] .btn-primary").click()');
+    await evaluate(`document.querySelector(".f-step[open] .btn-primary").click()`);
     await new Promise((r) => setTimeout(r, 200));
-    const calls = JSON.parse(await evaluate('JSON.stringify(window.__calls)'));
+    const calls = JSON.parse(await evaluate(`JSON.stringify(window.__calls)`));
     assert.equal(calls.length, 2);
     assert.equal(calls[0][0], 'copy');
     const agContent = liveExample.fixes.files.find((f) => f.path === 'AGENTS.md').content;
@@ -560,15 +561,30 @@ window.open = (url) => { window.__calls.push(['open', url]); return null; };`;
     const query = '?repo=expressjs/express';
     const extraScript = `window.__calls = [];
 Object.defineProperty(navigator, 'clipboard', { value: { writeText: async () => { throw new Error('no'); } } });
-window.open = (url) => { window.__calls.push(['open', url]); return null; };`;
+window.open = (url) => { window.__calls.push(['open', url]); return {}; };`;
     await openFakeCheck(query, [['result', liveExample.result], ['fixes', liveExample.fixes]], extraScript);
-    await evaluate('document.querySelector(".f-step[open] .btn-primary").click()');
+    await evaluate(`document.querySelector(".f-step[open] .btn-primary").click()`);
     await new Promise((r) => setTimeout(r, 200));
     assert.equal(await evaluate(`document.querySelector(".save-file .file-text").hidden`), false);
     assert.ok((await evaluate(`document.querySelector('.f-step[open] [role="status"]').textContent`)).includes("We couldn't copy it."), 'status should hold the copy failure');
-    const calls = JSON.parse(await evaluate('JSON.stringify(window.__calls)'));
+    const calls = JSON.parse(await evaluate(`JSON.stringify(window.__calls)`));
     assert.equal(calls.length, 1);
     assert.equal(calls[0][0], 'open');
+  });
+
+  test('copy and open: a blocked tab is never called opened', { timeout: 180000 }, async (t) => {
+    if (skipReason) { t.skip(skipReason); return; }
+    const query = '?repo=expressjs/express';
+    const bigFile = { path: '.github/big.md', content: 'x'.repeat(7000), source: 'yokoten' };
+    const extraScript = `Object.defineProperty(navigator, 'clipboard', { value: { writeText: async () => {} } });
+window.open = () => null;`;
+    await openFakeCheck(query, [['result', liveExample.result], ['fixes', { ...liveExample.fixes, files: [...liveExample.fixes.files, bigFile] }]], extraScript);
+    await evaluate(`document.querySelector(".f-step[open] .btn-primary").click()`);
+    await new Promise((r) => setTimeout(r, 200));
+    assert.equal(await evaluate(`document.querySelector('.f-step[open] [role="status"]').textContent.trim()`), 'Copied. Your browser blocked the new tab, so use Open GitHub above.');
+    await evaluate(`[...document.querySelectorAll('[data-file-list] [data-add]')].find((link) => link.textContent.includes('Copy and open')).click()`);
+    await new Promise((r) => setTimeout(r, 400));
+    assert.equal(await evaluate(`document.querySelectorAll('[data-file-list] .file.is-added').length`), 0);
   });
 
   test('an example offers no way to add files to someone else\'s project', { timeout: 180000 }, async (t) => {
@@ -599,11 +615,21 @@ window.open = (url) => { window.__calls.push(['open', url]); return null; };`;
   test('the copy message survives the page drawing itself again', { timeout: 180000 }, async (t) => {
     if (skipReason) { t.skip(skipReason); return; }
     const extraScript = `Object.defineProperty(navigator, 'clipboard', { value: { writeText: async () => {} } });
-window.open = () => null;`;
+window.open = () => ({});`;
     await openFakeCheck('?repo=expressjs/express', [['result', liveExample.result], ['fixes', liveExample.fixes]], extraScript, [['record', liveExample.record]]);
     await evaluate(`document.querySelector('.f-step[open] .btn-primary').click()`);
     await new Promise((r) => setTimeout(r, 1000));
     assert.equal(await evaluate(`document.querySelector('.f-step[open] [role="status"]').textContent.trim()`), 'Copied. Now go to the GitHub tab.');
+  });
+
+  test('the files arrive after a wait, and the copy step opens first', { timeout: 180000 }, async (t) => {
+    if (skipReason) { t.skip(skipReason); return; }
+    await openFakeCheck('?repo=expressjs/express', [['result', liveExample.result]], '', [['fixes', liveExample.fixes]]);
+    assert.equal(await evaluate(`document.querySelector('.f-main h1').textContent.trim()`), 'An AI is reading this project.');
+    await new Promise((r) => setTimeout(r, 1500));
+    assert.equal(await evaluate(`document.querySelector('.f-main h1').textContent.trim()`), "Here's what an AI understood.");
+    const openIds = JSON.parse(await evaluate(`JSON.stringify([...document.querySelectorAll('details[name="steps"][open]')].map((e) => e.id))`));
+    assert.deepEqual(openIds, ['step-copy']);
   });
 
   test('Copy link leaves out the saved flag', { timeout: 180000 }, async (t) => {

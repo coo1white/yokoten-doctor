@@ -29,7 +29,6 @@
   --on-press: #ffffff;
   --pass: #0a6b3d;           /* passing: text and icons */
   --pass-fill: #0f8a50;      /* passing: bar segments */
-  --pass-wash: color-mix(in srgb, var(--pass) 11%, transparent);
   --todo: #7a4e00;           /* needs work: text and icons. Darker amber, since yellow fails AA on light */
   --todo-fill: #c08300;      /* needs work: bar segments, swatches */
   --bad: #b3261e;            /* the run stopped or failed. Never a check status */
@@ -59,7 +58,7 @@
   --mono: "JetBrains Mono Variable", "JetBrains Mono Fallback", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   /* space: a 4 px scale, four rhythm steps */
-  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px; --s8: 72px; --s9: 112px;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px; --s8: 72px;
   --gutter: 16px;
   --wide: 1160px;            /* every zone */
   --r-sm: 6px; --r-md: 10px; --r-lg: 16px;
