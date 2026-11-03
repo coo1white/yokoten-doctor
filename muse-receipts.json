@@ -14,6 +14,16 @@
     "model": "meta-models/muse-spark-open-1026",
     "reply": "chatcmpl-17438604b7cb4ff7909f287175b41b9d"
   },
+  "server/fixes/build.py": {
+    "sha256": "ad0268505195e6a8d317f270a28ddf106787141e28cbdc87be08a38e651fbd34",
+    "model": "meta-models/muse-spark-open-1026",
+    "reply": "chatcmpl-9374cb3665c04f2bb00b1a7c32d9515e"
+  },
+  "server/fixes/muse.py": {
+    "sha256": "c134c43ea9291112c4a18159697cad79edbd5e7b4c4c7c1eef6e72f2fba9e5ee",
+    "model": "meta-models/muse-spark-open-1026",
+    "reply": "chatcmpl-9374cb3665c04f2bb00b1a7c32d9515e"
+  },
   "test/record/test_document_format.py": {
     "sha256": "4137994575fc49e43f6e47a88c5358c444220b6c76914fea7e617cc9c1e9b974",
     "model": "meta-models/muse-spark-open-1026",
@@ -53,6 +63,11 @@
     "sha256": "0fc07000d623e25ce5d721950ca2d364a3cd5d17651363ff769020753e36709b",
     "model": "meta-models/muse-spark-open-1026",
     "reply": "chatcmpl-77efb42ae0764eafabd57c5e059def40"
+  },
+  "test/server/test_muse.py": {
+    "sha256": "0ea7f1f7980fb9355132158fa0108cee8fe97dbb4b187f70a10d5c6f9c5c7cb2",
+    "model": "meta-models/muse-spark-open-1026",
+    "reply": "chatcmpl-9374cb3665c04f2bb00b1a7c32d9515e"
   },
   "test/server/test_public_claims.py": {
     "sha256": "4307d0558cbb8372ee69f5e6ca14e956818b475832f6bb6b7f4b921d42803201",

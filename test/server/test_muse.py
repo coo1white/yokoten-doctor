@@ -1,7 +1,7 @@
 import json
 import logging
 import pytest
-from fixes.muse import parse_reply, BadReply, ask_muse
+from fixes.muse import parse_reply, BadReply, ask_muse, SYSTEM_PROMPT, PROMPT_ID
 from fixes.build import build_fixes, muse_cache_key
 
 # parse_reply
@@ -499,3 +499,27 @@ def test_build_fixes_bad_after_left_out():
     result3["after"] = "bad"
     out3 = build_fixes(result3, cache=None)
     assert "after" not in out3
+
+def test_parse_reply_drops_a_stray_line_before_the_first_heading():
+    text = json.dumps({"summary": "s", "this_project": "This project\n\n### Build\nmake"})
+    assert parse_reply(text)["this_project"] == "### Build\nmake"
+
+
+def test_parse_reply_keeps_text_with_no_heading():
+    text = json.dumps({"summary": "s", "this_project": "make"})
+    assert parse_reply(text)["this_project"] == "make"
+
+
+def test_prompt_asks_for_the_three_parts_the_page_shows():
+    for heading in ("### Build", "### Test", "### What not to touch"):
+        assert heading in SYSTEM_PROMPT
+
+
+def test_prompt_forbids_todo_lines_and_made_up_rules():
+    assert 'Never write "TODO"' in SYSTEM_PROMPT
+    assert "Never invent a command, a rule, a version or a folder" in SYSTEM_PROMPT
+    assert "starting with" not in SYSTEM_PROMPT
+
+
+def test_cache_key_changes_with_the_prompt():
+    assert muse_cache_key("o", "r", "c", "v") == f"o/r@c@v@{PROMPT_ID}"
