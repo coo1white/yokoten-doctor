@@ -39,7 +39,18 @@
     document.addEventListener("click", function (event) {
       var button = event.target.closest("[data-copy], [data-copy-url]");
       if (!button) return;
-      var text = button.hasAttribute("data-copy-url") ? location.href : button.getAttribute("data-copy");
+      var text;
+      if (button.hasAttribute("data-copy-url")) {
+        var url = new URL(location.href);
+        if (url.searchParams.has("saved")) {
+          url.searchParams.delete("saved");
+          text = url.href;
+        } else {
+          text = location.href;
+        }
+      } else {
+        text = button.getAttribute("data-copy");
+      }
       if (!text) return;
       var done = function (ok) {
         if (!button.dataset.label) button.dataset.label = button.textContent;

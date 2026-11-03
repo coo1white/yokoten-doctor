@@ -1,0 +1,33 @@
+{
+  "yokoten_version": "0.2.0",
+  "cases": {
+    "no rules files": {
+      "mark": "next",
+      "what": "no AGENTS.md, so the agents have no written rules here"
+    },
+    "CLAUDE.md only": {
+      "mark": "next",
+      "what": "CLAUDE.md has the rules, but only Claude Code reads them"
+    },
+    "AGENTS.md only": {
+      "mark": "done",
+      "what": ""
+    },
+    "AGENTS.md, CLAUDE.md with no import": {
+      "mark": "next",
+      "what": "CLAUDE.md does not import AGENTS.md, so Claude Code does not read the rules"
+    },
+    "AGENTS.md, .claude/CLAUDE.md with no import": {
+      "mark": "next",
+      "what": ".claude/CLAUDE.md does not import AGENTS.md, so Claude Code does not read the rules"
+    },
+    "AGENTS.md, CLAUDE.md with the import": {
+      "mark": "done",
+      "what": ""
+    },
+    "AGENTS.md, .claude/CLAUDE.md with the import": {
+      "mark": "done",
+      "what": ""
+    }
+  }
+}

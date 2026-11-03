@@ -108,7 +108,7 @@ describe('static host portability', () => {
     assert.equal(connectSrc, api, `connect-src (${connectSrc}) should equal API (${api})`);
   });
 
-  test('dist/index.html holds the page\'s strings: h1 is "Check your repo before you hand it to an AI agent.", and "Or open a real result", "It doesn\'t scan your code for vulnerabilities" and "devnet" in about.html', () => {
+  test('dist/index.html holds the page\'s strings: h1 is "See what an AI understands from your repo.", and "Or open a real result", "It doesn\'t scan your code for vulnerabilities" and "devnet" in about.html', () => {
     const html = fs.readFileSync(indexPath, 'utf8');
     const h1Re = /<h1[^>]*>([\s\S]*?)<\/h1>/i;
     const h1Match = html.match(h1Re);
@@ -124,7 +124,7 @@ describe('static host portability', () => {
       .replace(/\u2019/g, "'")
       .replace(/\s+/g, ' ')
       .trim();
-    assert.equal(decoded, "Check your repo before you hand it to an AI agent.");
+    assert.equal(decoded, "See what an AI understands from your repo.");
     assert.ok(html.includes('Or open a real result'), 'dist/index.html should contain "Or open a real result"');
     assert.ok(html.includes("It doesn't scan your code for vulnerabilities"), "dist/index.html should contain \"It doesn't scan your code for vulnerabilities\"");
     assert.ok(fs.readFileSync(path.join(distDir, 'about.html'), 'utf8').includes('devnet'), 'dist/about.html should contain "devnet"');
@@ -166,7 +166,7 @@ describe('static host portability', () => {
     }
   });
 
-  test('dist/index.html holds the h1 "Check your repo before you hand it to an AI agent.", the label, the Check button, the three examples, and the noscript sentence', () => {
+  test('dist/index.html holds the h1 "See what an AI understands from your repo.", the label, the Check button, the three examples, and the noscript sentence', () => {
     const html = fs.readFileSync(indexPath, 'utf8');
     const h1Re = /<h1[^>]*>([\s\S]*?)<\/h1>/i;
     const h1 = html.match(h1Re);
@@ -181,7 +181,7 @@ describe('static host portability', () => {
       .replace(/&#x2019;/gi, "'")
       .replace(/\s+/g, ' ')
       .trim();
-    assert.equal(decoded, "Check your repo before you hand it to an AI agent.");
+    assert.equal(decoded, "See what an AI understands from your repo.");
     assert.ok(html.includes('Or open a real result'), 'dist/index.html should contain "Or open a real result"');
     assert.ok(html.includes("It doesn't scan your code for vulnerabilities"), "dist/index.html should contain \"It doesn't scan your code for vulnerabilities\"");
     assert.ok(fs.readFileSync(path.join(distDir, 'about.html'), 'utf8').includes('devnet'), 'dist/about.html should contain "devnet"');

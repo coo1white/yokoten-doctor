@@ -12,8 +12,11 @@ import {
   orderFiles,
   PATCH_COMMANDS,
   MAX_GITHUB_LINK,
-  isFilesSectionHidden,
   rerunHref,
+  savedCheckHref,
+  repoFileHref,
+  claudeFileFromStep,
+  understoodSections,
 } from "../../web/src/client/fixes.ts";
 
 describe("isSafePath", () => {
@@ -344,27 +347,86 @@ describe("PATCH_COMMANDS", () => {
   });
 });
 
-describe("isFilesSectionHidden", () => {
-  test("true for {files: [], muse: \"ok\"} with install-only open", () => {
-    assert.equal(isFilesSectionHidden({ files: [], muse: "ok" }, true), true);
+describe("savedCheckHref", () => {
+  test('savedCheckHref("owner", "repo") equals "/?repo=owner/repo&saved=1"', () => {
+    assert.equal(savedCheckHref("owner", "repo"), "/?repo=owner/repo&saved=1");
   });
-  test("true for {files: [], muse: \"not needed\"} with install-only open", () => {
-    assert.equal(isFilesSectionHidden({ files: [], muse: "not needed" }, true), true);
+});
+
+describe("repoFileHref", () => {
+  test('repoFileHref("o", "r", "main", "blob", "AGENTS.md") equals "https://github.com/o/r/blob/main/AGENTS.md"', () => {
+    assert.equal(repoFileHref("o", "r", "main", "blob", "AGENTS.md"), "https://github.com/o/r/blob/main/AGENTS.md");
   });
-  test("false for muse: \"lost\" with install-only open", () => {
-    assert.equal(isFilesSectionHidden({ files: [], muse: "lost" }, true), false);
+  test("a null branch means main", () => {
+    assert.equal(repoFileHref("o", "r", null, "blob", "AGENTS.md"), "https://github.com/o/r/blob/main/AGENTS.md");
   });
-  test("false for muse: \"failed\" with install-only open", () => {
-    assert.equal(isFilesSectionHidden({ files: [], muse: "failed" }, true), false);
+  test('repoFileHref("o", "r", "a/b", "edit", ".claude/CLAUDE.md") equals "https://github.com/o/r/edit/a/b/.claude/CLAUDE.md"', () => {
+    assert.equal(repoFileHref("o", "r", "a/b", "edit", ".claude/CLAUDE.md"), "https://github.com/o/r/edit/a/b/.claude/CLAUDE.md");
   });
-  test("false for {files: [{path: \"AGENTS.md\"}], muse: \"ok\"} with install-only open", () => {
-    assert.equal(isFilesSectionHidden({ files: [{ path: "AGENTS.md" }], muse: "ok" }, true), false);
+});
+
+describe("claudeFileFromStep", () => {
+  test('text holding ".claude/CLAUDE.md" gives { file: ".claude/CLAUDE.md", line: "@../AGENTS.md" }', () => {
+    assert.deepEqual(claudeFileFromStep("please update .claude/CLAUDE.md"), { file: ".claude/CLAUDE.md", line: "@../AGENTS.md" });
   });
-  test("false for {files: [], muse: \"ok\"} with none open", () => {
-    assert.equal(isFilesSectionHidden({ files: [], muse: "ok" }, false), false);
+  test('text holding only "CLAUDE.md" gives { file: "CLAUDE.md", line: "@AGENTS.md" }', () => {
+    assert.deepEqual(claudeFileFromStep("please update CLAUDE.md"), { file: "CLAUDE.md", line: "@AGENTS.md" });
   });
-  test("false for null", () => {
-    assert.equal(isFilesSectionHidden(null, true), false);
+  test("undefined gives the same", () => {
+    assert.deepEqual(claudeFileFromStep(undefined), { file: "CLAUDE.md", line: "@AGENTS.md" });
+  });
+});
+
+describe("understoodSections", () => {
+  test("the headings ### Build, ### Test, ### What not to touch give three sections in the order How to build it, How to test it, What not to touch", () => {
+    const content = "## This project\n### Build\nbuild line\n### Test\ntest line\n### What not to touch\ntouch line\n";
+    assert.deepEqual(understoodSections(content), [
+      { title: "How to build it", lines: ["build line"] },
+      { title: "How to test it", lines: ["test line"] },
+      { title: "What not to touch", lines: ["touch line"] },
+    ]);
+  });
+  test("### Do not touch also gives What not to touch", () => {
+    const content = "## This project\n### Build\nb\n### Test\nt\n### Do not touch\nd\n";
+    const sections = understoodSections(content);
+    assert.equal(sections[2].title, "What not to touch");
+    assert.deepEqual(sections[2].lines, ["d"]);
+  });
+  test("a leading - is removed from a line", () => {
+    const content = "## This project\n### Build\n- build line\n### Test\nt\n### What not to touch\nx\n";
+    assert.deepEqual(understoodSections(content)[0].lines, ["build line"]);
+  });
+  test("blank lines are dropped", () => {
+    const content = "## This project\n### Build\n\nb1\n\nb2\n\n### Test\nt\n### What not to touch\nx\n";
+    assert.deepEqual(understoodSections(content)[0].lines, ["b1", "b2"]);
+  });
+  test("another heading is ignored", () => {
+    const content = "## This project\n### Build\nb\n### Test\nt\n### What not to touch\nx\n### Other\nignore\n";
+    const sections = understoodSections(content);
+    assert.equal(sections.length, 3);
+  });
+  test("a missing section returns null", () => {
+    const content = "## This project\n### Build\nb\n### Test\nt\n";
+    assert.equal(understoodSections(content), null);
+  });
+  test("a section with no lines returns null", () => {
+    const content = "## This project\n### Build\n### Test\nt\n### What not to touch\nx\n";
+    assert.equal(understoodSections(content), null);
+  });
+  test("content with no ## This project returns null", () => {
+    assert.equal(understoodSections("## Other\n### Build\nb\n"), null);
+  });
+  test("### Do not touch tests gives What not to touch and not How to test it when Build and Test are also there", () => {
+    const content = "## This project\n### Build\nb\n### Test\nt\n### Do not touch tests\nd\n";
+    const sections = understoodSections(content);
+    assert.equal(sections[2].title, "What not to touch");
+    assert.deepEqual(sections[2].lines, ["d"]);
+  });
+  test("when two headings match one section the first one's lines are kept", () => {
+    const content = "## This project\n### Build\nb\n### Test\na\n### More tests\nb\n### What not to touch\nx\n";
+    const sections = understoodSections(content);
+    assert.equal(sections[1].title, "How to test it");
+    assert.deepEqual(sections[1].lines, ["a"]);
   });
 });
 

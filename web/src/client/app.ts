@@ -1,8 +1,7 @@
 const API = "https://yokoten-doctor--yokoten-doctor-fastapi-app.us-east.modal.run";
 
-import { viewModel, repoFromInput, repoFromQuery, resultPlan, splitErrorCommand } from "./view.ts";
+import { viewModel, repoFromInput, repoFromQuery, splitErrorCommand, resultScreen } from "./view.ts";
 import { createCommandBox, captureDetailsState, restoreDetailsState } from "./ui/dom.ts";
-import { clearOpenedFiles } from "./ui/fix.ts";
 import { renderWorking } from "./ui/working.ts";
 import { renderResultPage, clearStepProgress } from "./ui/page.ts";
 import type { CheckResult, FixesPayload, RecordPayload } from "./types.ts";
@@ -17,6 +16,8 @@ const checkError = document.getElementById("check-error");
 const checkErrorText = document.getElementById("check-error-text");
 const checkNote = document.getElementById("check-note");
 const terminalCard = document.getElementById("terminal-card");
+const isExample = document.getElementById("saved-check") !== null;
+let isSavedCheck = new URLSearchParams(window.location.search).get("saved") === "1";
 
 let state: "empty" | "working" | "result" = "empty";
 let currentProgress: string[] = [];
@@ -60,7 +61,7 @@ function markFixesLost(): void {
 function maybeUpdateUrl(inputText: string): void {
   const repo = repoFromInput(inputText);
   if (repo) {
-    const next = "?repo=" + encodeURIComponent(repo);
+    const next = "?repo=" + encodeURIComponent(repo) + (isSavedCheck ? "&saved=1" : "");
     try {
       history.replaceState(null, "", next);
     } catch {}
@@ -172,8 +173,15 @@ function renderResult(): void {
   if (isEntering) window.scrollTo(0, 0);
   hasEntered = true;
   const vm = viewModel(lastResult);
-  const plan = resultPlan(lastResult, lastFixes, isWaitingForFixes);
-  appEl.appendChild(renderResultPage({ lastResult, vm, plan, lastFixes, lastRecord, isRecordShown: lastRecord !== null || isStreamOpen === false, isEntering }));
+  const screen = resultScreen(lastResult, lastFixes, isSavedCheck && !isExample);
+  const onBackToSteps = (): void => {
+    isSavedCheck = false;
+    if (repoInput) maybeUpdateUrl(repoInput.value);
+    else if (lastResult && lastResult.owner && lastResult.repo) maybeUpdateUrl(lastResult.owner + "/" + lastResult.repo);
+    render();
+    window.scrollTo(0, 0);
+  };
+  appEl.appendChild(renderResultPage({ lastResult, vm, screen, lastFixes, lastRecord, isRecordShown: lastRecord !== null || isStreamOpen === false, isEntering, isExample, isSavedCheck: isSavedCheck && !isExample, onBackToSteps }));
   lastShownState = "result";
   restoreDetailsState(appEl, openDetailsKeys);
   if (isEntering) openCheckFromHash();
@@ -193,7 +201,6 @@ function openCheckFromHash(): void {
 
 async function startCheck(): Promise<void> {
   hasEntered = false;
-  clearOpenedFiles();
   clearStepProgress();
   isStreamOpen = true;
   clearError();
@@ -275,6 +282,7 @@ async function startCheck(): Promise<void> {
 if (checkForm) {
   checkForm.addEventListener("submit", (e) => {
     e.preventDefault();
+    isSavedCheck = false;
     void startCheck();
   });
 }

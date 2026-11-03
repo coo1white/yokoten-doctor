@@ -22,7 +22,7 @@ const events = [
 <section class="band"><div class="wide api-hero">
   <div>
     <h1>Check a public GitHub repo from your agent.</h1>
-    <p class="doc-lede">13 file checks, the one thing to fix next, and the files that fix it. The repo's code never runs. No account and no key.</p>
+    <p class="doc-lede">Shows what an AI understands from a public repo: how to build it, how to test it, and what not to touch. The repo's code never runs. No account and no key.</p>
     <p class="small muted api-alt">As plain text: <a href="/llms.txt">llms.txt</a></p>
   </div>
   <div class="api-run">
@@ -42,12 +42,12 @@ const events = [
 <section class="band"><div class="wide api-two">
   <div><h2 class="zone-title">Read these first</h2></div>
   <dl class="api-fields">
-    <div><dt><code>result.summary.done</code> <code>result.summary.total</code></dt><dd>How many checks pass, and how many there are.</dd></div>
-    <div><dt><code>result.summary.next</code></dt><dd>The one thing to fix next. Each step has <code>id</code>, <code>title</code>, <code>mark</code> and <code>how</code>.</dd></div>
+    <div><dt><code>result.summary.done</code> <code>result.summary.total</code></dt><dd>How many of yokoten's 13 checks pass. Five pass only with yokoten installed. This counts files that exist, and it isn't a grade.</dd></div>
+    <div><dt><code>result.summary.next</code></dt><dd>The first open step. Each step has <code>id</code>, <code>title</code>, <code>mark</code> and <code>how</code>.</dd></div>
     <div><dt><code>result.summary.steps</code></dt><dd>Every step. <code>mark</code> is <code>done</code>, <code>next</code> or <code>to do</code>.</dd></div>
     <div><dt><code>result.secrets</code></dt><dd>Things that look private, such as an email address, a token or a private key. Some may be public on purpose.</dd></div>
-    <div><dt><code>fixes.files</code></dt><dd>Each file has <code>path</code>, <code>content</code> and <code>source</code>.</dd></div>
-    <div><dt><code>fixes.after</code></dt><dd>The <code>done</code> and <code>total</code> counts once the files are in.</dd></div>
+    <div><dt><code>fixes.files</code></dt><dd>Each file has <code>path</code>, <code>content</code> and <code>source</code>. In <code>AGENTS.md</code>, the AI's text is under <code>## This project</code>.</dd></div>
+    <div><dt><code>fixes.after</code></dt><dd>The same two counts once the files are in. It isn't a grade.</dd></div>
     <div><dt><code>result.rerun</code></dt><dd>The commands that repeat the check.</dd></div>
   </dl>
 </div></section>
@@ -62,7 +62,7 @@ const events = [
     <li>10 checks an hour per address, and 300 a day for the whole service.</li>
     <li>A repo over 15 GB is refused. A very large repo may not finish in time.</li>
     <li>It doesn't scan code for vulnerabilities.</li>
-    <li>Five of the 13 checks only pass once <code>yokoten</code> is installed, so a repo without it tops out at 8 of 13.</li>
+    <li>Five of the 13 checks only pass once <code>yokoten</code> is installed. A repo doesn't need it.</li>
     <li>Some of the repo's files go to Muse Spark Open, on Baseten, to write the project section. Muse's text stays in a cache for 24 hours.</li>
   </ul></div>
   <div class="card"><h2>What it does</h2><ol class="api-steps">

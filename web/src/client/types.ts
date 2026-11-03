@@ -83,11 +83,6 @@ export interface RecordPayload {
 }
 
 export interface ViewModel {
-  headline: string;
-  score: { done: number; total: number; text: string };
-  next: SummaryNext | null;
-  others: (SummaryStep & { label: string })[];
-  installOnly: SummaryStep[];
   secretGroups: { what?: string; why?: string; fix?: string; places: string[] }[];
   secretCount: number;
   evidence: { version: string; commit: string; shortCommit: string; doctorCommand: string; checkCommand: string };
@@ -103,48 +98,6 @@ export interface ErrorEventData {
   message?: string;
 }
 
-export type StepKey = "files" | "install" | "hand";
-
-export type FilesBlock = "hidden" | "waiting" | "lost" | "list" | "nothing";
-
-export interface HandItem {
-  id: string;
-  title: string;
-  wrong: string;
-  list: string[];
-  command: string;
-  after: string;
-}
-
-export interface PlanAction {
-  label: string;
-  href: string;
-  opensChart: boolean;
-  isQuiet: boolean;
-}
-
-export interface ResultPlan {
-  done: number;
-  total: number;
-  isAfterKnown: boolean;
-  afterDone: number;
-  gain: number;
-  installSteps: SummaryStep[];
-  movedToInstall: SummaryStep[];
-  handCount: number;
-  handItems: HandItem[];
-  isHandListShort: boolean;
-  action: PlanAction | null;
-  filesBlock: FilesBlock;
-  filesTitle: string;
-  filesAreStep: boolean;
-  stepOrder: StepKey[];
-  installStepNumber: number;
-  handTitle: string;
-}
-
-export interface PlanStep {
-  key: StepKey;
-  target: number | null;
-  isMovingCount: boolean;
-}
+export type ResultScreen = "waiting" | "understood" | "already has" | "one more line" | "too big" | "failed" | "saved" | "not found";
+export type SaveStepKey = "copy" | "paste" | "save" | "check";
+export interface UnderstoodSection { title: string; lines: string[]; }

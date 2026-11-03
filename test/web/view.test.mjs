@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { viewModel, markLabel, splitCode, formatRecordTime, repoFromInput, repoFromQuery, secretFolders, toSentence, nextAction } from "../../web/src/client/view.ts";
+import { viewModel, markLabel, splitCode, formatRecordTime, repoFromInput, repoFromQuery, secretFolders, toSentence } from "../../web/src/client/view.ts";
 import { projectSection } from "../../web/src/client/fixes.ts";
 
-test("viewModel: headline text, next, others leave out next and install-only, evidence short commit", () => {
+test("viewModel: evidence has the short commit", () => {
   const result = {
     owner: "owner",
     repo: "repo",
@@ -36,12 +36,6 @@ test("viewModel: headline text, next, others leave out next and install-only, ev
   };
 
   const vm = viewModel(result);
-  assert.equal(vm.headline, "3 of 10 file checks pass · fix this first: Next Title");
-  assert.ok(vm.next);
-  assert.equal(vm.next.title, "Next Title");
-  assert.equal(vm.next.id, "next-id");
-  assert.equal(vm.others.length, 1);
-  assert.equal(vm.others[0].id, "other-1");
   assert.equal(vm.evidence.shortCommit, "abcdef1");
   assert.equal(vm.evidence.commit, "abcdef1234567890");
   assert.equal(vm.evidence.version, "1.2.3");
@@ -55,24 +49,6 @@ test("markLabel for each mark, including unknown and not now with reason", () =>
   assert.equal(markLabel("not now", "we decided"), "skipped on purpose: we decided");
   assert.equal(markLabel("can't check"), "can't tell from here");
   assert.equal(markLabel("something-unknown"), "unknown");
-});
-
-test("all-done case has next null", () => {
-  const result = {
-    commit: "abc123def4567899",
-    yokoten_version: "2.0",
-    summary: {
-      done: 10,
-      total: 10,
-      next: null,
-      steps: [],
-      install_only: [],
-    },
-    secrets: [],
-  };
-  const vm = viewModel(result);
-  assert.equal(vm.next, null);
-  assert.equal(vm.headline, "10 of 10 file checks pass");
 });
 
 test("viewModel: secrets grouped by id in first-seen order", () => {
@@ -147,17 +123,6 @@ test("viewModel: grouping preserves first-seen order with many ids", () => {
   assert.equal(vm.secretGroups[1].what, "wa");
   assert.equal(vm.secretGroups[2].what, "wc");
   assert.deepEqual(vm.secretGroups[2].places, ["c.txt"]);
-});
-
-test("viewModel returns score with done, total and the text 4 of 13 file checks pass", () => {
-  const result = {
-    summary: { done: 4, total: 13, next: null, steps: [], install_only: [] },
-    secrets: [],
-  };
-  const vm = viewModel(result);
-  assert.equal(vm.score.done, 4);
-  assert.equal(vm.score.total, 13);
-  assert.equal(vm.score.text, "4 of 13 file checks pass");
 });
 
 test("splitCode: plain text", () => {
@@ -288,36 +253,4 @@ test("toSentence: empty returns empty", () => {
 
 test("toSentence: single word", () => {
   assert.equal(toSentence("hello"), "Hello.");
-});
-
-test("nextAction: file step with file present -> Get the files", () => {
-  const r = nextAction({ id: "rules" }, [], [{ path: "AGENTS.md", content: "x" }], "owner", "repo", false);
-  assert.deepEqual(r, { label: "Get the files", href: "#files", opensChart: false });
-});
-
-test("nextAction: install-only step -> Install yokoten", () => {
-  const r = nextAction({ id: "ci" }, [{ id: "ci" }], [], "owner", "repo", false);
-  assert.deepEqual(r, { label: "Install yokoten", href: "#install", opensChart: false });
-});
-
-test("nextAction: repo setting step -> Open repo settings", () => {
-  const r = nextAction({ id: "issues" }, [], [], "myowner", "myrepo", false);
-  assert.equal(r.label, "Open repo settings");
-  assert.equal(r.href, "https://github.com/myowner/myrepo/settings");
-  assert.equal(r.opensChart, false);
-});
-
-test("nextAction: repo change step -> See how", () => {
-  const r = nextAction({ id: "tests" }, [], [], "o", "r", false);
-  assert.deepEqual(r, { label: "See how", href: "#check-tests", opensChart: true });
-});
-
-test("nextAction: file step whose file is not in list -> See how", () => {
-  const r = nextAction({ id: "rules" }, [], [{ path: "OTHER.md", content: "x" }], "owner", "repo", false);
-  assert.deepEqual(r, { label: "See how", href: "#check-rules", opensChart: true });
-});
-
-test("nextAction: waiting -> See how even if file present", () => {
-  const r = nextAction({ id: "rules" }, [], [{ path: "AGENTS.md", content: "x" }], "owner", "repo", true);
-  assert.deepEqual(r, { label: "See how", href: "#check-rules", opensChart: true });
 });

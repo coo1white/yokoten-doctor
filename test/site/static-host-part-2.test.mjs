@@ -212,16 +212,17 @@ describe('static host portability', () => {
       const max = Math.max(...dones);
       const min = Math.min(...dones);
       assert.ok(max - min >= 3, `in ${group} highest done (${max}) should be at least 3 more than lowest (${min})`);
-      assert.deepEqual(dones, [...dones].sort((a, b) => b - a), `${group} should run from its highest result to its lowest`);
+      const isWritten = groupEx.map((ex) => JSON.parse(fs.readFileSync(path.resolve(`web/src/data/examples/${ex.repo.replaceAll('/', '-')}.json`), 'utf8')).fixes.muse === 'ok');
+      assert.deepEqual(isWritten, [...isWritten].sort((a, b) => Number(b) - Number(a)), `${group} should list first the examples the AI wrote for`);
     }
   });
 
-  test('dist/index.html holds the titles Web2 and Web3, and the sentence a repo without it tops out at 8 of 13', () => {
+  test('dist/index.html holds the titles Web2 and Web3, and says this isn\'t a grade', () => {
     const html = fs.readFileSync(indexPath, 'utf8');
     assert.ok(html.includes('Web2'), 'dist/index.html should contain Web2');
     assert.ok(html.includes('Web3'), 'dist/index.html should contain Web3');
     assert.equal(html.includes('Our own repo'), false, 'dist/index.html should not list our own repo');
-    assert.ok(html.includes('a repo without it tops out at 8 of 13'), 'dist/index.html should contain a repo without it tops out at 8 of 13');
+    assert.ok(html.includes('none of this grades a repo'), 'dist/index.html should contain none of this grades a repo');
   });
 
   test('dist/index.html holds canonical, og:url, og:image and twitter card', () => {
@@ -265,7 +266,7 @@ describe('static host portability', () => {
       const titleMatch = html.match(/<title>([\s\S]*?)<\/title>/i);
       assert.ok(titleMatch, `title not found in ${slug}.html`);
       const title = titleMatch[1];
-      const expectedStart = `${ex.repo}: ${ex.done} of ${ex.total} file checks`;
+      const expectedStart = `${ex.repo}: a saved result`;
       assert.ok(title.startsWith(expectedStart), `title in ${slug}.html should start with "${expectedStart}", got "${title}"`);
     }
   });

@@ -89,22 +89,29 @@ stages from the server's `progress` events, and nothing fakes a percent.
 
 **State C, result.** Zones, from the top:
 
-1. The top: the repo, the saved date, "Run it again" and "Copy link". Then one
-   sentence ("4 of 13 checks pass.") and a flat bar, green for passing and yellow
-   for what is left.
-2. One task zone, so the reader has one job at a time. Several steps are exclusive
-   `details` with only the current one open. Each row shows its number, its title
-   and where it gets you ("gets you to 7 of 13"). `planSteps` in `view.ts` works
-   out that number from the plan. A step that moves nothing says "the count stays
-   at 7". When the count after a step isn't known, the row claims none.
-   One step has no number and no accordion. If all checks pass, the zone says
-   "Nothing to do."
-3. "Done, next step" marks the step and opens the next. It never changes the count
-   or the bar, because the site can't see GitHub: only a new check can. After the
-   last step, or in the one-step layout, the page offers "Run the check again".
-4. "More details": quiet rows that each open real content. See all
-   13 checks, extra files (they won't change the count), "Is this meant to be
-   public?", "Confirm this result" and the repo summary, marked as by Muse.
+The page shows no count of checks and no grade. A count of files can't show that
+an AI will work well on a repo: a test with junk files passed the same checks as
+real ones, and adding our own `AGENTS.md` raised the count. `resultScreen` in
+`view.ts` picks one screen from the `rules` step, `fixes` and the `saved=1` flag.
+
+1. The top: the repo, the saved date, "Run it again" and "Copy link". Then what the
+   AI understood, in three columns taken from the `### ` parts Muse wrote: how to
+   build it, how to test it, what not to touch.
+2. One task zone: "Is this right? Save it to your project." Four exclusive `details`
+   with only the current one open: copy the file, paste it, save it, check that it
+   saved. The first says where the reader is and what to click. The site can't
+   see GitHub, so a step marked done changes only the list.
+3. "Check that it saved" runs a new check with `saved=1` and shows one of three
+   screens: saved, with a question to try on the reader's own AI tool; one more
+   line, when a `CLAUDE.md` still has to import `AGENTS.md`; or not found, with a
+   way back to the steps. A saved example has no steps, because it is someone
+   else's project.
+4. Other screens: already has an `AGENTS.md`, too big for the AI to read, and the AI
+   failed. The last two offer the template, because nothing was written.
+5. "More details": quiet rows that each open real content. Files we looked for (the
+   8 checks a repo can pass without yokoten, marked "Not a grade"), other files, "Is
+   this meant to be public?", "Confirm this result", the repo summary, marked as by
+   Muse, and "Optional: yokoten" (the other 5 checks, never shown as missing).
 
 A file row has one button, in one column, and the one filled button in a step is
 "Done, next step". A long file gets "Copy and open GitHub": one click copies it,
@@ -209,9 +216,10 @@ a step id in the list is no longer in doctor's output.)
   yokoten installed and the patch leaves them out (6.2a): `tool-hook` (the guard
   in the agent configs), `runtime` (`.yokoten/`), `sandbox` (the agent sandbox
   configs), `ci` (CI runs `yokoten check`) and `titles` (CI runs
-  `yokoten check --pr`). The page groups them under one line, with
-  `npx yokoten init`, so a user who applied the patch is not surprised that they
-  are still to do. A repo without yokoten tops out at 8 of 13.
+  `yokoten check --pr`). The page lists them under "Optional: yokoten", with
+  `npx yokoten init`. A repo doesn't need them, so the page never shows them as
+  missing. The API's `summary.done` and `summary.total` still count all 13, because
+  saved records hash the raw result.
 - `yokoten doctor --files --json` (yokoten issue #1256, planned for v0.2.0)
   judges from the checkout's files only: no code-host read, no gh, no
   network, no machine notes, and host steps are left out. The sandbox runs
@@ -608,9 +616,7 @@ The video is made as code, so it can be remade whenever the page changes:
 Say it right in the pitch: the version is 0.2.0 (there was never a v0.1.3); the
 npm page's README sample still says 0.1.3 until the next tag; yokoten is not
 listed in the Claude plugin directory or GitHub Marketplace yet, so claim
-neither. The page's count is "N of 13 file checks", while a local `yokoten
-doctor` says "N of 26 steps": label the page's count "file checks" so both
-read as true.
+neither. The page shows no count. A local `yokoten doctor` says "N of 26 steps".
 
 Bonus target: Best Build on Meta Open Weights. Not Best Agentic Use-Case: one
 Muse call per check is not an autonomous agent.

@@ -36,9 +36,6 @@
   --code: #17171a;
   --on-code: #e9e9e6;
   /* the bar: four fills, no color needed */
-  --seg-done: var(--pass-fill);
-  --seg-files: var(--todo-fill);
-  --seg-empty: var(--line);
 
   /* state layers (from PR 90): a see-through wash of the text color */
   --state-hover: color-mix(in srgb, var(--fg) 4.5%, transparent);
