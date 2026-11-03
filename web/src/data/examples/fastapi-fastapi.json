@@ -2,11 +2,11 @@
   "result": {
     "owner": "fastapi",
     "repo": "fastapi",
-    "commit": "45cb2252c737906f37544f5ba6bee0295fb81468",
+    "commit": "5cb6272ed7e3e07eaf6978e1e65b94aca76fa8e0",
     "yokoten_version": "0.2.0",
     "about": "yokoten stops your AI coding agent from making the mistake you can't undo. One command, no setup.",
     "rerun": {
-      "doctor": "git clone --filter=blob:none https://github.com/fastapi/fastapi\ncd fastapi\ngit checkout 45cb2252c737906f37544f5ba6bee0295fb81468\nnpx yokoten@0.2.0 doctor --files --json",
+      "doctor": "git clone --filter=blob:none https://github.com/fastapi/fastapi\ncd fastapi\ngit checkout 5cb6272ed7e3e07eaf6978e1e65b94aca76fa8e0\nnpx yokoten@0.2.0 doctor --files --json",
       "check": "HOME=\"$(mktemp -d)\" npx yokoten@0.2.0 check --json"
     },
     "summary": {
@@ -184,355 +184,355 @@
     },
     "secrets": [
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 4,
-        "id": "email",
         "file": ".github/ISSUE_TEMPLATE/config.yml",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 4
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 13,
-        "id": "email",
         "file": "CITATION.cff",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 13
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 4,
-        "id": "email",
         "file": "docs/en/docs/css/termynal.css",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 4
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 580,
-        "id": "ip",
         "file": "docs/en/docs/img/deployment/https/https.drawio.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 580
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 832,
-        "id": "ip",
         "file": "docs/en/docs/img/deployment/https/https.drawio.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 832
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 86,
-        "id": "ip",
         "file": "docs/en/docs/img/deployment/https/https01.drawio.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 86
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 113,
-        "id": "ip",
         "file": "docs/en/docs/img/deployment/https/https02.drawio.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 113
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 169,
-        "id": "ip",
         "file": "docs/en/docs/img/deployment/https/https02.drawio.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 169
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 494,
-        "id": "ip",
         "file": "docs/en/docs/img/deployment/https/https03.drawio.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 494
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 668,
-        "id": "ip",
         "file": "docs/en/docs/img/deployment/https/https03.drawio.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 668
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 198,
-        "id": "ip",
         "file": "docs/en/docs/img/deployment/https/https04.drawio.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 198
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 372,
-        "id": "ip",
         "file": "docs/en/docs/img/deployment/https/https04.drawio.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 372
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 420,
-        "id": "ip",
         "file": "docs/en/docs/img/deployment/https/https05.drawio.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 420
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 594,
-        "id": "ip",
         "file": "docs/en/docs/img/deployment/https/https05.drawio.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 594
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 452,
-        "id": "ip",
         "file": "docs/en/docs/img/deployment/https/https06.drawio.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 452
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 626,
-        "id": "ip",
         "file": "docs/en/docs/img/deployment/https/https06.drawio.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 626
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 291,
-        "id": "ip",
         "file": "docs/en/docs/img/deployment/https/https07.drawio.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 291
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 493,
-        "id": "ip",
         "file": "docs/en/docs/img/deployment/https/https07.drawio.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 493
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 376,
-        "id": "ip",
         "file": "docs/en/docs/img/deployment/https/https08.drawio.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 376
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 578,
-        "id": "ip",
         "file": "docs/en/docs/img/deployment/https/https08.drawio.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 578
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 1,
-        "id": "ip",
         "file": "docs/en/docs/img/sponsors/scalar-banner.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 1
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 1,
-        "id": "ip",
         "file": "docs/en/docs/img/sponsors/scalar-banner.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 1
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 1,
-        "id": "ip",
         "file": "docs/en/docs/img/sponsors/scalar-banner.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 1
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 1,
-        "id": "ip",
         "file": "docs/en/docs/img/sponsors/scalar-banner.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 1
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 1,
-        "id": "ip",
         "file": "docs/en/docs/img/sponsors/scalar.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 1
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 1,
-        "id": "ip",
         "file": "docs/en/docs/img/sponsors/scalar.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 1
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 1,
-        "id": "ip",
         "file": "docs/en/docs/img/sponsors/scalar.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 1
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 1,
-        "id": "ip",
         "file": "docs/en/docs/img/sponsors/scalar.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 1
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 1,
-        "id": "ip",
         "file": "docs/en/docs/img/sponsors/scalar.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 1
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 1,
-        "id": "ip",
         "file": "docs/en/docs/img/sponsors/testdriven.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 1
       },
       {
-        "what": "an IP address",
+        "id": "ip",
+        "grade": "sure",
         "why": "an IP address can lead to your server or your home network",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 1,
-        "id": "ip",
         "file": "docs/en/docs/img/sponsors/testdriven.svg",
-        "grade": "sure"
+        "what": "an IP address",
+        "line": 1
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 6,
-        "id": "email",
         "file": "docs/en/docs/js/termynal.js",
-        "grade": "sure"
-      },
-      {
-        "what": "an IP address",
-        "why": "an IP address can lead to your server or your home network",
-        "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 2681,
-        "id": "ip",
-        "file": "docs/en/docs/release-notes.md",
-        "grade": "sure"
-      },
-      {
-        "what": "an IP address",
-        "why": "an IP address can lead to your server or your home network",
-        "fix": "use a placeholder from 192.0.2.0/24",
-        "line": 5054,
-        "id": "ip",
-        "file": "docs/en/docs/release-notes.md",
-        "grade": "sure"
-      },
-      {
         "what": "an email address",
+        "line": 6
+      },
+      {
+        "id": "ip",
+        "grade": "sure",
+        "why": "an IP address can lead to your server or your home network",
+        "fix": "use a placeholder from 192.0.2.0/24",
+        "file": "docs/en/docs/release-notes.md",
+        "what": "an IP address",
+        "line": 2700
+      },
+      {
+        "id": "ip",
+        "grade": "sure",
+        "why": "an IP address can lead to your server or your home network",
+        "fix": "use a placeholder from 192.0.2.0/24",
+        "file": "docs/en/docs/release-notes.md",
+        "what": "an IP address",
+        "line": 5073
+      },
+      {
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 27,
-        "id": "email",
         "file": "docs_src/metadata/tutorial001_1_py310.py",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 27
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 27,
-        "id": "email",
         "file": "docs_src/metadata/tutorial001_py310.py",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 27
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 607,
-        "id": "email",
         "file": "fastapi/applications.py",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 607
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 29,
-        "id": "email",
         "file": "tests/test_tutorial/test_metadata/test_tutorial001.py",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 29
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 29,
-        "id": "email",
         "file": "tests/test_tutorial/test_metadata/test_tutorial001_1.py",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 29
       }
     ],
     "default_branch": "master"
@@ -566,7 +566,7 @@
       },
       {
         "path": "AGENTS.md",
-        "content": "<!-- yokoten kit 0.2.0 -->\n# How work is done here\n\nThis file is for every agent and every person working in this repo. It starts from\n[yokoten](https://github.com/yokoten-labs/yokoten)'s core rules; the project's own section is\nat the end.\n\nEvery rule names why it exists and the check that holds it. A rule with no check is a\nwish: the check is what makes it true on a busy day. The \"why\" is an **incident** when\none happened, and a **risk** when the rule came first. Incidents are never made up; a\nrisk becomes an incident only when it happens. When a rule here fails, use the `rca`\nskill: find the cause, add or fix the check, then carry the fix to the other projects.\n\n## Roles\n\n- **The owner** decides what is built and when it ships. Only the owner approves a pull\n  request that touches a hard line (a CODEOWNERS path, such as the release), creates release\n  tags, and changes repo settings. Another tier A pull request merges once a reviewer of\n  another model approves it and every check passes.\n- **The lead** is the session the owner talks to. It plans, splits the work, reviews,\n  commits and opens pull requests (as the bot, never as the owner).\n- **A worker** is a session the lead starts for one task, in its own worktree, with\n  `YOKOTEN_ROLE=worker`. It changes code and tests, and reports back. It never pushes.\n\n## Core rules\n\n| # | Rule | Why | Check |\n|---|------|-----|-------|\n| 1 | Every piece of work starts as an issue. No todo files. | Incident: follow-ups written only in chat reports were nearly lost; a shared todo file made one PR run CI four times on merge conflicts. | `doctor` reports todo files |\n| 2 | Nothing reaches `main` without a pull request and green CI. | Risk: one bad push breaks every branch built on it. | Branch ruleset on the server |\n| 3 | Only the owner creates tags and releases. A general \"merge\", \"ship it\" or \"go ahead\" does not approve a release. Only an owner request that names the version or says \"release\", \"publish\" or \"tag\" does. | Risk: when to ship is the owner's call, and a pushed tag can start a release. | Tool guard; tag ruleset on the server |\n| 4 | A fix task changes code, never tests (`YOKOTEN_FIX_TASK=1`). | Risk: the fastest way to make a test pass is to change what it asserts. | Tool guard and commit check |\n| 5 | A worker does not change lead-only files: these rules, agent config, hooks, CI. | Risk: a pull request that edits CI runs that CI before anyone reads it. | Tool guard and commit check for workers; for the bot, no Workflows permission, or CODEOWNERS review of CI changes with every secret behind a protected environment |\n| 6 | Never skip the commit check (`--no-verify`, changing `core.hooksPath`). | Risk: a skipped check makes a broken commit look reviewed. | Tool guard; CI runs the same check |\n| 7 | No plain force push. Merge `main` into a branch only on a real conflict; never rebase a shared branch. | Risk: a force push throws away commits someone else pushed. | Tool guard; branch ruleset |\n| 8 | Squash merge. One pull request, one purpose; small polish goes in one batch. A pull request has a commit-form title, a `tier:` line, Why / What changed / How tested, a linked issue, a file in `changes/` when behaviour changes, a milestone, a type label, and a tier label that matches the `tier:` line. An issue title is `area: verb phrase` (a task) or `area: symptom` (an incident): at most 60 characters, no full stop, no `#N`. | Incident: the owner was asked to review a +3 −2 pull request on its own and said small changes should not each cost a review. | Repo settings (squash only); `check --pr` and `check --issue` in CI |\n| 9 | Review and test the exact commit that merges. The reviewer only reads; the verifier runs it. | Incident: two pull requests, each green on its own, broke `main` together, twice. | `inspect` skill; merge queue where the host has one |\n| 10 | No folder holds more than 7 entries (the root is not counted). | Risk: a flat folder grows until nobody can find anything. Set as a standard by the owner. | Commit check (layout) |\n| 11 | Nothing in the repo, or in what yokoten prints, points at a person or opens their accounts: no personal email, IP, name, city or private domain, and no secret (token or private key). A hit is reported by place, never by content; the home folder shows as `~`. | Incident: the old check read only the live docs, and server names and addresses were still in 56 tracked files. | Commit check and CI (privacy and secrets); `check --history` before going public |\n| 12 | Decisions are written down once and kept. A changed decision gets a new entry that points back. Facts are replaced, not added to. Times are UTC, commit times included. | Risk: a decision that lives only in a chat gets argued again. Incident: every commit recorded the owner's time zone (#40). | `record` skill; commit check (commit time) |\n\n## Writing\n\nPlain English, close to ASD-STE100 (Simplified Technical English), because the readers\ninclude beginners, people reading a second language, and agents. An instruction has at\nmost 20 words; a description at most 25. One instruction per sentence. One word for one\nthing. Active voice. A flow gets a diagram. `check --pr` notes long sentences in changed\nMarkdown; a note never fails CI.\n\n## Names\n\nA name is what a reader meets first and reads most. Pick names that a new reader, or an\nagent, understands without scrolling back. The yokoten guide says why:\n[Naming](https://github.com/yokoten-labs/yokoten/blob/main/docs/guide.md#naming).\n\n- Whole words. A short form only when everyone knows it (`id`, `url`, `config`). Never\n  delete letters inside a word.\n- At most 4 words. There is no character limit, because a limit makes people abbreviate.\n- One letter only for a name used within about 10 lines, such as a loop counter.\n- A function's name starts with a verb. A true/false value starts with `is`, `has` or\n  `can`.\n- One idea keeps one name in every file.\n- Use the language's own case style, for example `camelCase` in TypeScript and\n  `snake_case` in Python.\n\n| Hard to read | Easy to read | Why |\n|---|---|---|\n| `r`, still used 30 lines later | `result` | By line 30 the reader has forgotten what `r` holds. |\n| `cfgMgr` | `configManager` | Letters cut from inside words make the reader guess. |\n| `processTheUserInputDataNow` | `parseInput` | Six words, and three of them say nothing. |\n| `valid` | `isValid` | `is` says the value is only true or false. |\n\n## Where to look\n\n| For | Read |\n|-----|------|\n| Why something is the way it is | `docs/records/` |\n| Handing a task to a worker | the `dispatch` skill |\n| Reviewing a pull request | the `inspect` skill |\n| Something went wrong | the `rca` skill |\n| What this repo is missing | `yokoten doctor` |\n\n## This project\n\n### Build\nPython >=3.10, managed with `uv` and `pyproject.toml` (`pdm-backend`).\nInstall deps: `uv sync --locked --no-dev --group tests --extra all` (as in CI).\nFor docs: `uv sync --locked --no-dev --group docs`.\nBuild package: `uv build` (requires `pdm-backend`).\n\n### Test\nRun tests: `bash scripts/test.sh` (used in test-redistribute).\nWith coverage: `bash scripts/test-cov.sh` and `uv run coverage combine coverage` then `uv run coverage report --fail-under=100`.\nRun single file: `uv run --no-sync pytest tests/test_*.py`.\nPre-commit checks: `uv run prek run --from-ref origin/<base> --to-ref HEAD`.\n\n### What not to touch\nDo not edit generated docs site `site/`.\nDo not manually edit `uv.lock` or `pyproject.toml` dependencies unless required.\nDo not change release files `fastapi/__init__.py` version and `docs/en/docs/release-notes.md` outside release flow.\nTODO: Owner must confirm preferred local test command and coverage threshold.\n\n",
+        "content": "<!-- yokoten kit 0.2.0 -->\n# How work is done here\n\nThis file is for every agent and every person working in this repo. It starts from\n[yokoten](https://github.com/yokoten-labs/yokoten)'s core rules; the project's own section is\nat the end.\n\nEvery rule names why it exists and the check that holds it. A rule with no check is a\nwish: the check is what makes it true on a busy day. The \"why\" is an **incident** when\none happened, and a **risk** when the rule came first. Incidents are never made up; a\nrisk becomes an incident only when it happens. When a rule here fails, use the `rca`\nskill: find the cause, add or fix the check, then carry the fix to the other projects.\n\n## Roles\n\n- **The owner** decides what is built and when it ships. Only the owner approves a pull\n  request that touches a hard line (a CODEOWNERS path, such as the release), creates release\n  tags, and changes repo settings. Another tier A pull request merges once a reviewer of\n  another model approves it and every check passes.\n- **The lead** is the session the owner talks to. It plans, splits the work, reviews,\n  commits and opens pull requests (as the bot, never as the owner).\n- **A worker** is a session the lead starts for one task, in its own worktree, with\n  `YOKOTEN_ROLE=worker`. It changes code and tests, and reports back. It never pushes.\n\n## Core rules\n\n| # | Rule | Why | Check |\n|---|------|-----|-------|\n| 1 | Every piece of work starts as an issue. No todo files. | Incident: follow-ups written only in chat reports were nearly lost; a shared todo file made one PR run CI four times on merge conflicts. | `doctor` reports todo files |\n| 2 | Nothing reaches `main` without a pull request and green CI. | Risk: one bad push breaks every branch built on it. | Branch ruleset on the server |\n| 3 | Only the owner creates tags and releases. A general \"merge\", \"ship it\" or \"go ahead\" does not approve a release. Only an owner request that names the version or says \"release\", \"publish\" or \"tag\" does. | Risk: when to ship is the owner's call, and a pushed tag can start a release. | Tool guard; tag ruleset on the server |\n| 4 | A fix task changes code, never tests (`YOKOTEN_FIX_TASK=1`). | Risk: the fastest way to make a test pass is to change what it asserts. | Tool guard and commit check |\n| 5 | A worker does not change lead-only files: these rules, agent config, hooks, CI. | Risk: a pull request that edits CI runs that CI before anyone reads it. | Tool guard and commit check for workers; for the bot, no Workflows permission, or CODEOWNERS review of CI changes with every secret behind a protected environment |\n| 6 | Never skip the commit check (`--no-verify`, changing `core.hooksPath`). | Risk: a skipped check makes a broken commit look reviewed. | Tool guard; CI runs the same check |\n| 7 | No plain force push. Merge `main` into a branch only on a real conflict; never rebase a shared branch. | Risk: a force push throws away commits someone else pushed. | Tool guard; branch ruleset |\n| 8 | Squash merge. One pull request, one purpose; small polish goes in one batch. A pull request has a commit-form title, a `tier:` line, Why / What changed / How tested, a linked issue, a file in `changes/` when behaviour changes, a milestone, a type label, and a tier label that matches the `tier:` line. An issue title is `area: verb phrase` (a task) or `area: symptom` (an incident): at most 60 characters, no full stop, no `#N`. | Incident: the owner was asked to review a +3 −2 pull request on its own and said small changes should not each cost a review. | Repo settings (squash only); `check --pr` and `check --issue` in CI |\n| 9 | Review and test the exact commit that merges. The reviewer only reads; the verifier runs it. | Incident: two pull requests, each green on its own, broke `main` together, twice. | `inspect` skill; merge queue where the host has one |\n| 10 | No folder holds more than 7 entries (the root is not counted). | Risk: a flat folder grows until nobody can find anything. Set as a standard by the owner. | Commit check (layout) |\n| 11 | Nothing in the repo, or in what yokoten prints, points at a person or opens their accounts: no personal email, IP, name, city or private domain, and no secret (token or private key). A hit is reported by place, never by content; the home folder shows as `~`. | Incident: the old check read only the live docs, and server names and addresses were still in 56 tracked files. | Commit check and CI (privacy and secrets); `check --history` before going public |\n| 12 | Decisions are written down once and kept. A changed decision gets a new entry that points back. Facts are replaced, not added to. Times are UTC, commit times included. | Risk: a decision that lives only in a chat gets argued again. Incident: every commit recorded the owner's time zone (#40). | `record` skill; commit check (commit time) |\n\n## Writing\n\nPlain English, close to ASD-STE100 (Simplified Technical English), because the readers\ninclude beginners, people reading a second language, and agents. An instruction has at\nmost 20 words; a description at most 25. One instruction per sentence. One word for one\nthing. Active voice. A flow gets a diagram. `check --pr` notes long sentences in changed\nMarkdown; a note never fails CI.\n\n## Names\n\nA name is what a reader meets first and reads most. Pick names that a new reader, or an\nagent, understands without scrolling back. The yokoten guide says why:\n[Naming](https://github.com/yokoten-labs/yokoten/blob/main/docs/guide.md#naming).\n\n- Whole words. A short form only when everyone knows it (`id`, `url`, `config`). Never\n  delete letters inside a word.\n- At most 4 words. There is no character limit, because a limit makes people abbreviate.\n- One letter only for a name used within about 10 lines, such as a loop counter.\n- A function's name starts with a verb. A true/false value starts with `is`, `has` or\n  `can`.\n- One idea keeps one name in every file.\n- Use the language's own case style, for example `camelCase` in TypeScript and\n  `snake_case` in Python.\n\n| Hard to read | Easy to read | Why |\n|---|---|---|\n| `r`, still used 30 lines later | `result` | By line 30 the reader has forgotten what `r` holds. |\n| `cfgMgr` | `configManager` | Letters cut from inside words make the reader guess. |\n| `processTheUserInputDataNow` | `parseInput` | Six words, and three of them say nothing. |\n| `valid` | `isValid` | `is` says the value is only true or false. |\n\n## Where to look\n\n| For | Read |\n|-----|------|\n| Why something is the way it is | `docs/records/` |\n| Handing a task to a worker | the `dispatch` skill |\n| Reviewing a pull request | the `inspect` skill |\n| Something went wrong | the `rca` skill |\n| What this repo is missing | `yokoten doctor` |\n\n## This project\n\n### Build\nBuild distribution with `uv build` as shown in `.github/workflows/publish.yml`.\nAlternative sdist build with `python -m build --sdist` as shown in `.github/workflows/test-redistribute.yml`.\nBuild docs per language with `uv run ./scripts/docs.py build-lang <lang>` as shown in `.github/workflows/build-docs.yml`.\n\n### Test\nInstall test deps with `uv sync --no-dev --group tests --extra all` as shown in `.github/workflows/test.yml`.\nRun coverage tests with `bash scripts/test-cov.sh` or `uv run --no-sync bash scripts/test-cov.sh` as shown in `.github/workflows/test.yml`.\nRun redistributable tests with `bash scripts/test.sh` as shown in `.github/workflows/test-redistribute.yml`.\nRun benchmarks with `pytest tests/benchmarks --codspeed` and `pytest tests/memory_benchmarks --codspeed` as shown in `.github/workflows/test.yml`.\n\n### What not to touch\n- `uv.lock` - lock file listed in `.gitignore` exclusion and workflows dependency glob.\n- `site/` - docs build output written by `scripts/docs.py build-lang`.\n- `coverage/` and `htmlcov/` - coverage output written by `scripts/test-cov.sh` and `coverage combine`.\n- `dist/` - built sdist/wheel output written by `uv build` and `python -m build`.\n\n",
         "source": "yokoten and Muse"
       },
       {
@@ -575,7 +575,7 @@
         "source": "yokoten"
       }
     ],
-    "summary": "FastAPI is a modern Python web framework for building high-performance APIs with type hints, OpenAPI, and interactive docs.",
+    "summary": "FastAPI is a high-performance Python web framework for building APIs with type hints, automatic docs and OpenAPI standards.",
     "muse": "ok",
     "claude_import": null,
     "after": {
@@ -584,18 +584,18 @@
     }
   },
   "record": {
-    "sha256": "ed00b193af079da4d1973d5e25a2e0a3ede86bf0d7b1eb7bd8309476574a7bad",
-    "recorded_at": "2026-11-01T12:10:14Z",
-    "document": "{\n  \"recorded_at\": \"2026-11-01T12:10:14Z\",\n  \"result\": {\n    \"about\": \"yokoten stops your AI coding agent from making the mistake you can't undo. One command, no setup.\",\n    \"commit\": \"45cb2252c737906f37544f5ba6bee0295fb81468\",\n    \"default_branch\": \"master\",\n    \"owner\": \"fastapi\",\n    \"repo\": \"fastapi\",\n    \"rerun\": {\n      \"check\": \"HOME=\\\"$(mktemp -d)\\\" npx yokoten@0.2.0 check --json\",\n      \"doctor\": \"git clone --filter=blob:none https://github.com/fastapi/fastapi\\ncd fastapi\\ngit checkout 45cb2252c737906f37544f5ba6bee0295fb81468\\nnpx yokoten@0.2.0 doctor --files --json\"\n    },\n    \"secrets\": [\n      {\n        \"file\": \".github/ISSUE_TEMPLATE/config.yml\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 4,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"CITATION.cff\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 13,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs/en/docs/css/termynal.css\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 4,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 580,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 832,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https01.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 86,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https02.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 113,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https02.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 169,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https03.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 494,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https03.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 668,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https04.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 198,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https04.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 372,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https05.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 420,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https05.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 594,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https06.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 452,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https06.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 626,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https07.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 291,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https07.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 493,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https08.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 376,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https08.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 578,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/sponsors/scalar-banner.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 1,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/sponsors/scalar-banner.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 1,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/sponsors/scalar-banner.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 1,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/sponsors/scalar-banner.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 1,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/sponsors/scalar.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 1,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/sponsors/scalar.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 1,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/sponsors/scalar.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 1,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/sponsors/scalar.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 1,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/sponsors/scalar.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 1,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/sponsors/testdriven.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 1,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/sponsors/testdriven.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 1,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/js/termynal.js\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 6,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs/en/docs/release-notes.md\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 2681,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/release-notes.md\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 5054,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs_src/metadata/tutorial001_1_py310.py\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 27,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs_src/metadata/tutorial001_py310.py\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 27,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"fastapi/applications.py\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 607,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"tests/test_tutorial/test_metadata/test_tutorial001.py\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 29,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"tests/test_tutorial/test_metadata/test_tutorial001_1.py\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 29,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      }\n    ],\n    \"summary\": {\n      \"done\": 3,\n      \"install_only\": [\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json has a PreToolUse hook that runs `yokoten hook`. With a .muse/hooks.json, Muse Code must also trust the folder: doctor reads its trust.json, read-only\",\n          \"id\": \"tool-hook\",\n          \"mark\": \"to do\",\n          \"title\": \"Turn on the guard for your agents' commands\",\n          \"what\": \"no tool-call guard in .claude/settings.json\",\n          \"why\": \"the guard stops a risky command, like a force push, before the agent runs it\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".yokoten/VERSION is the version of the yokoten that runs doctor; yokoten's own repo needs no copy\",\n          \"id\": \"runtime\",\n          \"mark\": \"to do\",\n          \"title\": \"Add the yokoten runtime to the project\",\n          \"what\": \"no .yokoten/ runtime\",\n          \"why\": \"the hooks and CI run this copy, so they work with no network and no global install\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds .github/workflows/yokoten.yml\",\n          \"how\": \"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check` (by its path, or with npx, bunx or pnpm dlx), or has a step that uses yokoten-labs/yokoten\",\n          \"id\": \"ci\",\n          \"mark\": \"to do\",\n          \"title\": \"Run the checks on every pull request\",\n          \"what\": \"CI does not run `yokoten check`\",\n          \"why\": \"a commit made with the hook off would reach main unchecked\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds .github/workflows/pr.yml\",\n          \"how\": \"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check --pr`, or runs on pull requests with a step that uses yokoten-labs/yokoten and does not set `pr-check: false`\",\n          \"id\": \"titles\",\n          \"mark\": \"to do\",\n          \"title\": \"Check pull request titles\",\n          \"what\": \"CI does not check pull requests (`yokoten check --pr`)\",\n          \"why\": \"a pull request title becomes the commit on main, so it must say what changed and why\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json turns the sandbox on with no * host; .codex/config.toml pins workspace-write, on-request and no network; .gemini/settings.json blocks YOLO mode; .grok/sandbox.toml holds a workspace profile; writable paths stay in the project\",\n          \"id\": \"sandbox\",\n          \"mark\": \"to do\",\n          \"title\": \"Keep your agents in a sandbox\",\n          \"what\": \"no sandbox in .claude/settings.json\",\n          \"why\": \"a worker writes only where the sandbox allows, so it must cover the worktree\"\n        }\n      ],\n      \"next\": {\n        \"fix\": \"`yokoten init` adds one\",\n        \"how\": \"AGENTS.md is at the repo root, and a CLAUDE.md (at the root or in .claude/), when there is one, imports it (`@AGENTS.md`, or `@../AGENTS.md` from .claude/; a Markdown link is not an import): with a CLAUDE.md, Claude Code reads AGENTS.md only through it\",\n        \"id\": \"rules\",\n        \"mark\": \"next\",\n        \"title\": \"Write the rules for your agents (AGENTS.md)\",\n        \"what\": \"no AGENTS.md, so the agents have no written rules here\",\n        \"why\": \"an agent follows the rules it can read, and only those\"\n      },\n      \"steps\": [\n        {\n          \"fix\": \"`yokoten init` adds one\",\n          \"how\": \"AGENTS.md is at the repo root, and a CLAUDE.md (at the root or in .claude/), when there is one, imports it (`@AGENTS.md`, or `@../AGENTS.md` from .claude/; a Markdown link is not an import): with a CLAUDE.md, Claude Code reads AGENTS.md only through it\",\n          \"id\": \"rules\",\n          \"mark\": \"next\",\n          \"title\": \"Write the rules for your agents (AGENTS.md)\",\n          \"what\": \"no AGENTS.md, so the agents have no written rules here\",\n          \"why\": \"an agent follows the rules it can read, and only those\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json has a PreToolUse hook that runs `yokoten hook`. With a .muse/hooks.json, Muse Code must also trust the folder: doctor reads its trust.json, read-only\",\n          \"id\": \"tool-hook\",\n          \"mark\": \"to do\",\n          \"title\": \"Turn on the guard for your agents' commands\",\n          \"what\": \"no tool-call guard in .claude/settings.json\",\n          \"why\": \"the guard stops a risky command, like a force push, before the agent runs it\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".yokoten/VERSION is the version of the yokoten that runs doctor; yokoten's own repo needs no copy\",\n          \"id\": \"runtime\",\n          \"mark\": \"to do\",\n          \"title\": \"Add the yokoten runtime to the project\",\n          \"what\": \"no .yokoten/ runtime\",\n          \"why\": \"the hooks and CI run this copy, so they work with no network and no global install\"\n        },\n        {\n          \"how\": \"package.json has a real \\\"test\\\" script and a `run:` step in a workflow runs it, or a `run:` step starts a test runner such as `node --test`, `go test`, `pytest`, `tox`, `make test` or `npx vitest`; in a workspaces repo, `npm test --workspaces` or `pnpm -r test` counts too\",\n          \"id\": \"tests\",\n          \"mark\": \"done\",\n          \"title\": \"Run your tests on every push\",\n          \"why\": \"tests that run on every push catch a broken change before it reaches main\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds .github/workflows/yokoten.yml\",\n          \"how\": \"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check` (by its path, or with npx, bunx or pnpm dlx), or has a step that uses yokoten-labs/yokoten\",\n          \"id\": \"ci\",\n          \"mark\": \"to do\",\n          \"title\": \"Run the checks on every pull request\",\n          \"what\": \"CI does not run `yokoten check`\",\n          \"why\": \"a commit made with the hook off would reach main unchecked\"\n        },\n        {\n          \"how\": \"there is no TODO.md, TODO, todo.md or docs/todo\",\n          \"id\": \"issues\",\n          \"mark\": \"done\",\n          \"title\": \"Turn on issues\",\n          \"why\": \"an issue has an owner, a state and a history; a todo file has none\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds them\",\n          \"how\": \".github/ISSUE_TEMPLATE holds a template, and .github holds a pull request template\",\n          \"id\": \"templates\",\n          \"mark\": \"to do\",\n          \"title\": \"Add issue and pull request templates\",\n          \"what\": \"no pull request template in .github\",\n          \"why\": \"a template asks for what a reviewer needs, so nothing is forgotten\"\n        },\n        {\n          \"how\": \"no tracked file is in a dist/, build/ or out/ folder or is a built file by its name, apart from yokoten.json \\\"allowBuild\\\"\",\n          \"id\": \"no-build-output\",\n          \"mark\": \"done\",\n          \"title\": \"Keep build output out of git\",\n          \"why\": \"a build makes these files again from the source, and a reviewer can't read a binary\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds both; then each pull request adds a file in changes/ for each change that users notice\",\n          \"how\": \"CHANGELOG.md has an Unreleased heading, or the repo has a changes/ folder or a .changeset/ folder (Changesets)\",\n          \"id\": \"changelog\",\n          \"mark\": \"to do\",\n          \"title\": \"Keep a changelog\",\n          \"what\": \"no CHANGELOG.md with an \\\"Unreleased\\\" section, and no changes/ folder\",\n          \"why\": \"each pull request adds its entry as it goes, so a release needs no digging\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds .github/workflows/pr.yml\",\n          \"how\": \"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check --pr`, or runs on pull requests with a step that uses yokoten-labs/yokoten and does not set `pr-check: false`\",\n          \"id\": \"titles\",\n          \"mark\": \"to do\",\n          \"title\": \"Check pull request titles\",\n          \"what\": \"CI does not check pull requests (`yokoten check --pr`)\",\n          \"why\": \"a pull request title becomes the commit on main, so it must say what changed and why\"\n        },\n        {\n          \"fix\": \"`yokoten init` writes .github/CODEOWNERS for the lead-only paths; or add one with a line `<path> @<your account>` for each path where a mistake is hard to undo: the rules, CI, agent config\",\n          \"how\": \"a CODEOWNERS file is in .github/, at the root or in docs/, and the first one GitHub reads names an owner, not init's placeholder @YOUR_GITHUB_HANDLE; full doctor also reads whether the repo belongs to an organization, and an organization alone (@org, not @org/team) is not an owner\",\n          \"id\": \"codeowners\",\n          \"mark\": \"to do\",\n          \"title\": \"Name the owner (CODEOWNERS)\",\n          \"what\": \"no CODEOWNERS file\",\n          \"why\": \"the host then asks you to review a pull request that changes those paths, and `check --pr` makes it tier A\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json turns the sandbox on with no * host; .codex/config.toml pins workspace-write, on-request and no network; .gemini/settings.json blocks YOLO mode; .grok/sandbox.toml holds a workspace profile; writable paths stay in the project\",\n          \"id\": \"sandbox\",\n          \"mark\": \"to do\",\n          \"title\": \"Keep your agents in a sandbox\",\n          \"what\": \"no sandbox in .claude/settings.json\",\n          \"why\": \"a worker writes only where the sandbox allows, so it must cover the worktree\"\n        },\n        {\n          \"fix\": \"run `yokoten init` to add the security policy and Dependabot\",\n          \"how\": \"a SECURITY.md, a Dependabot config and a license file are in the repo\",\n          \"id\": \"security-files\",\n          \"mark\": \"to do\",\n          \"title\": \"Add a license and a security policy\",\n          \"what\": \"no security policy (SECURITY.md)\",\n          \"why\": \"people can then report a hole in private, old dependencies get updates, and others know how they may use the code\"\n        }\n      ],\n      \"total\": 13\n    },\n    \"yokoten_version\": \"0.2.0\"\n  },\n  \"schema\": \"yokoten-doctor/1\"\n}\n",
+    "sha256": "7f4dd352e8250e3630613eb39f65f3409e8579625417de1249bdd4a9ec5821d9",
+    "recorded_at": "2026-11-03T01:49:48Z",
+    "document": "{\n  \"recorded_at\": \"2026-11-03T01:49:48Z\",\n  \"result\": {\n    \"about\": \"yokoten stops your AI coding agent from making the mistake you can't undo. One command, no setup.\",\n    \"commit\": \"5cb6272ed7e3e07eaf6978e1e65b94aca76fa8e0\",\n    \"default_branch\": \"master\",\n    \"owner\": \"fastapi\",\n    \"repo\": \"fastapi\",\n    \"rerun\": {\n      \"check\": \"HOME=\\\"$(mktemp -d)\\\" npx yokoten@0.2.0 check --json\",\n      \"doctor\": \"git clone --filter=blob:none https://github.com/fastapi/fastapi\\ncd fastapi\\ngit checkout 5cb6272ed7e3e07eaf6978e1e65b94aca76fa8e0\\nnpx yokoten@0.2.0 doctor --files --json\"\n    },\n    \"secrets\": [\n      {\n        \"file\": \".github/ISSUE_TEMPLATE/config.yml\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 4,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"CITATION.cff\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 13,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs/en/docs/css/termynal.css\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 4,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 580,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 832,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https01.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 86,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https02.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 113,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https02.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 169,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https03.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 494,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https03.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 668,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https04.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 198,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https04.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 372,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https05.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 420,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https05.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 594,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https06.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 452,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https06.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 626,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https07.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 291,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https07.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 493,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https08.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 376,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/deployment/https/https08.drawio.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 578,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/sponsors/scalar-banner.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 1,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/sponsors/scalar-banner.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 1,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/sponsors/scalar-banner.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 1,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/sponsors/scalar-banner.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 1,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/sponsors/scalar.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 1,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/sponsors/scalar.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 1,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/sponsors/scalar.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 1,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/sponsors/scalar.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 1,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/sponsors/scalar.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 1,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/sponsors/testdriven.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 1,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/img/sponsors/testdriven.svg\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 1,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/js/termynal.js\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 6,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs/en/docs/release-notes.md\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 2700,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs/en/docs/release-notes.md\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 5073,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"docs_src/metadata/tutorial001_1_py310.py\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 27,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs_src/metadata/tutorial001_py310.py\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 27,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"fastapi/applications.py\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 607,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"tests/test_tutorial/test_metadata/test_tutorial001.py\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 29,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"tests/test_tutorial/test_metadata/test_tutorial001_1.py\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 29,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      }\n    ],\n    \"summary\": {\n      \"done\": 3,\n      \"install_only\": [\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json has a PreToolUse hook that runs `yokoten hook`. With a .muse/hooks.json, Muse Code must also trust the folder: doctor reads its trust.json, read-only\",\n          \"id\": \"tool-hook\",\n          \"mark\": \"to do\",\n          \"title\": \"Turn on the guard for your agents' commands\",\n          \"what\": \"no tool-call guard in .claude/settings.json\",\n          \"why\": \"the guard stops a risky command, like a force push, before the agent runs it\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".yokoten/VERSION is the version of the yokoten that runs doctor; yokoten's own repo needs no copy\",\n          \"id\": \"runtime\",\n          \"mark\": \"to do\",\n          \"title\": \"Add the yokoten runtime to the project\",\n          \"what\": \"no .yokoten/ runtime\",\n          \"why\": \"the hooks and CI run this copy, so they work with no network and no global install\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds .github/workflows/yokoten.yml\",\n          \"how\": \"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check` (by its path, or with npx, bunx or pnpm dlx), or has a step that uses yokoten-labs/yokoten\",\n          \"id\": \"ci\",\n          \"mark\": \"to do\",\n          \"title\": \"Run the checks on every pull request\",\n          \"what\": \"CI does not run `yokoten check`\",\n          \"why\": \"a commit made with the hook off would reach main unchecked\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds .github/workflows/pr.yml\",\n          \"how\": \"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check --pr`, or runs on pull requests with a step that uses yokoten-labs/yokoten and does not set `pr-check: false`\",\n          \"id\": \"titles\",\n          \"mark\": \"to do\",\n          \"title\": \"Check pull request titles\",\n          \"what\": \"CI does not check pull requests (`yokoten check --pr`)\",\n          \"why\": \"a pull request title becomes the commit on main, so it must say what changed and why\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json turns the sandbox on with no * host; .codex/config.toml pins workspace-write, on-request and no network; .gemini/settings.json blocks YOLO mode; .grok/sandbox.toml holds a workspace profile; writable paths stay in the project\",\n          \"id\": \"sandbox\",\n          \"mark\": \"to do\",\n          \"title\": \"Keep your agents in a sandbox\",\n          \"what\": \"no sandbox in .claude/settings.json\",\n          \"why\": \"a worker writes only where the sandbox allows, so it must cover the worktree\"\n        }\n      ],\n      \"next\": {\n        \"fix\": \"`yokoten init` adds one\",\n        \"how\": \"AGENTS.md is at the repo root, and a CLAUDE.md (at the root or in .claude/), when there is one, imports it (`@AGENTS.md`, or `@../AGENTS.md` from .claude/; a Markdown link is not an import): with a CLAUDE.md, Claude Code reads AGENTS.md only through it\",\n        \"id\": \"rules\",\n        \"mark\": \"next\",\n        \"title\": \"Write the rules for your agents (AGENTS.md)\",\n        \"what\": \"no AGENTS.md, so the agents have no written rules here\",\n        \"why\": \"an agent follows the rules it can read, and only those\"\n      },\n      \"steps\": [\n        {\n          \"fix\": \"`yokoten init` adds one\",\n          \"how\": \"AGENTS.md is at the repo root, and a CLAUDE.md (at the root or in .claude/), when there is one, imports it (`@AGENTS.md`, or `@../AGENTS.md` from .claude/; a Markdown link is not an import): with a CLAUDE.md, Claude Code reads AGENTS.md only through it\",\n          \"id\": \"rules\",\n          \"mark\": \"next\",\n          \"title\": \"Write the rules for your agents (AGENTS.md)\",\n          \"what\": \"no AGENTS.md, so the agents have no written rules here\",\n          \"why\": \"an agent follows the rules it can read, and only those\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json has a PreToolUse hook that runs `yokoten hook`. With a .muse/hooks.json, Muse Code must also trust the folder: doctor reads its trust.json, read-only\",\n          \"id\": \"tool-hook\",\n          \"mark\": \"to do\",\n          \"title\": \"Turn on the guard for your agents' commands\",\n          \"what\": \"no tool-call guard in .claude/settings.json\",\n          \"why\": \"the guard stops a risky command, like a force push, before the agent runs it\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".yokoten/VERSION is the version of the yokoten that runs doctor; yokoten's own repo needs no copy\",\n          \"id\": \"runtime\",\n          \"mark\": \"to do\",\n          \"title\": \"Add the yokoten runtime to the project\",\n          \"what\": \"no .yokoten/ runtime\",\n          \"why\": \"the hooks and CI run this copy, so they work with no network and no global install\"\n        },\n        {\n          \"how\": \"package.json has a real \\\"test\\\" script and a `run:` step in a workflow runs it, or a `run:` step starts a test runner such as `node --test`, `go test`, `pytest`, `tox`, `make test` or `npx vitest`; in a workspaces repo, `npm test --workspaces` or `pnpm -r test` counts too\",\n          \"id\": \"tests\",\n          \"mark\": \"done\",\n          \"title\": \"Run your tests on every push\",\n          \"why\": \"tests that run on every push catch a broken change before it reaches main\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds .github/workflows/yokoten.yml\",\n          \"how\": \"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check` (by its path, or with npx, bunx or pnpm dlx), or has a step that uses yokoten-labs/yokoten\",\n          \"id\": \"ci\",\n          \"mark\": \"to do\",\n          \"title\": \"Run the checks on every pull request\",\n          \"what\": \"CI does not run `yokoten check`\",\n          \"why\": \"a commit made with the hook off would reach main unchecked\"\n        },\n        {\n          \"how\": \"there is no TODO.md, TODO, todo.md or docs/todo\",\n          \"id\": \"issues\",\n          \"mark\": \"done\",\n          \"title\": \"Turn on issues\",\n          \"why\": \"an issue has an owner, a state and a history; a todo file has none\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds them\",\n          \"how\": \".github/ISSUE_TEMPLATE holds a template, and .github holds a pull request template\",\n          \"id\": \"templates\",\n          \"mark\": \"to do\",\n          \"title\": \"Add issue and pull request templates\",\n          \"what\": \"no pull request template in .github\",\n          \"why\": \"a template asks for what a reviewer needs, so nothing is forgotten\"\n        },\n        {\n          \"how\": \"no tracked file is in a dist/, build/ or out/ folder or is a built file by its name, apart from yokoten.json \\\"allowBuild\\\"\",\n          \"id\": \"no-build-output\",\n          \"mark\": \"done\",\n          \"title\": \"Keep build output out of git\",\n          \"why\": \"a build makes these files again from the source, and a reviewer can't read a binary\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds both; then each pull request adds a file in changes/ for each change that users notice\",\n          \"how\": \"CHANGELOG.md has an Unreleased heading, or the repo has a changes/ folder or a .changeset/ folder (Changesets)\",\n          \"id\": \"changelog\",\n          \"mark\": \"to do\",\n          \"title\": \"Keep a changelog\",\n          \"what\": \"no CHANGELOG.md with an \\\"Unreleased\\\" section, and no changes/ folder\",\n          \"why\": \"each pull request adds its entry as it goes, so a release needs no digging\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds .github/workflows/pr.yml\",\n          \"how\": \"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check --pr`, or runs on pull requests with a step that uses yokoten-labs/yokoten and does not set `pr-check: false`\",\n          \"id\": \"titles\",\n          \"mark\": \"to do\",\n          \"title\": \"Check pull request titles\",\n          \"what\": \"CI does not check pull requests (`yokoten check --pr`)\",\n          \"why\": \"a pull request title becomes the commit on main, so it must say what changed and why\"\n        },\n        {\n          \"fix\": \"`yokoten init` writes .github/CODEOWNERS for the lead-only paths; or add one with a line `<path> @<your account>` for each path where a mistake is hard to undo: the rules, CI, agent config\",\n          \"how\": \"a CODEOWNERS file is in .github/, at the root or in docs/, and the first one GitHub reads names an owner, not init's placeholder @YOUR_GITHUB_HANDLE; full doctor also reads whether the repo belongs to an organization, and an organization alone (@org, not @org/team) is not an owner\",\n          \"id\": \"codeowners\",\n          \"mark\": \"to do\",\n          \"title\": \"Name the owner (CODEOWNERS)\",\n          \"what\": \"no CODEOWNERS file\",\n          \"why\": \"the host then asks you to review a pull request that changes those paths, and `check --pr` makes it tier A\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json turns the sandbox on with no * host; .codex/config.toml pins workspace-write, on-request and no network; .gemini/settings.json blocks YOLO mode; .grok/sandbox.toml holds a workspace profile; writable paths stay in the project\",\n          \"id\": \"sandbox\",\n          \"mark\": \"to do\",\n          \"title\": \"Keep your agents in a sandbox\",\n          \"what\": \"no sandbox in .claude/settings.json\",\n          \"why\": \"a worker writes only where the sandbox allows, so it must cover the worktree\"\n        },\n        {\n          \"fix\": \"run `yokoten init` to add the security policy and Dependabot\",\n          \"how\": \"a SECURITY.md, a Dependabot config and a license file are in the repo\",\n          \"id\": \"security-files\",\n          \"mark\": \"to do\",\n          \"title\": \"Add a license and a security policy\",\n          \"what\": \"no security policy (SECURITY.md)\",\n          \"why\": \"people can then report a hole in private, old dependencies get updates, and others know how they may use the code\"\n        }\n      ],\n      \"total\": 13\n    },\n    \"yokoten_version\": \"0.2.0\"\n  },\n  \"schema\": \"yokoten-doctor/1\"\n}\n",
     "rekor": {
-      "uuid": "108e9186e8c5677a5956e083944d59e5b477621264d34a6fe6de84b0846bee69a86d2d7be551d5a8",
-      "log_index": 3629179009,
-      "integrated_time": 1793535018,
-      "url": "https://search.sigstore.dev/?logIndex=3629179009"
+      "uuid": "108e9186e8c5677ac58571bde5799da188d8fa8604d6c62d7f437e35f5d9b336303f79a3f86de975",
+      "log_index": 3655300895,
+      "integrated_time": 1793670589,
+      "url": "https://search.sigstore.dev/?logIndex=3655300895"
     },
     "solana": {
-      "signature": "444urE2WuiX7q1HJcPxomQ454SJeq9izpdCoXM29EbtxzLVpdw7CtFDXqRWFqr2GLUoYN4312e8qCJpUgo5Pi6Tk",
-      "url": "https://explorer.solana.com/tx/444urE2WuiX7q1HJcPxomQ454SJeq9izpdCoXM29EbtxzLVpdw7CtFDXqRWFqr2GLUoYN4312e8qCJpUgo5Pi6Tk?cluster=devnet"
+      "signature": "4kH9N5dpsd6ufLZw45Vxc3WPD5onnyGrpuCfseCdjQhHBmRT5o5qqcLnbcWVgZuGvmKqShYbK1wP31c8zLS7oCgq",
+      "url": "https://explorer.solana.com/tx/4kH9N5dpsd6ufLZw45Vxc3WPD5onnyGrpuCfseCdjQhHBmRT5o5qqcLnbcWVgZuGvmKqShYbK1wP31c8zLS7oCgq?cluster=devnet"
     }
   }
 }

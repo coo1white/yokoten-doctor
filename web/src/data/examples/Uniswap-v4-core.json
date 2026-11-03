@@ -182,238 +182,238 @@
     },
     "secrets": [
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 60,
-        "id": "email",
         "file": "docs/whitepaper/latex/main-zh.tex",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 60
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 64,
-        "id": "email",
         "file": "docs/whitepaper/latex/main-zh.tex",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 64
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 68,
-        "id": "email",
         "file": "docs/whitepaper/latex/main-zh.tex",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 68
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 72,
-        "id": "email",
         "file": "docs/whitepaper/latex/main-zh.tex",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 72
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 76,
-        "id": "email",
         "file": "docs/whitepaper/latex/main-zh.tex",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 76
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 80,
-        "id": "email",
         "file": "docs/whitepaper/latex/main-zh.tex",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 80
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 84,
-        "id": "email",
         "file": "docs/whitepaper/latex/main-zh.tex",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 84
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 88,
-        "id": "email",
         "file": "docs/whitepaper/latex/main-zh.tex",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 88
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 92,
-        "id": "email",
         "file": "docs/whitepaper/latex/main-zh.tex",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 92
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 96,
-        "id": "email",
         "file": "docs/whitepaper/latex/main-zh.tex",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 96
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 58,
-        "id": "email",
         "file": "docs/whitepaper/latex/main.tex",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 58
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 62,
-        "id": "email",
         "file": "docs/whitepaper/latex/main.tex",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 62
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 66,
-        "id": "email",
         "file": "docs/whitepaper/latex/main.tex",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 66
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 70,
-        "id": "email",
         "file": "docs/whitepaper/latex/main.tex",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 70
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 74,
-        "id": "email",
         "file": "docs/whitepaper/latex/main.tex",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 74
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 78,
-        "id": "email",
         "file": "docs/whitepaper/latex/main.tex",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 78
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 82,
-        "id": "email",
         "file": "docs/whitepaper/latex/main.tex",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 82
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 86,
-        "id": "email",
         "file": "docs/whitepaper/latex/main.tex",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 86
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 90,
-        "id": "email",
         "file": "docs/whitepaper/latex/main.tex",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 90
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 94,
-        "id": "email",
         "file": "docs/whitepaper/latex/main.tex",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 94
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 10151,
-        "id": "email",
         "file": "test/js-scripts/dist/getModifyLiquidityResult.js",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 10151
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 45215,
-        "id": "email",
         "file": "test/js-scripts/dist/getModifyLiquidityResult.js",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 45215
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 12318,
-        "id": "email",
         "file": "test/js-scripts/dist/getSqrtPriceAtTick.js",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 12318
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 34127,
-        "id": "email",
         "file": "test/js-scripts/dist/getSqrtPriceAtTick.js",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 34127
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 12318,
-        "id": "email",
         "file": "test/js-scripts/dist/getTickAtSqrtPrice.js",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 12318
       },
       {
-        "what": "an email address",
+        "id": "email",
+        "grade": "sure",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "line": 34127,
-        "id": "email",
         "file": "test/js-scripts/dist/getTickAtSqrtPrice.js",
-        "grade": "sure"
+        "what": "an email address",
+        "line": 34127
       }
     ],
     "default_branch": "main"
@@ -437,7 +437,7 @@
       },
       {
         "path": "AGENTS.md",
-        "content": "<!-- yokoten kit 0.2.0 -->\n# How work is done here\n\nThis file is for every agent and every person working in this repo. It starts from\n[yokoten](https://github.com/yokoten-labs/yokoten)'s core rules; the project's own section is\nat the end.\n\nEvery rule names why it exists and the check that holds it. A rule with no check is a\nwish: the check is what makes it true on a busy day. The \"why\" is an **incident** when\none happened, and a **risk** when the rule came first. Incidents are never made up; a\nrisk becomes an incident only when it happens. When a rule here fails, use the `rca`\nskill: find the cause, add or fix the check, then carry the fix to the other projects.\n\n## Roles\n\n- **The owner** decides what is built and when it ships. Only the owner approves a pull\n  request that touches a hard line (a CODEOWNERS path, such as the release), creates release\n  tags, and changes repo settings. Another tier A pull request merges once a reviewer of\n  another model approves it and every check passes.\n- **The lead** is the session the owner talks to. It plans, splits the work, reviews,\n  commits and opens pull requests (as the bot, never as the owner).\n- **A worker** is a session the lead starts for one task, in its own worktree, with\n  `YOKOTEN_ROLE=worker`. It changes code and tests, and reports back. It never pushes.\n\n## Core rules\n\n| # | Rule | Why | Check |\n|---|------|-----|-------|\n| 1 | Every piece of work starts as an issue. No todo files. | Incident: follow-ups written only in chat reports were nearly lost; a shared todo file made one PR run CI four times on merge conflicts. | `doctor` reports todo files |\n| 2 | Nothing reaches `main` without a pull request and green CI. | Risk: one bad push breaks every branch built on it. | Branch ruleset on the server |\n| 3 | Only the owner creates tags and releases. A general \"merge\", \"ship it\" or \"go ahead\" does not approve a release. Only an owner request that names the version or says \"release\", \"publish\" or \"tag\" does. | Risk: when to ship is the owner's call, and a pushed tag can start a release. | Tool guard; tag ruleset on the server |\n| 4 | A fix task changes code, never tests (`YOKOTEN_FIX_TASK=1`). | Risk: the fastest way to make a test pass is to change what it asserts. | Tool guard and commit check |\n| 5 | A worker does not change lead-only files: these rules, agent config, hooks, CI. | Risk: a pull request that edits CI runs that CI before anyone reads it. | Tool guard and commit check for workers; for the bot, no Workflows permission, or CODEOWNERS review of CI changes with every secret behind a protected environment |\n| 6 | Never skip the commit check (`--no-verify`, changing `core.hooksPath`). | Risk: a skipped check makes a broken commit look reviewed. | Tool guard; CI runs the same check |\n| 7 | No plain force push. Merge `main` into a branch only on a real conflict; never rebase a shared branch. | Risk: a force push throws away commits someone else pushed. | Tool guard; branch ruleset |\n| 8 | Squash merge. One pull request, one purpose; small polish goes in one batch. A pull request has a commit-form title, a `tier:` line, Why / What changed / How tested, a linked issue, a file in `changes/` when behaviour changes, a milestone, a type label, and a tier label that matches the `tier:` line. An issue title is `area: verb phrase` (a task) or `area: symptom` (an incident): at most 60 characters, no full stop, no `#N`. | Incident: the owner was asked to review a +3 −2 pull request on its own and said small changes should not each cost a review. | Repo settings (squash only); `check --pr` and `check --issue` in CI |\n| 9 | Review and test the exact commit that merges. The reviewer only reads; the verifier runs it. | Incident: two pull requests, each green on its own, broke `main` together, twice. | `inspect` skill; merge queue where the host has one |\n| 10 | No folder holds more than 7 entries (the root is not counted). | Risk: a flat folder grows until nobody can find anything. Set as a standard by the owner. | Commit check (layout) |\n| 11 | Nothing in the repo, or in what yokoten prints, points at a person or opens their accounts: no personal email, IP, name, city or private domain, and no secret (token or private key). A hit is reported by place, never by content; the home folder shows as `~`. | Incident: the old check read only the live docs, and server names and addresses were still in 56 tracked files. | Commit check and CI (privacy and secrets); `check --history` before going public |\n| 12 | Decisions are written down once and kept. A changed decision gets a new entry that points back. Facts are replaced, not added to. Times are UTC, commit times included. | Risk: a decision that lives only in a chat gets argued again. Incident: every commit recorded the owner's time zone (#40). | `record` skill; commit check (commit time) |\n\n## Writing\n\nPlain English, close to ASD-STE100 (Simplified Technical English), because the readers\ninclude beginners, people reading a second language, and agents. An instruction has at\nmost 20 words; a description at most 25. One instruction per sentence. One word for one\nthing. Active voice. A flow gets a diagram. `check --pr` notes long sentences in changed\nMarkdown; a note never fails CI.\n\n## Names\n\nA name is what a reader meets first and reads most. Pick names that a new reader, or an\nagent, understands without scrolling back. The yokoten guide says why:\n[Naming](https://github.com/yokoten-labs/yokoten/blob/main/docs/guide.md#naming).\n\n- Whole words. A short form only when everyone knows it (`id`, `url`, `config`). Never\n  delete letters inside a word.\n- At most 4 words. There is no character limit, because a limit makes people abbreviate.\n- One letter only for a name used within about 10 lines, such as a loop counter.\n- A function's name starts with a verb. A true/false value starts with `is`, `has` or\n  `can`.\n- One idea keeps one name in every file.\n- Use the language's own case style, for example `camelCase` in TypeScript and\n  `snake_case` in Python.\n\n| Hard to read | Easy to read | Why |\n|---|---|---|\n| `r`, still used 30 lines later | `result` | By line 30 the reader has forgotten what `r` holds. |\n| `cfgMgr` | `configManager` | Letters cut from inside words make the reader guess. |\n| `processTheUserInputDataNow` | `parseInput` | Six words, and three of them say nothing. |\n| `valid` | `isValid` | `is` says the value is only true or false. |\n\n## Where to look\n\n| For | Read |\n|-----|------|\n| Why something is the way it is | `docs/records/` |\n| Handing a task to a worker | the `dispatch` skill |\n| Reviewing a pull request | the `inspect` skill |\n| Something went wrong | the `rca` skill |\n| What this repo is missing | `yokoten doctor` |\n\n## This project\n\n### Build\nRun `git submodule update --init --recursive` then `forge build`.\nRequires Foundry v1.3.6 and solc 0.8.26 with via_ir and cancun EVM.\nFormatter check is `forge fmt --check` and `npx prettier --check .`.\n\n### Test\nRun `forge test --isolate -vvv`.\nPR profile: `FOUNDRY_PROFILE=pr forge test --isolate -vvv`.\nCI profile: `FOUNDRY_PROFILE=ci forge test --isolate -vvv` with `FORGE_SNAPSHOT_CHECK=true`.\nSnapshots are in `/snapshots/*.json` and `.forge-snapshots/` - do not edit manually.\nFuzz runs are 1000 default, 10000 pr, 100000 ci per `foundry.toml`.\n\n### Do not touch\nDo not edit `lib/` submodules directly.\nDo not edit `licenses/` or `docs/security/audits/`.\nDo not commit build output to `test/js-scripts/dist/`.\nDo not change `foundry.toml` solc, optimizer_runs, or `remappings.txt` without review.\nTODO: owner must confirm publish and echidna commands.\n\n",
+        "content": "<!-- yokoten kit 0.2.0 -->\n# How work is done here\n\nThis file is for every agent and every person working in this repo. It starts from\n[yokoten](https://github.com/yokoten-labs/yokoten)'s core rules; the project's own section is\nat the end.\n\nEvery rule names why it exists and the check that holds it. A rule with no check is a\nwish: the check is what makes it true on a busy day. The \"why\" is an **incident** when\none happened, and a **risk** when the rule came first. Incidents are never made up; a\nrisk becomes an incident only when it happens. When a rule here fails, use the `rca`\nskill: find the cause, add or fix the check, then carry the fix to the other projects.\n\n## Roles\n\n- **The owner** decides what is built and when it ships. Only the owner approves a pull\n  request that touches a hard line (a CODEOWNERS path, such as the release), creates release\n  tags, and changes repo settings. Another tier A pull request merges once a reviewer of\n  another model approves it and every check passes.\n- **The lead** is the session the owner talks to. It plans, splits the work, reviews,\n  commits and opens pull requests (as the bot, never as the owner).\n- **A worker** is a session the lead starts for one task, in its own worktree, with\n  `YOKOTEN_ROLE=worker`. It changes code and tests, and reports back. It never pushes.\n\n## Core rules\n\n| # | Rule | Why | Check |\n|---|------|-----|-------|\n| 1 | Every piece of work starts as an issue. No todo files. | Incident: follow-ups written only in chat reports were nearly lost; a shared todo file made one PR run CI four times on merge conflicts. | `doctor` reports todo files |\n| 2 | Nothing reaches `main` without a pull request and green CI. | Risk: one bad push breaks every branch built on it. | Branch ruleset on the server |\n| 3 | Only the owner creates tags and releases. A general \"merge\", \"ship it\" or \"go ahead\" does not approve a release. Only an owner request that names the version or says \"release\", \"publish\" or \"tag\" does. | Risk: when to ship is the owner's call, and a pushed tag can start a release. | Tool guard; tag ruleset on the server |\n| 4 | A fix task changes code, never tests (`YOKOTEN_FIX_TASK=1`). | Risk: the fastest way to make a test pass is to change what it asserts. | Tool guard and commit check |\n| 5 | A worker does not change lead-only files: these rules, agent config, hooks, CI. | Risk: a pull request that edits CI runs that CI before anyone reads it. | Tool guard and commit check for workers; for the bot, no Workflows permission, or CODEOWNERS review of CI changes with every secret behind a protected environment |\n| 6 | Never skip the commit check (`--no-verify`, changing `core.hooksPath`). | Risk: a skipped check makes a broken commit look reviewed. | Tool guard; CI runs the same check |\n| 7 | No plain force push. Merge `main` into a branch only on a real conflict; never rebase a shared branch. | Risk: a force push throws away commits someone else pushed. | Tool guard; branch ruleset |\n| 8 | Squash merge. One pull request, one purpose; small polish goes in one batch. A pull request has a commit-form title, a `tier:` line, Why / What changed / How tested, a linked issue, a file in `changes/` when behaviour changes, a milestone, a type label, and a tier label that matches the `tier:` line. An issue title is `area: verb phrase` (a task) or `area: symptom` (an incident): at most 60 characters, no full stop, no `#N`. | Incident: the owner was asked to review a +3 −2 pull request on its own and said small changes should not each cost a review. | Repo settings (squash only); `check --pr` and `check --issue` in CI |\n| 9 | Review and test the exact commit that merges. The reviewer only reads; the verifier runs it. | Incident: two pull requests, each green on its own, broke `main` together, twice. | `inspect` skill; merge queue where the host has one |\n| 10 | No folder holds more than 7 entries (the root is not counted). | Risk: a flat folder grows until nobody can find anything. Set as a standard by the owner. | Commit check (layout) |\n| 11 | Nothing in the repo, or in what yokoten prints, points at a person or opens their accounts: no personal email, IP, name, city or private domain, and no secret (token or private key). A hit is reported by place, never by content; the home folder shows as `~`. | Incident: the old check read only the live docs, and server names and addresses were still in 56 tracked files. | Commit check and CI (privacy and secrets); `check --history` before going public |\n| 12 | Decisions are written down once and kept. A changed decision gets a new entry that points back. Facts are replaced, not added to. Times are UTC, commit times included. | Risk: a decision that lives only in a chat gets argued again. Incident: every commit recorded the owner's time zone (#40). | `record` skill; commit check (commit time) |\n\n## Writing\n\nPlain English, close to ASD-STE100 (Simplified Technical English), because the readers\ninclude beginners, people reading a second language, and agents. An instruction has at\nmost 20 words; a description at most 25. One instruction per sentence. One word for one\nthing. Active voice. A flow gets a diagram. `check --pr` notes long sentences in changed\nMarkdown; a note never fails CI.\n\n## Names\n\nA name is what a reader meets first and reads most. Pick names that a new reader, or an\nagent, understands without scrolling back. The yokoten guide says why:\n[Naming](https://github.com/yokoten-labs/yokoten/blob/main/docs/guide.md#naming).\n\n- Whole words. A short form only when everyone knows it (`id`, `url`, `config`). Never\n  delete letters inside a word.\n- At most 4 words. There is no character limit, because a limit makes people abbreviate.\n- One letter only for a name used within about 10 lines, such as a loop counter.\n- A function's name starts with a verb. A true/false value starts with `is`, `has` or\n  `can`.\n- One idea keeps one name in every file.\n- Use the language's own case style, for example `camelCase` in TypeScript and\n  `snake_case` in Python.\n\n| Hard to read | Easy to read | Why |\n|---|---|---|\n| `r`, still used 30 lines later | `result` | By line 30 the reader has forgotten what `r` holds. |\n| `cfgMgr` | `configManager` | Letters cut from inside words make the reader guess. |\n| `processTheUserInputDataNow` | `parseInput` | Six words, and three of them say nothing. |\n| `valid` | `isValid` | `is` says the value is only true or false. |\n\n## Where to look\n\n| For | Read |\n|-----|------|\n| Why something is the way it is | `docs/records/` |\n| Handing a task to a worker | the `dispatch` skill |\n| Reviewing a pull request | the `inspect` skill |\n| Something went wrong | the `rca` skill |\n| What this repo is missing | `yokoten doctor` |\n\n## This project\n\n### Build\n* `forge build` - shown in .github/workflows/tests-pr.yml, tests-merge.yml and deploy.yaml (with FOUNDRY_PROFILE ci/pr).\n* `git submodule update --init --recursive` before build - shown in deploy.yaml.\n### Test\n* `forge test --isolate -vvv` with `FORGE_SNAPSHOT_CHECK=true` and `FOUNDRY_PROFILE=ci` or `pr` - shown in tests-merge.yml and tests-pr.yml.\n* `forge fmt --check` and `npx prettier --check .` - shown in lint.yml.\n### What not to touch\n* `lib/forge-std`, `lib/openzeppelin-contracts`, `lib/solmate` - vendored code via .gitmodules.\n* `snapshots/*.json` and `.forge-snapshots/` - gas snapshots written by forge snapshot check, shown in workflows and foundry.toml.\n* `out/` - Foundry build output, shown as read path in foundry.toml.\n* `test/js-scripts/dist/*.js` - built output from test/js-scripts/src, shown in file list and test/js-scripts/build.js.\n* `test/js-scripts/package-lock.json` - lock file, shown in file list.\n\n",
         "source": "yokoten and Muse"
       },
       {
@@ -446,7 +446,7 @@
         "source": "yokoten"
       }
     ],
-    "summary": "Uniswap v4 Core singleton PoolManager Solidity contracts built with Foundry and Forge tests.",
+    "summary": "Uniswap v4 Core singleton PoolManager for swaps and liquidity with hooks, built with Foundry and Solidity 0.8.26.",
     "muse": "ok",
     "claude_import": null,
     "after": {
