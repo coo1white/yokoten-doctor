@@ -20,9 +20,9 @@
     "reply": "chatcmpl-10db6f12e8bc48ffa3c36f12d4fb3a98"
   },
   "test/review/review.test.mjs": {
-    "sha256": "6bd714b8a866dd5969658762f89cad708f0e961618689966b8f114849a0ed750",
+    "sha256": "378e79bd0943ac2b838455c0301f13e8ef0c4141d79cb523a6a650a7744272e0",
     "model": "meta-models/muse-spark-open-1026",
-    "reply": "chatcmpl-85c1d1ea3c7e4bcb8e2e2b9a3a3f7b6b"
+    "reply": "chatcmpl-3908e63d54a740d9a299dd67ba95011e"
   },
   "test/server/check/test_clone_failure.py": {
     "sha256": "8c7b1a851bea369e0362d4a0607cac47812a9e450da1839011d7e6f1b14cb051",
