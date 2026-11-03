@@ -359,11 +359,17 @@ export function renderOtherFilesBody(lastFixes: FixesPayload | null, lastResult:
             }, 250);
             return;
           }
+          if (row.classList.contains("is-blocked")) return;
           event.preventDefault();
           const openRow = (): void => {
             if (openTab(addLink.href)) {
               row.classList.add("is-added");
               openedFiles.add(file.path);
+              return;
+            }
+            row.classList.add("is-blocked");
+            if (!row.querySelector(".blocked-note")) {
+              row.appendChild(make("p", "small blocked-note", "Your browser blocked the new tab. Click Copy and open GitHub again."));
             }
           };
           const copy = navigator.clipboard ? navigator.clipboard.writeText(file.content) : Promise.reject();

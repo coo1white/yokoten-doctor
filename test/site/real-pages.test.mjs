@@ -585,6 +585,8 @@ window.open = () => null;`;
     await evaluate(`[...document.querySelectorAll('[data-file-list] [data-add]')].find((link) => link.textContent.includes('Copy and open')).click()`);
     await new Promise((r) => setTimeout(r, 400));
     assert.equal(await evaluate(`document.querySelectorAll('[data-file-list] .file.is-added').length`), 0);
+    assert.equal(await evaluate(`document.querySelectorAll('[data-file-list] .blocked-note').length`), 1);
+    assert.equal(await evaluate(`document.querySelector('[data-file-list] .blocked-note').textContent`), 'Your browser blocked the new tab. Click Copy and open GitHub again.');
   });
 
   test('an example offers no way to add files to someone else\'s project', { timeout: 180000 }, async (t) => {
