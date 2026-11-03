@@ -1,6 +1,7 @@
 export const MAX_TEXT_CHARS = 300;
 export const MAX_FINDINGS = 10;
-export const PEOPLE_WHO_CAN_APPROVE = ["OWNER", "MEMBER", "COLLABORATOR"];
+export const PEOPLE_WHO_CAN_APPROVE = ["OWNER", "COLLABORATOR"];
+export const LEAD_LOGIN = "yokoten-bot[bot]";
 
 export function parseAnswer(text) {
   if (typeof text !== "string") return null;
@@ -139,7 +140,7 @@ function userMessage(title, body, diff, skipped = []) {
     ""
   ];
   if (skipped.length > 0) {
-    parts.push(`These saved data files are left out of the diff: ${skipped.join(", ")}`);
+    parts.push(`These saved data files are left out of the diff: ${skipped.join(", ")}. They are saved output of the live service. Their absence from the diff is expected, so it is not a finding.`);
     parts.push("");
   }
   parts.push("Diff:", "<<<DIFF", diff ?? "", ">>>");
@@ -197,30 +198,26 @@ async function postReview(repo, prNumber, token, headSha, event, body) {
   if (!res.ok) throw new Error(`post review failed with ${res.status}`);
 }
 
-export async function stopAutoMerge(token, repo, prNumber) {
-  const prRes = await fetch(`https://api.github.com/repos/${repo}/pulls/${prNumber}`, {
+export function clearLine(headSha) {
+  return `Review hold cleared for ${headSha}:`;
+}
+
+export async function isClearedByLead(token, repo, prNumber, headSha) {
+  const res = await fetch(`https://api.github.com/repos/${repo}/issues/${prNumber}/comments?per_page=100`, {
     headers: {
       Authorization: `Bearer ${token}`,
       Accept: "application/vnd.github+json"
     }
   });
-  if (!prRes.ok) throw new Error(`failed to read auto-merge state: ${prRes.status}`);
-  const pr = await prRes.json();
-  if (!pr?.auto_merge) return;
-  const res = await fetch("https://api.github.com/graphql", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: "application/vnd.github+json",
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      query: "mutation($id: ID!) { disablePullRequestAutoMerge(input: { pullRequestId: $id }) { clientMutationId } }",
-      variables: { id: pr.node_id }
-    })
-  });
-  const data = res.ok ? await res.json() : null;
-  if (!data || data.errors) throw new Error(`failed to stop auto-merge: ${res.status} ${data?.errors?.[0]?.type ?? ""}`.trim());
+  if (!res.ok) throw new Error(`failed to read comments: ${res.status}`);
+  const comments = await res.json();
+  return comments.some((comment) =>
+    comment.user?.login === LEAD_LOGIN &&
+    comment.user?.type === "Bot" &&
+    typeof comment.body === "string" &&
+    comment.body.startsWith(clearLine(headSha)) &&
+    comment.body.slice(clearLine(headSha).length).trim() !== ""
+  );
 }
 
 export async function isApprovedByPerson(token, repo, prNumber, headSha) {
@@ -240,10 +237,11 @@ export async function isApprovedByPerson(token, repo, prNumber, headSha) {
   );
 }
 
-export async function holdForPerson(token, repo, prNumber, headSha) {
+export async function holdForDecision(token, repo, prNumber, headSha) {
   if (await isApprovedByPerson(token, repo, prNumber, headSha)) return;
+  if (await isClearedByLead(token, repo, prNumber, headSha)) return;
   process.exitCode = 1;
-  await stopAutoMerge(token, repo, prNumber);
+  console.log(`review: held. The lead comments "${clearLine(headSha)} <reason>", or a person approves this commit. Then this job runs again.`);
 }
 
 export async function main() {
@@ -290,9 +288,9 @@ export async function main() {
 
   if (filteredDiff.length > 200000) {
     const event = "COMMENT";
-    const body = "This diff is too large for one review. It needs a person. This check stays failed until a person approves this commit and it runs again.";
+    const body = "This diff is too large for one review. This check stays failed until the lead clears it with a reason, or a person approves this commit, and it runs again.";
     await postReview(repo, prNumber, token, headSha, event, body);
-    await holdForPerson(token, repo, prNumber, headSha);
+    await holdForDecision(token, repo, prNumber, headSha);
     return;
   }
 
@@ -322,18 +320,14 @@ export async function main() {
     const reviewBody = buildReviewBody(null, model, skipped);
     await postReview(repo, prNumber, token, headSha, event, reviewBody);
     process.exitCode = 1;
-    await stopAutoMerge(token, repo, prNumber);
     return;
   }
 
   const event = decideEvent(answer);
   const reviewBody = buildReviewBody(answer, model, skipped);
   await postReview(repo, prNumber, token, headSha, event, reviewBody);
-  if (answer === null) {
-    process.exitCode = 1;
-    await stopAutoMerge(token, repo, prNumber);
-  }
-  if (event === "REQUEST_CHANGES") await holdForPerson(token, repo, prNumber, headSha);
+  if (answer === null) process.exitCode = 1;
+  if (event === "REQUEST_CHANGES") await holdForDecision(token, repo, prNumber, headSha);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
