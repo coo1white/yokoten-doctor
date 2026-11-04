@@ -1,8 +1,74 @@
-import { make, createLink } from "./dom.ts";
-import { readReportReply, evidenceHref, severityLabel, reportFileName, REPORT_FALLBACK } from "../report.ts";
-import type { ReportDone } from "../report.ts";
+import { make, createLink, createCommandBox, createIcon } from "./dom.ts";
+import { readReportReply, evidenceHref, severityLabel, reportFileName, REPORT_FALLBACK, countLine, reportRecordName } from "../report.ts";
+import type { ReportDone, ReportRecord } from "../report.ts";
 
 const cache = new Map<string, HTMLElement>();
+
+function renderRecord(record: ReportRecord | null | undefined): HTMLElement {
+  const block = make("div", "report-record");
+  const h3 = make("h3", undefined, "On public record");
+  block.appendChild(h3);
+  const hasRekor = !!(record && record.rekor && typeof record.rekor.url === "string" && record.rekor.url !== "");
+  const hasSolana = !!(record && record.solana && typeof record.solana.url === "string" && record.solana.url !== "");
+  if (!record || (!hasRekor && !hasSolana)) {
+    const p = make("p", undefined, "No public record for this report.");
+    block.appendChild(p);
+    return block;
+  }
+  const intro = make("p", undefined, "This report has its own record, linked to the check's. It shows the report wasn't changed, not that it's right.");
+  block.appendChild(intro);
+  const ol = make("ol", "steps-n");
+  const liOne = make("li");
+  const pOne = make("p", undefined, "Download the record.");
+  liOne.appendChild(pOne);
+  const actions = make("div", "save-actions");
+  const dl = make("button", "btn btn-line ctl", "Download");
+  dl.type = "button";
+  dl.addEventListener("click", () => {
+    const blob = new Blob([record.document], { type: "application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = reportRecordName(record.sha256);
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
+  actions.appendChild(dl);
+  liOne.appendChild(actions);
+  ol.appendChild(liOne);
+  const liTwo = make("li");
+  const pTwo = make("p", undefined, "Hash it.");
+  liTwo.appendChild(pTwo);
+  liTwo.appendChild(createCommandBox(`sha256sum ${reportRecordName(record.sha256)}`));
+  ol.appendChild(liTwo);
+  const liThree = make("li");
+  const pThree = make("p", undefined, "It must match:");
+  liThree.appendChild(pThree);
+  liThree.appendChild(createCommandBox(record.sha256));
+  if (hasRekor) {
+    const link = createLink(record.rekor!.url, "See it on Sigstore Rekor");
+    link.classList.add("link", "ctl");
+    link.appendChild(document.createTextNode(" "));
+    link.appendChild(createIcon("out"));
+    liThree.appendChild(link);
+  }
+  if (hasSolana) {
+    const link = createLink(record.solana!.url, "Solana devnet memo (test network)");
+    link.classList.add("link", "ctl");
+    link.appendChild(document.createTextNode(" "));
+    link.appendChild(createIcon("out"));
+    liThree.appendChild(link);
+  }
+  ol.appendChild(liThree);
+  block.appendChild(ol);
+  if ((hasRekor ? 1 : 0) + (hasSolana ? 1 : 0) === 1) {
+    const last = make("p", undefined, "Part of the record was written. The hash still checks the report.");
+    block.appendChild(last);
+  }
+  return block;
+}
 
 export function getReportSection(input: { api: string; owner: string; repo: string; commit: string }): HTMLElement {
   const key = `${input.owner}/${input.repo}@${input.commit}`;
@@ -20,34 +86,33 @@ export function getReportSection(input: { api: string; owner: string; repo: stri
     }
   }
   function renderIdle() {
-    const h2 = make("h2", undefined, "Want a deeper look? Get a review report.");
+    const h2 = make("h2", undefined, "Get a review report");
     section.appendChild(h2);
-    const p = make("p", undefined, "Muse reads the files again and lists the risks an AI agent should know before it changes this project. Each risk points to a line of code. It takes about a minute.");
+    const p = make("p", undefined, "Muse lists the risks an AI agent should know here. Each one links to a line of code. About a minute.");
     section.appendChild(p);
-    const btn = make("button", "btn btn-primary ctl", "Get the review report");
+    const actions = make("div", "save-actions");
+    const btn = make("button", "btn btn-primary ctl", "Get the report");
     btn.setAttribute("data-report-start", "");
     btn.type = "button";
     btn.addEventListener("click", () => {
       void startReport();
     });
-    section.appendChild(btn);
+    actions.appendChild(btn);
+    section.appendChild(actions);
   }
   function renderWorking() {
-    const h2 = make("h2", undefined, "Want a deeper look? Get a review report.");
+    const h2 = make("h2", undefined, "Get a review report");
     section.appendChild(h2);
-    const p = make("p", "report-working", "Writing the report. It takes about a minute, and you can keep reading the page.");
+    const p = make("p", "report-working", "Writing the report. About a minute.");
     p.setAttribute("aria-live", "polite");
     section.appendChild(p);
   }
   function renderDone(report: ReportDone) {
     const h2 = make("h2", undefined, "Review report");
     section.appendChild(h2);
-    const summary = make("p", "report-summary", report.summary);
+    const summary = make("p", "report-summary", countLine(report.findings));
     section.appendChild(summary);
-    if (report.findings.length === 0) {
-      const none = make("p", undefined, "No risks found in the files it read.");
-      section.appendChild(none);
-    } else {
+    if (report.findings.length > 0) {
       const ol = make("ol", "report-list");
       for (const f of report.findings) {
         const li = make("li");
@@ -72,10 +137,10 @@ export function getReportSection(input: { api: string; owner: string; repo: stri
       }
       section.appendChild(ol);
     }
-    const note = make("p", "report-note", `Made with cool-workflow ${report.cw_version} and Muse Spark Open. It read the files and ran no code. AI can be wrong, so open each line and check it.`);
+    const note = make("p", "report-note", `Made with cool-workflow ${report.cw_version} and Muse. It ran no code. AI can be wrong, so check each line.`);
     section.appendChild(note);
     const actions = make("div", "save-actions");
-    const dl = make("button", "btn btn-line ctl", "Download the report (Markdown)");
+    const dl = make("button", "btn btn-line ctl", "Download (Markdown)");
     dl.setAttribute("data-report-download", "");
     dl.type = "button";
     dl.addEventListener("click", () => {
@@ -91,19 +156,23 @@ export function getReportSection(input: { api: string; owner: string; repo: stri
     });
     actions.appendChild(dl);
     section.appendChild(actions);
+    const recordBlock = renderRecord(report.record ?? null);
+    section.appendChild(recordBlock);
   }
   function renderFailed(message: string) {
-    const h2 = make("h2", undefined, "Want a deeper look? Get a review report.");
+    const h2 = make("h2", undefined, "Get a review report");
     section.appendChild(h2);
     const p = make("p", "report-failed", message);
     section.appendChild(p);
+    const actions = make("div", "save-actions");
     const btn = make("button", "btn btn-primary ctl", "Try again");
     btn.setAttribute("data-report-start", "");
     btn.type = "button";
     btn.addEventListener("click", () => {
       void startReport();
     });
-    section.appendChild(btn);
+    actions.appendChild(btn);
+    section.appendChild(actions);
   }
   function render() {
     while (section.firstChild) section.removeChild(section.firstChild);

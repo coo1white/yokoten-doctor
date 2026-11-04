@@ -190,3 +190,5 @@
 .report-working { color: var(--muted); }
 .report-summary { margin-block: var(--s3) var(--s4); }
 .report-failed { color: var(--muted); }
+.report-record { margin-top: var(--s5); padding-top: var(--s4); border-top: 1px solid var(--line); }
+.report-record h3 { margin: 0 0 var(--s2); }

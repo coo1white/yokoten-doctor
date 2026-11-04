@@ -230,7 +230,7 @@ function createSaveStepsSection(input: { owner: string; repo: string; branch: st
   return section;
 }
 
-function createRestSection(lastResult: CheckResult, lastFixes: FixesPayload | null, vm: ViewModel, lastRecord: RecordPayload | null, isRecordShown: boolean, isExample: boolean): HTMLElement {
+function createRestSection(lastResult: CheckResult, lastFixes: FixesPayload | null, vm: ViewModel, lastRecord: RecordPayload | null, isRecordShown: boolean, isExample: boolean, hasReport: boolean): HTMLElement {
   const rest = make("section", "f-rest");
   const restTitle = make("h2", undefined, "More details");
   rest.appendChild(restTitle);
@@ -247,7 +247,7 @@ function createRestSection(lastResult: CheckResult, lastFixes: FixesPayload | nu
   const privateRow = renderPrivateRow({ vm });
   if (privateRow) rest.appendChild(privateRow);
   if (isRecordShown) {
-    const proofRow = renderProofRow({ vm, lastRecord });
+    const proofRow = renderProofRow({ vm, lastRecord, hasReport });
     rest.appendChild(proofRow);
   }
   const summaryText = lastFixes?.summary?.trim() ?? "";
@@ -491,7 +491,7 @@ export function renderResultPage(input: { lastResult: CheckResult; vm: ViewModel
   outer.appendChild(topWrap);
   if (result.job) outer.appendChild(result.job);
   if (reportSection) outer.appendChild(reportSection);
-  const rest = createRestSection(lastResult, lastFixes, vm, lastRecord, isRecordShown, isExample);
+  const rest = createRestSection(lastResult, lastFixes, vm, lastRecord, isRecordShown, isExample, reportSection !== null);
   outer.appendChild(rest);
   return outer;
 }

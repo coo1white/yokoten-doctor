@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readReportReply, evidenceHref, severityLabel, reportFileName, REPORT_FALLBACK } from "../../web/src/client/report.ts";
+import { readReportReply, evidenceHref, severityLabel, reportFileName, REPORT_FALLBACK, countLine, reportRecordName } from "../../web/src/client/report.ts";
 
 test("readReportReply done filters bad findings", () => {
   const body = {
@@ -45,7 +45,7 @@ test("readReportReply error with message", () => {
 test("readReportReply failed reply", () => {
   const state = readReportReply(200, { status: "failed", message: "bad" });
   assert.equal(state.kind, "failed");
-  if (state.kind === "failed") assert.equal(state.message, "bad");
+  if (state.kind === "failed") assert.equal(state.message, REPORT_FALLBACK);
 });
 
 test("readReportReply junk gives fallback", () => {
@@ -80,4 +80,76 @@ test("severityLabel", () => {
 
 test("reportFileName", () => {
   assert.equal(reportFileName("o", "r", "abcdef1234"), "review-o-r-abcdef1.md");
+});
+
+test("countLine no findings", () => {
+  assert.equal(countLine([]), "No risks found.");
+});
+
+test("countLine one high", () => {
+  assert.equal(countLine([{ severity: "P1", title: "t", evidence: [] }]), "1 risk: 1 high.");
+});
+
+test("countLine nine risks", () => {
+  const findings = [
+    { severity: "P0", title: "a", evidence: [] },
+    { severity: "P1", title: "b", evidence: [] },
+    { severity: "P1", title: "c", evidence: [] },
+    { severity: "P1", title: "d", evidence: [] },
+    { severity: "P1", title: "e", evidence: [] },
+    { severity: "P1", title: "f", evidence: [] },
+    { severity: "P2", title: "g", evidence: [] },
+    { severity: "P2", title: "h", evidence: [] },
+    { severity: "P2", title: "i", evidence: [] },
+  ];
+  assert.equal(countLine(findings), "9 risks: 1 fix first, 5 high, 3 medium.");
+});
+
+test("countLine low includes P3", () => {
+  assert.equal(countLine([{ severity: "P3", title: "t", evidence: [] }]), "1 risk: 1 low.");
+});
+
+test("reportRecordName", () => {
+  assert.equal(reportRecordName("abcdef1234567890"), "yokoten-doctor-report-abcdef123456.json");
+});
+
+test("readReportReply keeps good record", () => {
+  const body = {
+    status: "done",
+    summary: "s",
+    findings: [],
+    owner: "o",
+    repo: "r",
+    commit: "c",
+    cw_version: "v",
+    model: "m",
+    markdown: "md",
+    record: {
+      sha256: "abc123",
+      recorded_at: "2024-01-01T00:00:00Z",
+      document: "{\"hello\":1}",
+      rekor: { url: "https://example.com/rekor" },
+      solana: null,
+    },
+  };
+  const state = readReportReply(200, body);
+  assert.equal(state.kind, "done");
+  if (state.kind === "done") {
+    assert.equal(state.report.record?.sha256, "abc123");
+    assert.equal(state.report.record?.document, "{\"hello\":1}");
+    assert.deepEqual(state.report.record?.rekor, { url: "https://example.com/rekor" });
+    assert.equal(state.report.record?.solana, null);
+  }
+});
+
+test("readReportReply record without document gives null", () => {
+  const body = {
+    status: "done",
+    summary: "s",
+    findings: [],
+    record: { sha256: "abc" },
+  };
+  const state = readReportReply(200, body);
+  assert.equal(state.kind, "done");
+  if (state.kind === "done") assert.equal(state.report.record, null);
 });
