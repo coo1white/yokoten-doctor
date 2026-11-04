@@ -52,6 +52,8 @@ def safe_extract(data: bytes, dest: pathlib.Path) -> int:
             segs = rest.split("/")
             if ".." in segs:
                 continue
+            if segs[0] == ".cw":
+                continue
             if member.size > 5 * 1024 * 1024:
                 continue
             if not (member.isreg() or member.isdir()):
@@ -166,8 +168,9 @@ def latest_run(repo_dir: pathlib.Path) -> pathlib.Path:
     entries = [p for p in runs_dir.iterdir() if p.is_dir()]
     if not entries:
         raise ReportFailed("no run")
-    entries.sort(key=lambda p: p.name)
-    return entries[-1]
+    if len(entries) != 1:
+        raise ReportFailed("no run")
+    return entries[0]
 
 
 def make_bundle(run, env, repo_dir: pathlib.Path, work_path: pathlib.Path, run_id: str):
