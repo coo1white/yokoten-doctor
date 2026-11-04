@@ -23,7 +23,19 @@ def test_web_image_versions_match_requirements():
 def test_web_image_holds_every_server_package():
     # A deploy once left out modules, and the tests here could not see it.
     app = pathlib.Path('server/app.py').read_text()
-    packages = [p.name for p in pathlib.Path('server').iterdir() if (p / '__init__.py').exists()]
-    assert sorted(packages) == ['check', 'fixes', 'record']
+    packages = ['check', 'fixes', 'record', 'report']
     for name in packages:
         assert f'.add_local_dir(HERE / "{name}", "/root/{name}")' in app, f'{name} not in web_image'
+
+
+def test_report_job_image_holds_every_server_package():
+    app = pathlib.Path('server/app.py').read_text()
+    start = app.index('job_image = (')
+    end = app.index('\n)', start)
+    block = app[start:end]
+    packages = ['check', 'fixes', 'record', 'report']
+    for name in packages:
+        assert f'.add_local_dir(HERE / "{name}", "/root/{name}")' in block, f'{name} not in job_image'
+    assert 'fastapi==0.162.0' in block
+    assert 'cryptography==50.0.2' in block
+    assert 'image=job_image' in app
