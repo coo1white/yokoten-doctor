@@ -5,6 +5,7 @@ import { createCommandBox, captureDetailsState, restoreDetailsState } from "./ui
 import { renderWorking } from "./ui/working.ts";
 import { renderResultPage, clearStepProgress } from "./ui/page.ts";
 import type { CheckResult, FixesPayload, RecordPayload } from "./types.ts";
+import { getReportSection } from "./ui/report.ts";
 
 const appEl = document.getElementById("app");
 const landingEl = document.getElementById("landing");
@@ -181,7 +182,14 @@ function renderResult(): void {
     render();
     window.scrollTo(0, 0);
   };
-  appEl.appendChild(renderResultPage({ lastResult, vm, screen, lastFixes, lastRecord, isRecordShown: lastRecord !== null || isStreamOpen === false, isEntering, isExample, isSavedCheck: isSavedCheck && !isExample, onBackToSteps }));
+  let reportSection: HTMLElement | null = null;
+  const owner = typeof lastResult.owner === "string" ? lastResult.owner : "";
+  const repo = typeof lastResult.repo === "string" ? lastResult.repo : "";
+  const commit = typeof lastResult.commit === "string" ? lastResult.commit : "";
+  if (owner !== "" && repo !== "" && commit !== "" && (screen === "understood" || screen === "already has" || screen === "too big" || screen === "failed" || screen === "no file")) {
+    reportSection = getReportSection({ api: API, owner, repo, commit });
+  }
+  appEl.appendChild(renderResultPage({ lastResult, vm, screen, lastFixes, lastRecord, isRecordShown: lastRecord !== null || isStreamOpen === false, isEntering, isExample, isSavedCheck: isSavedCheck && !isExample, onBackToSteps, reportSection }));
   lastShownState = "result";
   restoreDetailsState(appEl, openDetailsKeys);
   if (isEntering) openCheckFromHash();

@@ -179,3 +179,11 @@
 /* waiting */
 .wait { display: flex; align-items: center; gap: var(--s3); padding-block: var(--s4); border-block: 1px solid var(--line); }
 .wait i { flex: none; width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--line); border-top-color: var(--fg); animation: spin 900ms linear infinite; }
+.f-report { margin-top: var(--s6); padding: var(--s5); border-top: 1px solid var(--line); }
+.report-list { list-style: none; padding-left: 0; display: grid; gap: var(--s4); }
+.report-sev { font-size: var(--t-sm); font-weight: var(--w-strong); padding: 2px 6px; border-radius: var(--r-sm); border: 1px solid currentColor; }
+.report-sev[data-sev="P0"] { color: var(--danger, currentColor); border-color: currentColor; }
+.report-sev[data-sev="P1"] { color: var(--warning, currentColor); border-color: currentColor; }
+.report-title { font-weight: 600; margin-left: var(--s2); }
+.report-evidence { font-size: var(--t-sm); overflow-wrap: anywhere; display: flex; flex-wrap: wrap; gap: var(--s2); }
+.report-note { font-size: var(--t-sm); color: var(--muted); }

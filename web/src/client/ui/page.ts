@@ -476,8 +476,8 @@ function renderScreen(screen: ResultScreen, context: ResultContext): { top: Node
   }
 }
 
-export function renderResultPage(input: { lastResult: CheckResult; vm: ViewModel; screen: ResultScreen; lastFixes: FixesPayload | null; lastRecord: RecordPayload | null; isRecordShown: boolean; isEntering: boolean; isExample: boolean; isSavedCheck: boolean; onBackToSteps: () => void }): HTMLElement {
-  const { lastResult, vm, screen, lastFixes, lastRecord, isRecordShown, isEntering, isExample, isSavedCheck, onBackToSteps } = input;
+export function renderResultPage(input: { lastResult: CheckResult; vm: ViewModel; screen: ResultScreen; lastFixes: FixesPayload | null; lastRecord: RecordPayload | null; isRecordShown: boolean; isEntering: boolean; isExample: boolean; isSavedCheck: boolean; onBackToSteps: () => void; reportSection: HTMLElement | null }): HTMLElement {
+  const { lastResult, vm, screen, lastFixes, lastRecord, isRecordShown, isEntering, isExample, isSavedCheck, onBackToSteps, reportSection } = input;
   const owner = String(lastResult.owner ?? "");
   const repo = String(lastResult.repo ?? "");
   const branch: string | null = lastResult.default_branch ?? lastResult.branch ?? null;
@@ -490,6 +490,7 @@ export function renderResultPage(input: { lastResult: CheckResult; vm: ViewModel
   for (const node of result.top) topWrap.appendChild(node);
   outer.appendChild(topWrap);
   if (result.job) outer.appendChild(result.job);
+  if (reportSection) outer.appendChild(reportSection);
   const rest = createRestSection(lastResult, lastFixes, vm, lastRecord, isRecordShown, isExample);
   outer.appendChild(rest);
   return outer;
