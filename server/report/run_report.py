@@ -141,6 +141,10 @@ def parse_verdict(text: str) -> dict:
             if ".." in e:
                 continue
             evidence.append(e)
+        if cls == "non-issue":
+            continue
+        if not evidence:
+            continue
         out.append({"severity": severity, "title": title, "classification": cls, "evidence": evidence})
     return {"summary": summary, "findings": out}
 
