@@ -326,3 +326,9 @@ def test_existing_check_keys_unchanged():
     assert any(k.startswith("limit:day:") for k in store.d.keys())
     assert any(k.startswith("limit:ip:") for k in store.d.keys())
     assert not any(k.startswith("report:") for k in store.d.keys())
+
+
+def test_report_key_format():
+    k = report_key("O", "R", "a" * 40)
+    assert k.endswith("@r2")
+    assert k == k.lower()

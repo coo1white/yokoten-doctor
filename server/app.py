@@ -13,7 +13,9 @@ from check.repo_url import BadRepoUrl
 from check.repo_url import parse_repo_url as _parse_repo_url_default
 from check.result import summarize as _summarize_default
 from check.sandbox_run import run_in_sandbox
+from check.sandbox_run import YOKOTEN_VERSION
 from fixes.build import build_fixes
+from record.document import record_key
 from report.run_report import CW_VERSION, report_image, make_report
 import modal
 import modal.exception
@@ -35,7 +37,7 @@ REPORT_COMMIT = re.compile(r"^[0-9a-f]{40}$")
 
 
 def report_key(owner, repo, commit):
-    return f"report:{owner}/{repo}@{commit}@{CW_VERSION}".lower()
+    return f"report:{owner}/{repo}@{commit}@{CW_VERSION}@r2".lower()
 
 
 HERE = pathlib.Path(__file__).parent
@@ -441,9 +443,23 @@ def create_api(run: Callable = run_in_sandbox, public: Callable = _check_public_
     return api
 
 
-@app.function(image=job_image, timeout=900, max_containers=4, secrets=[modal.Secret.from_name("yokoten-doctor-baseten")])
+@app.function(image=job_image, timeout=900, max_containers=4, secrets=[modal.Secret.from_name("yokoten-doctor-baseten"), modal.Secret.from_name("yokoten-doctor-record")])
 def report_job(owner: str, repo: str, commit: str) -> dict:
-    return make_report(owner, repo, commit)
+    result = make_report(owner, repo, commit)
+    try:
+        from record.write import write_report_record
+
+        store = open_cache()
+        check_sha256 = None
+        if store is not None:
+            check = store.get(record_key(owner, repo, commit, YOKOTEN_VERSION), None)
+            if isinstance(check, dict) and isinstance(check.get("sha256"), str):
+                check_sha256 = check["sha256"]
+        result["record"] = write_report_record(result, check_sha256, store=store)
+    except Exception as error:
+        logger.error(type(error).__name__)
+        result["record"] = None
+    return result
 
 
 @app.function(image=web_image, timeout=180, max_containers=3, secrets=[modal.Secret.from_name("yokoten-doctor-baseten"), modal.Secret.from_name("yokoten-doctor-record")])
