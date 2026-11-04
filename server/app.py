@@ -16,6 +16,7 @@ from check.sandbox_run import run_in_sandbox
 from fixes.build import build_fixes
 from report.run_report import CW_VERSION, report_image, make_report
 import modal
+import modal.exception
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
@@ -337,13 +338,6 @@ def create_api(run: Callable = run_in_sandbox, public: Callable = _check_public_
                 if isinstance(started, (int, float)):
                     if time.time() - started < 900:
                         return JSONResponse(status_code=200, content={"status": "working"})
-        try:
-            public(owner, repo)
-        except (BadRepoUrl, RepoRefused) as error:
-            return JSONResponse(status_code=400, content={"status": "error", "message": str(error)})
-        except Exception:
-            logger.error(type(error).__name__ if 'error' in locals() else "Exception")
-            return JSONResponse(status_code=400, content={"status": "error", "message": REPORT_BAD})
         if report_limiter is not None:
             try:
                 client_ip = request.client.host if request.client else ""
@@ -354,6 +348,13 @@ def create_api(run: Callable = run_in_sandbox, public: Callable = _check_public_
                 return JSONResponse(status_code=429, content={"status": "error", "message": "3 reports an hour is the limit. Try again later."})
             if decision == "day":
                 return JSONResponse(status_code=429, content={"status": "error", "message": "This page made all its reports for today. Try tomorrow."})
+        try:
+            public(owner, repo)
+        except (BadRepoUrl, RepoRefused) as error:
+            return JSONResponse(status_code=400, content={"status": "error", "message": str(error)})
+        except Exception:
+            logger.error(type(error).__name__ if 'error' in locals() else "Exception")
+            return JSONResponse(status_code=400, content={"status": "error", "message": REPORT_BAD})
         try:
             call_id = start_report(owner, repo, commit)
         except Exception as error:
@@ -471,6 +472,6 @@ def fastapi_app():
         call = modal.FunctionCall.from_id(call_id)
         try:
             return call.get(timeout=0)
-        except TimeoutError:
+        except (TimeoutError, modal.exception.TimeoutError):
             return None
     return create_api(limiter=limiter, write_public_record=_write_public_record, start_report=lambda owner, repo, commit: report_job.spawn(owner, repo, commit).object_id, poll_report=_poll_report, report_store=cache, report_limiter=report_limiter)

@@ -257,6 +257,21 @@ def test_api_ip_limit_429():
     assert resp.status_code == 429
 
 
+def test_api_ip_limit_does_not_call_public():
+    store = DictStore()
+    class LimitIP:
+        def allow(self, ip):
+            return "ip"
+    calls = []
+    def public_fake(o, r):
+        calls.append((o, r))
+    api = create_api(public=public_fake, start_report=lambda o,r,c: "id", report_store=store, report_limiter=LimitIP())
+    client = TestClient(api)
+    resp = client.post("/api/report", json={"owner": "owner", "repo": "repo", "commit": "a"*40})
+    assert resp.status_code == 429
+    assert calls == []
+
+
 def test_api_get_no_entry_404():
     store = DictStore()
     api = create_api(public=lambda o,r: None, report_store=store)
