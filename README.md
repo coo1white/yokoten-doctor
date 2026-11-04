@@ -1,20 +1,76 @@
-The web version of `yokoten doctor`.
+<p align="center">
+  <a href="https://youtu.be/QIsv1PGTWX8"><img src="docs/readme-hero.png" width="420" alt="Pixel-art AI figure with a green visor. Text: Don't trust the AI. Verify it. Click to watch the demo video."></a>
+</p>
 
-# yokoten doctor (web)
+<h1 align="center">yokoten doctor</h1>
 
-Paste a public GitHub repo URL. An AI writes how to build it, how to test it, and what not to touch. You check if it's right, then save it as `AGENTS.md`. No terminal. It doesn't grade the repo.
+<p align="center"><b>See what an AI understands from your repo, before it touches your code.</b></p>
 
-This repo holds the page in `web/src/` and the server in `server/`. The
-server runs on Modal, and it calls Muse Spark Open on Baseten to write each
-repo's summary and project section. The design is in `docs/design.md`.
+<p align="center">
+  <a href="https://doctor.yokoten.app"><b>Try it now</b></a> ·
+  <a href="https://youtu.be/QIsv1PGTWX8">Watch the 2-minute demo</a> ·
+  <a href="docs/design.md">Read the design</a>
+</p>
+
+<p align="center">Free · No account · Public repos · Your repo's code never runs</p>
+
+<p align="center">
+  <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-green?style=flat-square"></a>
+  <img alt="Model: Muse Spark Open" src="https://img.shields.io/badge/model-Muse%20Spark%20Open-blue?style=flat-square">
+  <img alt="Runs on Modal" src="https://img.shields.io/badge/runs%20on-Modal-black?style=flat-square">
+</p>
+
+---
+
+AI coding agents read your repo before they change it. If they get the build, the tests, or the off-limits files wrong, you pay for it later. yokoten doctor shows you what an agent will take away, so you can fix it first.
+
+## Highlights
+
+- **Paste a URL, see the AI's view.** Muse Spark Open reads the repo and writes how to build it, how to test it, and what not to touch.
+- **You stay the judge.** If the text looks right, save it as `AGENTS.md`. The page then checks that it's there. A repo that already has one gets no new text.
+- **A review report with line links.** Ask for the risks an agent should know before it changes your project. Each risk links to its line of code. It takes one to two minutes.
+- **Receipts, not trust.** Each result's hash goes to Sigstore Rekor and a Solana devnet memo. You can download the whole review run and check it with one command.
+- **Safe by design.** A throwaway Modal sandbox copies the public files, cuts the network, and runs [yokoten](https://github.com/yokoten-labs/yokoten). Nothing from your repo is installed, built, or run.
+
+## Check the AI's work
+
+A review report comes with the full run behind it. Download the file from the report page, then run:
+
+```bash
+npx -y -p cool-workflow@0.4.1 cw report verify-bundle <file>
+```
+
+This proves nothing changed after the review. It doesn't prove the AI is right. That part is still on you.
 
 ## How it works
+
+```mermaid
+flowchart LR
+  repo["Public GitHub repo"] --> sandbox["Throwaway sandbox:<br/>copy files, cut network,<br/>run yokoten"]
+  sandbox --> muse["Muse Spark Open writes<br/>the project section"]
+  muse --> you["You check it and save<br/>it as AGENTS.md"]
+  sandbox --> record["Hash goes to<br/>Sigstore Rekor and<br/>Solana devnet"]
+  you -.-> report["Optional review report:<br/>risks with line links,<br/>whole run downloadable"]
+```
 
 1. A throwaway sandbox clones the repo and runs yokoten on it.
 2. Muse writes the project section of `AGENTS.md`. The page shows that text first, then the steps to save it as `AGENTS.md` and check that it saved. The saved file holds only that text, not yokoten's template, whose rules name checks a repo without yokoten doesn't have. Further down are yokoten's file checks, its other templates, and a patch.
 3. The server writes a hash of the result to Sigstore Rekor and to a Solana devnet memo. The memo also names the repo, the commit and the yokoten version. You can download the result and compare.
 
 See `docs/public-record.md`.
+
+## Built with
+
+| Part | What it does |
+|------|--------------|
+| [Muse Spark Open](https://ai.meta.com/) on [Baseten](https://www.baseten.co/) | Writes each repo's project section and the review report |
+| [Modal](https://modal.com/) | Runs one throwaway sandbox for each check, and the server |
+| [yokoten](https://github.com/yokoten-labs/yokoten) | Runs the file checks, with the same result every time |
+| [cool-workflow](https://www.npmjs.com/package/cool-workflow) | Plans the review steps and seals the run file |
+| [Sigstore Rekor](https://docs.sigstore.dev/logging/overview/) and Solana devnet | Keep a public record of each result's hash |
+| [Astro](https://astro.build/) | Builds the static page |
+
+Built for the Meta Global AI Developer Hackathon.
 
 ## Run your own copy
 
