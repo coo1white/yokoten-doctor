@@ -125,7 +125,7 @@ test("readReportReply keeps good record", () => {
     model: "m",
     markdown: "md",
     record: {
-      sha256: "abc123",
+      sha256: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
       recorded_at: "2024-01-01T00:00:00Z",
       document: "{\"hello\":1}",
       rekor: { url: "https://example.com/rekor" },
@@ -135,7 +135,7 @@ test("readReportReply keeps good record", () => {
   const state = readReportReply(200, body);
   assert.equal(state.kind, "done");
   if (state.kind === "done") {
-    assert.equal(state.report.record?.sha256, "abc123");
+    assert.equal(state.report.record?.sha256, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     assert.equal(state.report.record?.document, "{\"hello\":1}");
     assert.deepEqual(state.report.record?.rekor, { url: "https://example.com/rekor" });
     assert.equal(state.report.record?.solana, null);
@@ -152,4 +152,35 @@ test("readReportReply record without document gives null", () => {
   const state = readReportReply(200, body);
   assert.equal(state.kind, "done");
   if (state.kind === "done") assert.equal(state.report.record, null);
+});
+
+test("readReportReply record with empty sha256 gives null", () => {
+  const body = {
+    status: "done",
+    summary: "s",
+    findings: [],
+    record: { sha256: "", document: "{\"hello\":1}" },
+  };
+  const state = readReportReply(200, body);
+  assert.equal(state.kind, "done");
+  if (state.kind === "done") assert.equal(state.report.record, null);
+});
+
+test("readReportReply record with 64-hex sha256 and non-empty document is kept", () => {
+  const body = {
+    status: "done",
+    summary: "s",
+    findings: [],
+    record: {
+      sha256: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      recorded_at: "2024-01-01T00:00:00Z",
+      document: "{\"hello\":1}",
+    },
+  };
+  const state = readReportReply(200, body);
+  assert.equal(state.kind, "done");
+  if (state.kind === "done") {
+    assert.equal(state.report.record?.sha256, "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");
+    assert.equal(state.report.record?.document, "{\"hello\":1}");
+  }
 });

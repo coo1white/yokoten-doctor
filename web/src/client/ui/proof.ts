@@ -30,7 +30,7 @@ function makeRunWay(vm: ViewModel): HTMLElement {
   return way;
 }
 
-export function renderProofRow({ vm, lastRecord, hasReport }: { vm: ViewModel; lastRecord: unknown; hasReport: boolean }): HTMLElement {
+export function renderProofRow({ vm, lastRecord }: { vm: ViewModel; lastRecord: unknown }): HTMLElement {
   const rv = recordView(lastRecord);
   const hasRecord = !!(rv && (rv.rekorUrl || rv.solanaUrl));
   if (hasRecord && rv) {
@@ -92,9 +92,6 @@ export function renderProofRow({ vm, lastRecord, hasReport }: { vm: ViewModel; l
     ol.appendChild(liThree);
     confirmWay.appendChild(ol);
     const body: Node[] = [intro, confirmWay, makeRunWay(vm)];
-    if (hasReport) {
-      body.push(make("p", undefined, "The report has its own record, under it."));
-    }
     return createRow("Confirm this result", side, body, { key: "verify", id: "verify" });
   } else {
     const side = "No public record";

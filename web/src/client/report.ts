@@ -24,7 +24,7 @@ export function readReportReply(status: number, body: unknown): ReportState {
       let record: ReportRecord | null = null;
       if (b.record !== null && typeof b.record === "object") {
         const r = b.record as Record<string, unknown>;
-        if (typeof r.sha256 === "string" && typeof r.document === "string") {
+        if (typeof r.sha256 === "string" && r.sha256 !== "" && /^[0-9a-f]{64}$/.test(r.sha256) && typeof r.document === "string" && r.document !== "") {
           const rec: ReportRecord = {
             sha256: r.sha256,
             recorded_at: typeof r.recorded_at === "string" ? r.recorded_at : "",
