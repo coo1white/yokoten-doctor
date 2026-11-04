@@ -330,5 +330,5 @@ def test_existing_check_keys_unchanged():
 
 def test_report_key_format():
     k = report_key("O", "R", "a" * 40)
-    assert k.endswith("@r2")
+    assert k.endswith("@r3")
     assert k == k.lower()
