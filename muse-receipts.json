@@ -1,8 +1,8 @@
 {
   "server/app.py": {
-    "sha256": "90a1924d293c8d0d4a3c3468e399f06460520cff963012be25cde85a711edc24",
+    "sha256": "27902c23430b28772ce642ca34f901d91bf489c195e328957b65a76d44502dce",
     "model": "meta-models/muse-spark-open-1026",
-    "reply": "chatcmpl-492333746be54f82b6942f8241a6858a"
+    "reply": "chatcmpl-2a3e696700ed422abe56424177df8bb8"
   },
   "server/check/github_check.py": {
     "sha256": "49336246809a6d7977e64659002134e16a1833b1682da2ca85a7284beaf86813",
@@ -24,6 +24,16 @@
     "model": "meta-models/muse-spark-open-1026",
     "reply": "chatcmpl-9374cb3665c04f2bb00b1a7c32d9515e"
   },
+  "server/record/document.py": {
+    "sha256": "33257be2abd7afe2fd30b8415e7da3301b0e01ecca86c0b89e71a6f549ed415a",
+    "model": "meta-models/muse-spark-open-1026",
+    "reply": "chatcmpl-51420f88dfbb484db107c6cf04111971"
+  },
+  "server/record/write.py": {
+    "sha256": "80b4d93dc051987eef38fe9bc33f586becc132563463e7c84fcc6679e1dd4343",
+    "model": "meta-models/muse-spark-open-1026",
+    "reply": "chatcmpl-51420f88dfbb484db107c6cf04111971"
+  },
   "server/report/__init__.py": {
     "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
     "model": "meta-models/muse-spark-open-1026",
@@ -43,6 +53,11 @@
     "sha256": "4137994575fc49e43f6e47a88c5358c444220b6c76914fea7e617cc9c1e9b974",
     "model": "meta-models/muse-spark-open-1026",
     "reply": "chatcmpl-10db6f12e8bc48ffa3c36f12d4fb3a98"
+  },
+  "test/record/test_report_record.py": {
+    "sha256": "a7da88c9a3762691e5a4e08b442d32e65cce8c0816733ebb4adac2aa85b8beed",
+    "model": "meta-models/muse-spark-open-1026",
+    "reply": "chatcmpl-51420f88dfbb484db107c6cf04111971"
   },
   "test/review/review.test.mjs": {
     "sha256": "c096aff79c9c7c10334f262180f12681fd6b82dd1f0fc09796a5fb6aac7a1022",
@@ -90,9 +105,9 @@
     "reply": "chatcmpl-04ecefb31e3a4d1ca91035882c9133bd"
   },
   "test/server/test_report.py": {
-    "sha256": "2daf510f2ed379d88d0501c98ad3d6821a39fdaa990cd01dedb5ecaef3550e7f",
+    "sha256": "ca15f9bc71cb1e37affd9781412f578c8cf88161e7bd73b67656acbb45e27277",
     "model": "meta-models/muse-spark-open-1026",
-    "reply": "chatcmpl-492333746be54f82b6942f8241a6858a"
+    "reply": "chatcmpl-2a3e696700ed422abe56424177df8bb8"
   },
   "test/server/test_smoke.py": {
     "sha256": "88e17872bcd6a8d7f70c084d69ebd8e1db26c7f190bd7cc5dc8c9977b685b00e",
