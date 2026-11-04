@@ -34,7 +34,7 @@ export function renderProofRow({ vm, lastRecord }: { vm: ViewModel; lastRecord: 
   const rv = recordView(lastRecord);
   const hasRecord = !!(rv && (rv.rekorUrl || rv.solanaUrl));
   if (hasRecord && rv) {
-    const side = `On record since ${formatRecordTime(rv.recordedAt)}`;
+    const side = `The check, on record since ${formatRecordTime(rv.recordedAt)}`;
     const intro = make("p", undefined, "Download the result, hash it, and compare it with the record. You can also run the same check yourself.");
     const confirmWay = document.createElement("div");
     confirmWay.className = "way";
@@ -91,7 +91,8 @@ export function renderProofRow({ vm, lastRecord }: { vm: ViewModel; lastRecord: 
     }
     ol.appendChild(liThree);
     confirmWay.appendChild(ol);
-    return createRow("Confirm this result", side, [intro, confirmWay, makeRunWay(vm)], { key: "verify", id: "verify" });
+    const body: Node[] = [intro, confirmWay, makeRunWay(vm)];
+    return createRow("Confirm this result", side, body, { key: "verify", id: "verify" });
   } else {
     const side = "No public record";
     const intro = make("p", undefined, "This page has no public record for this result. The check still ran. Nothing to do here.");
