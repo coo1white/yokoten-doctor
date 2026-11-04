@@ -187,3 +187,6 @@
 .report-title { font-weight: 600; margin-left: var(--s2); }
 .report-evidence { font-size: var(--t-sm); overflow-wrap: anywhere; display: flex; flex-wrap: wrap; gap: var(--s2); }
 .report-note { font-size: var(--t-sm); color: var(--muted); }
+.report-working { color: var(--muted); }
+.report-summary { margin-block: var(--s3) var(--s4); }
+.report-failed { color: var(--muted); }
