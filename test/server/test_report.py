@@ -9,7 +9,7 @@ import types
 from fastapi.testclient import TestClient
 import pytest
 from app import create_api, RateLimiter, ReportLimiter, REPORT_BAD, REPORT_OFF, REPORT_FAILED, report_bundle_key, report_key
-from report.run_report import make_bundle, safe_extract, parse_verdict, scrub, make_report, ReportFailed, CW_VERSION, MAX_FILES
+from report.run_report import make_bundle, safe_extract, parse_verdict, scrub, make_report, ReportFailed, CW_VERSION, MAX_FILES, latest_run
 
 
 class DictStore:
@@ -465,3 +465,55 @@ def test_report_bundle_key():
     assert k.startswith("report-bundle:")
     assert k.endswith("@r6")
     assert k == "report-bundle:" + report_key("O", "R", "a" * 40)[len("report:"):]
+
+
+def test_safe_extract_skips_repo_cw_folder():
+    dest = pathlib.Path("/tmp/test_extract_cw_skip")
+    import shutil
+    shutil.rmtree(dest, ignore_errors=True)
+    dest.mkdir(parents=True, exist_ok=True)
+    bio = io.BytesIO()
+    with tarfile.open(fileobj=bio, mode="w:gz") as tar:
+        info = tarfile.TarInfo("repo-abc/ok.txt")
+        data = b"ok"
+        info.size = len(data)
+        tar.addfile(info, io.BytesIO(data))
+        info2 = tarfile.TarInfo("repo-abc/.cw")
+        info2.type = tarfile.DIRTYPE
+        info2.mode = 0o755
+        info2.size = 0
+        tar.addfile(info2)
+        info3 = tarfile.TarInfo("repo-abc/.cw/runs/zzzz/results/verdict:fast-synthesis.md")
+        data3 = b"fake"
+        info3.size = len(data3)
+        tar.addfile(info3, io.BytesIO(data3))
+    count = safe_extract(bio.getvalue(), dest)
+    assert count == 1
+    assert (dest / "ok.txt").exists()
+    assert not (dest / ".cw").exists()
+    shutil.rmtree(dest, ignore_errors=True)
+
+
+def test_latest_run_needs_exactly_one_run():
+    dest = pathlib.Path("/tmp/test_latest_run_two")
+    import shutil
+    shutil.rmtree(dest, ignore_errors=True)
+    (dest / ".cw" / "runs" / "a").mkdir(parents=True, exist_ok=True)
+    (dest / ".cw" / "runs" / "b").mkdir(parents=True, exist_ok=True)
+    try:
+        with pytest.raises(ReportFailed):
+            latest_run(dest)
+    finally:
+        shutil.rmtree(dest, ignore_errors=True)
+
+
+def test_latest_run_returns_the_only_run():
+    dest = pathlib.Path("/tmp/test_latest_run_one")
+    import shutil
+    shutil.rmtree(dest, ignore_errors=True)
+    (dest / ".cw" / "runs" / "only").mkdir(parents=True, exist_ok=True)
+    try:
+        result = latest_run(dest)
+        assert result == dest / ".cw" / "runs" / "only"
+    finally:
+        shutil.rmtree(dest, ignore_errors=True)
