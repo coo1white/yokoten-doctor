@@ -1,13 +1,15 @@
+import base64
+import hashlib
 import io
 import json
 import pathlib
 import tarfile
 import time
-import hashlib
+import types
 from fastapi.testclient import TestClient
 import pytest
-from app import create_api, RateLimiter, ReportLimiter, REPORT_BAD, REPORT_OFF, REPORT_FAILED, report_key
-from report.run_report import safe_extract, parse_verdict, scrub, make_report, ReportFailed, CW_VERSION, MAX_FILES
+from app import create_api, RateLimiter, ReportLimiter, REPORT_BAD, REPORT_OFF, REPORT_FAILED, report_bundle_key, report_key
+from report.run_report import make_bundle, safe_extract, parse_verdict, scrub, make_report, ReportFailed, CW_VERSION, MAX_FILES
 
 
 class DictStore:
@@ -172,6 +174,7 @@ def test_make_report_with_fake_fetch_and_run():
         # check env keys
         assert set(env.keys()) == {"PATH", "HOME", "CW_HOME", "CW_AGENT_COMMAND", "NO_COLOR", "CI"}
         assert "BASETEN_API_KEY" not in env
+        if cmd[1] != "-q": return None
         repo_dir = pathlib.Path(env["CW_HOME"]).parent / "repo"
         # cwd is work dir
         work = pathlib.Path(cwd)
@@ -191,6 +194,8 @@ def test_make_report_with_fake_fetch_and_run():
     assert len(result["findings"]) == 1
     assert not pathlib.Path("/tmp/cw-key/key").exists()
     assert captured_env["CW_AGENT_COMMAND"] == "node /root/report/muse_agent.mjs {{input}} {{result}}"
+    assert result["bundle"] is None
+    assert result["bundle_b64"] is None
 
 
 def test_make_report_no_key_raises():
@@ -204,6 +209,72 @@ def test_make_report_no_key_raises():
         assert str(e) == "no key"
     finally:
         os.environ["BASETEN_API_KEY"] = "test"
+
+
+def test_make_bundle_ok():
+    import tempfile, pathlib, json, hashlib, base64, types
+    run_id = "run123"
+    work_path = pathlib.Path(tempfile.mkdtemp())
+    repo_dir = pathlib.Path(tempfile.mkdtemp())
+    try:
+        def fake_run(cmd, env=None, cwd=None, timeout=None, capture_output=None):
+            if cmd[1] == "report":
+                idx = cmd.index("--output")
+                out_path = pathlib.Path(cmd[idx + 1])
+                out_path.write_bytes(b'{"x":1}')
+                return types.SimpleNamespace(stdout=json.dumps({"ok": True, "verification": {"trustLevel": "unsigned"}}))
+            if cmd[1] == "audit":
+                return types.SimpleNamespace(stdout=json.dumps({"headHash": "sha256:" + "a" * 64, "eventCount": 39}))
+            raise AssertionError(cmd)
+        meta, b64 = make_bundle(fake_run, {}, repo_dir, work_path, run_id)
+        assert meta["sha256"] == hashlib.sha256(b'{"x":1}').hexdigest()
+        assert meta["size"] == 7
+        assert meta["audit_events"] == 39
+        assert meta["run_id"] == run_id
+        assert base64.b64decode(b64) == b'{"x":1}'
+    finally:
+        import shutil
+        shutil.rmtree(str(work_path), ignore_errors=True)
+        shutil.rmtree(str(repo_dir), ignore_errors=True)
+
+
+def test_make_bundle_not_ok():
+    import tempfile, pathlib, json, types
+    work_path = pathlib.Path(tempfile.mkdtemp())
+    repo_dir = pathlib.Path(tempfile.mkdtemp())
+    try:
+        def fake_run(cmd, env=None, cwd=None, timeout=None, capture_output=None):
+            if cmd[1] == "report":
+                return types.SimpleNamespace(stdout=json.dumps({"ok": False}))
+            raise AssertionError(cmd)
+        result = make_bundle(fake_run, {}, repo_dir, work_path, "run123")
+        assert result == (None, None)
+    finally:
+        import shutil
+        shutil.rmtree(str(work_path), ignore_errors=True)
+        shutil.rmtree(str(repo_dir), ignore_errors=True)
+
+
+def test_make_bundle_bad_head():
+    import tempfile, pathlib, json, types
+    work_path = pathlib.Path(tempfile.mkdtemp())
+    repo_dir = pathlib.Path(tempfile.mkdtemp())
+    try:
+        def fake_run(cmd, env=None, cwd=None, timeout=None, capture_output=None):
+            if cmd[1] == "report":
+                idx = cmd.index("--output")
+                out_path = pathlib.Path(cmd[idx + 1])
+                out_path.write_bytes(b'{"x":1}')
+                return types.SimpleNamespace(stdout=json.dumps({"ok": True, "verification": {"trustLevel": "unsigned"}}))
+            if cmd[1] == "audit":
+                return types.SimpleNamespace(stdout=json.dumps({"headHash": "nope", "eventCount": 39}))
+            raise AssertionError(cmd)
+        result = make_bundle(fake_run, {}, repo_dir, work_path, "run123")
+        assert result == (None, None)
+    finally:
+        import shutil
+        shutil.rmtree(str(work_path), ignore_errors=True)
+        shutil.rmtree(str(repo_dir), ignore_errors=True)
 
 
 def test_parse_verdict_conditional_capped_to_p2():
@@ -345,6 +416,35 @@ def test_api_get_expired_gives_failed():
     assert resp.json()["status"] == "failed"
 
 
+def test_api_bundle_ok():
+    store = DictStore()
+    commit = "a" * 40
+    key = report_bundle_key("owner", "repo", commit)
+    store.put(key, base64.b64encode(b"{}").decode())
+    api = create_api(public=lambda o,r: None, report_store=store)
+    client = TestClient(api)
+    resp = client.get("/api/report/bundle", params={"owner": "owner", "repo": "repo", "commit": commit})
+    assert resp.status_code == 200
+    assert resp.content == b"{}"
+    assert resp.headers["content-disposition"].endswith('.cwrun.json"')
+
+
+def test_api_bundle_not_found():
+    store = DictStore()
+    api = create_api(public=lambda o,r: None, report_store=store)
+    client = TestClient(api)
+    resp = client.get("/api/report/bundle", params={"owner": "owner", "repo": "repo", "commit": "a" * 40})
+    assert resp.status_code == 404
+
+
+def test_api_bundle_bad_commit():
+    store = DictStore()
+    api = create_api(public=lambda o,r: None, report_store=store)
+    client = TestClient(api)
+    resp = client.get("/api/report/bundle", params={"owner": "owner", "repo": "repo", "commit": "bad"})
+    assert resp.status_code == 400
+
+
 def test_existing_check_keys_unchanged():
     store = DictStore()
     limiter = RateLimiter(store)
@@ -356,5 +456,12 @@ def test_existing_check_keys_unchanged():
 
 def test_report_key_format():
     k = report_key("O", "R", "a" * 40)
-    assert k.endswith("@r5")
+    assert k.endswith("@r6")
     assert k == k.lower()
+
+
+def test_report_bundle_key():
+    k = report_bundle_key("O", "R", "a" * 40)
+    assert k.startswith("report-bundle:")
+    assert k.endswith("@r6")
+    assert k == "report-bundle:" + report_key("O", "R", "a" * 40)[len("report:"):]

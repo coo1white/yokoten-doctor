@@ -1,3 +1,4 @@
+import base64
 import hashlib
 import json
 import logging
@@ -21,7 +22,7 @@ import modal
 import modal.exception
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import JSONResponse, Response, StreamingResponse
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +38,11 @@ REPORT_COMMIT = re.compile(r"^[0-9a-f]{40}$")
 
 
 def report_key(owner, repo, commit):
-    return f"report:{owner}/{repo}@{commit}@{CW_VERSION}@r5".lower()
+    return f"report:{owner}/{repo}@{commit}@{CW_VERSION}@r6".lower()
+
+
+def report_bundle_key(owner, repo, commit):
+    return "report-bundle:" + report_key(owner, repo, commit)[len("report:"):]
 
 
 HERE = pathlib.Path(__file__).parent
@@ -440,16 +445,55 @@ def create_api(run: Callable = run_in_sandbox, public: Callable = _check_public_
         except Exception:
             pass
         return JSONResponse(status_code=200, content={"status": "failed", "message": REPORT_FAILED})
+
+    @api.get("/api/report/bundle")
+    async def get_report_bundle(request: Request):
+        owner = request.query_params.get("owner")
+        repo = request.query_params.get("repo")
+        commit = request.query_params.get("commit")
+        if not isinstance(owner, str) or not isinstance(repo, str) or not isinstance(commit, str):
+            return JSONResponse(status_code=400, content={"status": "error", "message": REPORT_BAD})
+        if not REPORT_NAME.match(owner) or not REPORT_NAME.match(repo) or not REPORT_COMMIT.match(commit):
+            return JSONResponse(status_code=400, content={"status": "error", "message": REPORT_BAD})
+        if report_store is None:
+            return JSONResponse(status_code=503, content={"status": "error", "message": REPORT_OFF})
+        try:
+            b64 = report_store.get(report_bundle_key(owner, repo, commit))
+        except Exception:
+            return JSONResponse(status_code=503, content={"status": "error", "message": REPORT_OFF})
+        if not isinstance(b64, str):
+            return JSONResponse(status_code=404, content={"status": "none"})
+        try:
+            data = base64.b64decode(b64, validate=True)
+        except Exception:
+            return JSONResponse(status_code=404, content={"status": "none"})
+        name = f"{owner}-{repo}-{commit[:7]}.cwrun.json"
+        return Response(content=data, media_type="application/json", headers={"Content-Disposition": f'attachment; filename="{name}"', "Cache-Control": "public, max-age=86400"})
+
     return api
 
 
 @app.function(image=job_image, timeout=900, max_containers=4, secrets=[modal.Secret.from_name("yokoten-doctor-baseten"), modal.Secret.from_name("yokoten-doctor-record")])
 def report_job(owner: str, repo: str, commit: str) -> dict:
     result = make_report(owner, repo, commit)
+    bundle_b64 = result.pop("bundle_b64", None)
+    store = None
+    try:
+        store = open_cache()
+    except Exception as error:
+        logger.error(type(error).__name__)
+        store = None
+    if isinstance(bundle_b64, str) and store is not None and result.get("bundle") is not None:
+        try:
+            store.put(report_bundle_key(owner, repo, commit), bundle_b64)
+        except Exception as error:
+            logger.error(type(error).__name__)
+            result["bundle"] = None
+    else:
+        result["bundle"] = None
     try:
         from record.write import write_report_record
 
-        store = open_cache()
         check_sha256 = None
         if store is not None:
             check = store.get(record_key(owner, repo, commit, YOKOTEN_VERSION), None)

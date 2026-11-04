@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readReportReply, evidenceHref, severityLabel, reportFileName, REPORT_FALLBACK, countLine, reportRecordName } from "../../web/src/client/report.ts";
+import { readReportReply, evidenceHref, severityLabel, reportFileName, REPORT_FALLBACK, countLine, reportRecordName, bundleFileName, bundleVerifyCommand } from "../../web/src/client/report.ts";
 
 test("readReportReply done filters bad findings", () => {
   const body = {
@@ -183,4 +183,118 @@ test("readReportReply record with 64-hex sha256 and non-empty document is kept",
     assert.equal(state.report.record?.sha256, "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");
     assert.equal(state.report.record?.document, "{\"hello\":1}");
   }
+});
+
+test("readReportReply keeps a valid bundle", () => {
+  const body = {
+    status: "done",
+    summary: "s",
+    findings: [],
+    owner: "o",
+    repo: "r",
+    commit: "c",
+    cw_version: "v",
+    model: "m",
+    markdown: "md",
+    bundle: {
+      sha256: "a".repeat(64),
+      audit_head: "sha256:" + "b".repeat(64),
+      size: 10,
+      audit_events: 39,
+      run_id: "architecture-review-fast-20261104T174110Z-442334",
+      trust_level: "unsigned",
+    },
+  };
+  const state = readReportReply(200, body);
+  assert.equal(state.kind, "done");
+  if (state.kind === "done") {
+    assert.deepEqual(state.report.bundle, {
+      sha256: "a".repeat(64),
+      audit_head: "sha256:" + "b".repeat(64),
+      size: 10,
+      audit_events: 39,
+      run_id: "architecture-review-fast-20261104T174110Z-442334",
+      trust_level: "unsigned",
+    });
+  }
+});
+
+test("readReportReply bundle null when audit_head is nope", () => {
+  const body = {
+    status: "done",
+    summary: "s",
+    findings: [],
+    bundle: {
+      sha256: "a".repeat(64),
+      audit_head: "nope",
+      size: 10,
+      audit_events: 39,
+      run_id: "architecture-review-fast-20261104T174110Z-442334",
+      trust_level: "unsigned",
+    },
+  };
+  const state = readReportReply(200, body);
+  assert.equal(state.kind, "done");
+  if (state.kind === "done") assert.equal(state.report.bundle, null);
+});
+
+test("readReportReply bundle null when size is 0", () => {
+  const body = {
+    status: "done",
+    summary: "s",
+    findings: [],
+    bundle: {
+      sha256: "a".repeat(64),
+      audit_head: "sha256:" + "b".repeat(64),
+      size: 0,
+      audit_events: 39,
+      run_id: "architecture-review-fast-20261104T174110Z-442334",
+      trust_level: "unsigned",
+    },
+  };
+  const state = readReportReply(200, body);
+  assert.equal(state.kind, "done");
+  if (state.kind === "done") assert.equal(state.report.bundle, null);
+});
+
+test("readReportReply bundle null when run_id is a b", () => {
+  const body = {
+    status: "done",
+    summary: "s",
+    findings: [],
+    bundle: {
+      sha256: "a".repeat(64),
+      audit_head: "sha256:" + "b".repeat(64),
+      size: 10,
+      audit_events: 39,
+      run_id: "a b",
+      trust_level: "unsigned",
+    },
+  };
+  const state = readReportReply(200, body);
+  assert.equal(state.kind, "done");
+  if (state.kind === "done") assert.equal(state.report.bundle, null);
+});
+
+test("readReportReply bundle null when missing", () => {
+  const body = {
+    status: "done",
+    summary: "s",
+    findings: [],
+  };
+  const state = readReportReply(200, body);
+  assert.equal(state.kind, "done");
+  if (state.kind === "done") assert.equal(state.report.bundle, null);
+});
+
+test("bundleFileName", () => {
+  assert.equal(bundleFileName("o", "r", "0123456789abcdef"), "o-r-0123456.cwrun.json");
+});
+
+test("bundleVerifyCommand with version", () => {
+  assert.equal(bundleVerifyCommand("0.4.1", "x.cwrun.json"), "npx -y -p cool-workflow@0.4.1 cw report verify-bundle x.cwrun.json");
+});
+
+test("bundleVerifyCommand without version", () => {
+  assert.equal(bundleVerifyCommand("v", "x.cwrun.json"), "npx -y -p cool-workflow cw report verify-bundle x.cwrun.json");
 });
