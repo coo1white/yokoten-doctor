@@ -15,9 +15,10 @@ Open the Solana memo and compare the hash.
 
 Review reports.
 A review report gets its own record when the server can write one.
-That record holds the SHA-256 hash of the report.
-It also names the repo, the commit, the cool-workflow version and the hash of the check the report came from.
-The report holds the hash of its whole run file.
+The server puts the report, the hash of the check it came from and the time into one document.
+Rekor and the Solana memo hold the SHA-256 hash of that document.
+The memo also names the repo, the commit and the cool-workflow version.
+The report in that document holds the hash of its whole run file.
 
 How to check a review report.
 Download the report record from the report page.

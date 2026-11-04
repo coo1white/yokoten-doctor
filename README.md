@@ -29,12 +29,12 @@ AI coding agents read your repo before they change it. If they get the build, th
 - **Paste a URL, see the AI's view.** Muse Spark Open reads the repo and writes how to build it, how to test it, and what not to touch.
 - **You stay the judge.** If the text looks right, save it as `AGENTS.md`. The page then checks that it's there. A repo that already has one gets no new text.
 - **A review report with line links.** Ask for the risks an agent should know before it changes your project. Each risk links to its line of code. It takes one to two minutes.
-- **Receipts, not trust.** Each result's hash goes to Sigstore Rekor and a Solana devnet memo. You can download the whole review run and check it with one command.
+- **Receipts, not trust.** The server writes each check result's hash to Sigstore Rekor and a Solana devnet memo, and the page tells you if a write failed. You can download a whole review run and check it with one command.
 - **Safe by design.** A throwaway Modal sandbox copies the public files, cuts the network, and runs [yokoten](https://github.com/yokoten-labs/yokoten). Nothing from your repo is installed, built, or run.
 
 ## Check the AI's work
 
-A review report comes with the full run behind it. Download the file from the report page, then run:
+When a review report's run file is ready, the report page offers it. Download the file, then run:
 
 ```bash
 npx -y -p cool-workflow@0.4.1 cw report verify-bundle <file>
@@ -49,7 +49,7 @@ flowchart LR
   repo["Public GitHub repo"] --> sandbox["Throwaway sandbox:<br/>copy files, cut network,<br/>run yokoten"]
   sandbox --> muse["Muse Spark Open writes<br/>the project section"]
   muse --> you["You check it and save<br/>it as AGENTS.md"]
-  sandbox --> record["Hash goes to<br/>Sigstore Rekor and<br/>Solana devnet"]
+  sandbox --> record["Hash of the check result<br/>goes to Sigstore Rekor<br/>and Solana devnet"]
   you -.-> report["Optional review report:<br/>risks with line links,<br/>whole run downloadable"]
 ```
 
