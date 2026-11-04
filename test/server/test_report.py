@@ -206,6 +206,18 @@ def test_make_report_no_key_raises():
         os.environ["BASETEN_API_KEY"] = "test"
 
 
+def test_parse_verdict_conditional_capped_to_p2():
+    findings = [
+        {"title": "conditional p0", "severity": "P0", "classification": "conditional", "evidence": []},
+        {"title": "conditional p1", "severity": "P1", "classification": "conditional", "evidence": []},
+        {"title": "real p1", "severity": "P1", "classification": "real", "evidence": []},
+    ]
+    body = json.dumps({"summary": "s", "findings": findings})
+    text = "```cw:result\n" + body + "\n```"
+    out = parse_verdict(text)
+    assert [f["severity"] for f in out["findings"]] == ["P1", "P2", "P2"]
+
+
 def test_api_bad_commit_400():
     store = DictStore()
     api = create_api(public=lambda o,r: None, start_report=lambda o,r,c: "id", report_store=store, report_limiter=ReportLimiter(store))
@@ -330,5 +342,5 @@ def test_existing_check_keys_unchanged():
 
 def test_report_key_format():
     k = report_key("O", "R", "a" * 40)
-    assert k.endswith("@r3")
+    assert k.endswith("@r4")
     assert k == k.lower()

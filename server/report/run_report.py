@@ -110,7 +110,10 @@ def parse_verdict(text: str) -> dict:
             continue
         if severity not in order:
             continue
-        kept.append(f)
+        if f.get("classification") == "conditional" and severity in ("P0", "P1"):
+            kept.append(dict(f, severity="P2"))
+        else:
+            kept.append(f)
     kept.sort(key=lambda x: order[x["severity"]])
     kept = kept[:20]
     out = []

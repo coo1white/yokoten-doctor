@@ -37,7 +37,7 @@ REPORT_COMMIT = re.compile(r"^[0-9a-f]{40}$")
 
 
 def report_key(owner, repo, commit):
-    return f"report:{owner}/{repo}@{commit}@{CW_VERSION}@r3".lower()
+    return f"report:{owner}/{repo}@{commit}@{CW_VERSION}@r4".lower()
 
 
 HERE = pathlib.Path(__file__).parent
