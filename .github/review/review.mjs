@@ -148,35 +148,55 @@ function userMessage(title, body, diff, skipped = []) {
   return parts.join("\n");
 }
 
+// Some upstreams behind OpenCode Go reject `response_format` with a 400
+// ("this feature is not yet supported by atlas"), and the upstream is picked per
+// request. So the first try asks for JSON mode, and the retries leave it out:
+// the system message already asks for JSON, and parseAnswer checks the shape.
+export const REQUEST_TRIES = [{ jsonMode: true }, { jsonMode: false }, { jsonMode: false }];
+
+export function shortError(status, text) {
+  const reply = String(text ?? "").replace(/[A-Za-z0-9_-]{32,}/g, "<long>").replace(/\s+/g, " ").slice(0, 300);
+  return `model request failed with ${status}: ${reply}`;
+}
+
 async function callModel(apiKey, model, title, body, diff, prNumber, skipped = []) {
   const controller = new AbortController();
   const t = setTimeout(() => controller.abort(), 480000);
   try {
-    const res = await fetch("https://opencode.ai/inference/go/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "User-Agent": "yokoten-doctor-reviewer",
-        "x-opencode-session": `review-${prNumber}`
-      },
-      body: JSON.stringify({
+    let lastError = "model request failed";
+    for (const tryOptions of REQUEST_TRIES) {
+      const request = {
         model,
         max_tokens: 65536,
         reasoning_effort: "high",
-        response_format: { type: "json_object" },
         messages: [
           { role: "system", content: systemMessage() },
           { role: "user", content: userMessage(title, body, diff, skipped) }
         ]
-      }),
-      signal: controller.signal
-    });
-    if (!res.ok) throw new Error(`model request failed with ${res.status}`);
-    const data = await res.json();
-    console.log(`review: finish ${data?.choices?.[0]?.finish_reason}, usage ${JSON.stringify(data?.usage ?? null)}`);
-    const text =data?.choices?.[0]?.message?.content ?? data?.choices?.[0]?.text ?? "";
-    return text;
+      };
+      if (tryOptions.jsonMode) request.response_format = { type: "json_object" };
+      const res = await fetch("https://opencode.ai/inference/go/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+          "User-Agent": "yokoten-doctor-reviewer",
+          "x-opencode-session": `review-${prNumber}`
+        },
+        body: JSON.stringify(request),
+        signal: controller.signal
+      });
+      if (!res.ok) {
+        lastError = shortError(res.status, await res.text());
+        console.log(`review: ${lastError}`);
+        continue;
+      }
+      const data = await res.json();
+      console.log(`review: finish ${data?.choices?.[0]?.finish_reason}, json mode ${tryOptions.jsonMode}, usage ${JSON.stringify(data?.usage ?? null)}`);
+      const text =data?.choices?.[0]?.message?.content ?? data?.choices?.[0]?.text ?? "";
+      return text;
+    }
+    throw new Error(lastError);
   } finally {
     clearTimeout(t);
   }
