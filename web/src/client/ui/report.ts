@@ -1,6 +1,6 @@
 import { make, createLink, createCommandBox, createIcon } from "./dom.ts";
-import { readReportReply, evidenceHref, severityLabel, reportFileName, REPORT_FALLBACK, countLine, reportRecordName } from "../report.ts";
-import type { ReportDone, ReportRecord } from "../report.ts";
+import { readReportReply, evidenceHref, severityLabel, reportFileName, REPORT_FALLBACK, countLine, reportRecordName, bundleFileName, bundleVerifyCommand } from "../report.ts";
+import type { ReportDone, ReportRecord, ReportBundle } from "../report.ts";
 
 const cache = new Map<string, HTMLElement>();
 
@@ -67,6 +67,34 @@ function renderRecord(record: ReportRecord | null | undefined): HTMLElement {
     const last = make("p", undefined, "Part of the record was written. The hash still checks the report.");
     block.appendChild(last);
   }
+  return block;
+}
+
+function renderWorkLog(api: string, report: ReportDone, bundle: ReportBundle): HTMLElement {
+  const block = make("div", "report-record");
+  block.appendChild(make("h3", undefined, "Check the AI's work"));
+  block.appendChild(make("p", undefined, `The whole review is saved: every task, every answer, and ${bundle.audit_events} steps in a hash chain. It shows nothing was changed after the review, not that the AI is right.`));
+  const ol = make("ol", "steps-n");
+  const fileName = bundleFileName(report.owner, report.repo, report.commit);
+  const liOne = make("li");
+  liOne.appendChild(make("p", undefined, "Download the log."));
+  const actions = make("div", "save-actions");
+  const a = make("a", "btn btn-line ctl", "Download");
+  a.href = `${api}/api/report/bundle?owner=${encodeURIComponent(report.owner)}&repo=${encodeURIComponent(report.repo)}&commit=${encodeURIComponent(report.commit)}`;
+  a.setAttribute("download", fileName);
+  a.setAttribute("data-report-bundle", "");
+  actions.appendChild(a);
+  liOne.appendChild(actions);
+  ol.appendChild(liOne);
+  const liTwo = make("li");
+  liTwo.appendChild(make("p", undefined, "Check it. You need Node.js."));
+  liTwo.appendChild(createCommandBox(bundleVerifyCommand(report.cw_version, fileName)));
+  ol.appendChild(liTwo);
+  const liThree = make("li");
+  liThree.appendChild(make("p", undefined, "Its hash is in the record above:"));
+  liThree.appendChild(createCommandBox(bundle.sha256));
+  ol.appendChild(liThree);
+  block.appendChild(ol);
   return block;
 }
 
@@ -158,6 +186,7 @@ export function getReportSection(input: { api: string; owner: string; repo: stri
     section.appendChild(actions);
     const recordBlock = renderRecord(report.record ?? null);
     section.appendChild(recordBlock);
+    if (report.bundle) section.appendChild(renderWorkLog(input.api, report, report.bundle));
   }
   function renderFailed(message: string) {
     const h2 = make("h2", undefined, "Get a review report");

@@ -1,3 +1,5 @@
+import base64
+import hashlib
 import io
 import json
 import logging
@@ -13,11 +15,12 @@ import modal
 
 logger = logging.getLogger(__name__)
 
-CW_VERSION = "0.4.0"
+CW_VERSION = "0.4.1"
 QUESTION = "What should an AI coding agent know about this repo before it changes it? Rank the risks."
 MAX_TARBALL = 40 * 1024 * 1024
 MAX_FILES = 6000
 MAX_TOTAL = 120 * 1024 * 1024
+MAX_BUNDLE = 8_000_000
 
 HERE = pathlib.Path(__file__).parent
 
@@ -167,6 +170,43 @@ def latest_run(repo_dir: pathlib.Path) -> pathlib.Path:
     return entries[-1]
 
 
+def make_bundle(run, env, repo_dir: pathlib.Path, work_path: pathlib.Path, run_id: str):
+    try:
+        bundle_path = work_path / "bundle.cwrun.json"
+        out = run(["cw", "report", "bundle", run_id, "--output", str(bundle_path), "--json"], env=env, cwd=str(repo_dir), timeout=120, capture_output=True)
+        info = json.loads(out.stdout)
+        if not isinstance(info, dict) or info.get("ok") is not True:
+            return None, None
+        verification = info.get("verification")
+        trust_level = verification.get("trustLevel") if isinstance(verification, dict) else None
+        head_out = run(["cw", "audit", "head", run_id], env=env, cwd=str(repo_dir), timeout=60, capture_output=True)
+        head = json.loads(head_out.stdout)
+        head_hash = head.get("headHash") if isinstance(head, dict) else None
+        event_count = head.get("eventCount") if isinstance(head, dict) else None
+        if not isinstance(head_hash, str) or not re.fullmatch(r"sha256:[0-9a-f]{64}", head_hash):
+            return None, None
+        if not isinstance(event_count, int) or isinstance(event_count, bool) or event_count < 1:
+            return None, None
+        data = bundle_path.read_bytes()
+        if not data or len(data) > MAX_BUNDLE:
+            return None, None
+        meta = {
+            "sha256": hashlib.sha256(data).hexdigest(),
+            "size": len(data),
+            "run_id": run_id,
+            "audit_head": head_hash,
+            "audit_events": event_count,
+            "trust_level": trust_level if isinstance(trust_level, str) else "unsigned",
+        }
+        return meta, base64.b64encode(data).decode("ascii")
+    except Exception as e:
+        try:
+            logging.getLogger(__name__).error(type(e).__name__)
+        except Exception:
+            pass
+        return None, None
+
+
 def make_report(owner: str, repo: str, commit: str, fetch=None, run=None) -> dict:
     if fetch is None:
         def _fetch(o, r, c):
@@ -220,7 +260,8 @@ def make_report(owner: str, repo: str, commit: str, fetch=None, run=None) -> dic
         text = result_file.read_text(encoding="utf-8", errors="ignore")
         parsed = parse_verdict(text)
         markdown = scrub(text, str(repo_dir))[:60000]
-        return {"status": "done", "owner": owner, "repo": repo, "commit": commit, "cw_version": CW_VERSION, "model": "muse-spark-open-1026", "summary": parsed["summary"], "findings": parsed["findings"], "markdown": markdown}
+        bundle, bundle_b64 = make_bundle(run, env, repo_dir, work_path, run_dir.name)
+        return {"status": "done", "owner": owner, "repo": repo, "commit": commit, "cw_version": CW_VERSION, "model": "muse-spark-open-1026", "summary": parsed["summary"], "findings": parsed["findings"], "markdown": markdown, "bundle": bundle, "bundle_b64": bundle_b64}
     except Exception as e:
         try:
             logging.getLogger(__name__).error(type(e).__name__)

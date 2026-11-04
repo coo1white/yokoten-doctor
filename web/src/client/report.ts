@@ -1,6 +1,7 @@
 export type ReportFinding = { severity: string; title: string; classification?: string; evidence: string[] };
 export type ReportRecord = { sha256: string; recorded_at: string; document: string; check_sha256?: string | null; rekor?: { url: string } | null; solana?: { url: string } | null };
-export type ReportDone = { status: "done"; owner: string; repo: string; commit: string; cw_version: string; model: string; summary: string; findings: ReportFinding[]; markdown: string; record?: ReportRecord | null };
+export type ReportBundle = { sha256: string; size: number; run_id: string; audit_head: string; audit_events: number; trust_level: string };
+export type ReportDone = { status: "done"; owner: string; repo: string; commit: string; cw_version: string; model: string; summary: string; findings: ReportFinding[]; markdown: string; record?: ReportRecord | null; bundle?: ReportBundle | null };
 export type ReportState = { kind: "idle" } | { kind: "working" } | { kind: "done"; report: ReportDone } | { kind: "failed"; message: string };
 
 export const REPORT_FALLBACK = "The report didn't finish. Try again in a few minutes.";
@@ -47,6 +48,26 @@ export function readReportReply(status: number, body: unknown): ReportState {
           record = rec;
         }
       }
+      let bundle: ReportBundle | null = null;
+      if (b.bundle !== null && typeof b.bundle === "object") {
+        const bo = b.bundle as Record<string, unknown>;
+        if (
+          typeof bo.sha256 === "string" && /^[0-9a-f]{64}$/.test(bo.sha256) &&
+          typeof bo.audit_head === "string" && /^sha256:[0-9a-f]{64}$/.test(bo.audit_head) &&
+          typeof bo.size === "number" && Number.isInteger(bo.size) && bo.size > 0 &&
+          typeof bo.audit_events === "number" && Number.isInteger(bo.audit_events) && bo.audit_events > 0 &&
+          typeof bo.run_id === "string" && /^[A-Za-z0-9._:-]{1,200}$/.test(bo.run_id)
+        ) {
+          bundle = {
+            sha256: bo.sha256,
+            size: bo.size,
+            run_id: bo.run_id,
+            audit_head: bo.audit_head,
+            audit_events: bo.audit_events,
+            trust_level: typeof bo.trust_level === "string" ? bo.trust_level : "unsigned",
+          };
+        }
+      }
       const report: ReportDone = {
         status: "done",
         owner: typeof b.owner === "string" ? b.owner : "",
@@ -58,6 +79,7 @@ export function readReportReply(status: number, body: unknown): ReportState {
         findings,
         markdown: typeof b.markdown === "string" ? b.markdown : "",
         record,
+        bundle,
       };
       return { kind: "done", report };
     }
@@ -117,4 +139,13 @@ export function countLine(findings: ReportFinding[]): string {
 
 export function reportRecordName(sha256: string): string {
   return `yokoten-doctor-report-${sha256.slice(0, 12)}.json`;
+}
+
+export function bundleFileName(owner: string, repo: string, commit: string): string {
+  return `${owner}-${repo}-${commit.slice(0, 7)}.cwrun.json`;
+}
+
+export function bundleVerifyCommand(cwVersion: string, fileName: string): string {
+  const pkg = /^[0-9]+\.[0-9]+\.[0-9]+$/.test(cwVersion) ? `cool-workflow@${cwVersion}` : "cool-workflow";
+  return `npx -y -p ${pkg} cw report verify-bundle ${fileName}`;
 }
