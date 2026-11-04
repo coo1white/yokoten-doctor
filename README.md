@@ -98,6 +98,18 @@ Each tool does what it is good at. Claude plans and reviews. Muse Spark Open wri
 
 ## Disclosure
 
+One person built this entry during the hackathon, with AI tools:
+
+- **Muse Spark Open** (`muse-spark-open-1026`, on Baseten) wrote most of the code, from task briefs. At run time it writes each repo's project section. Since PR #93, CI checks every code file against Muse's reply.
+- **Claude** (Claude Code) wrote the design, the visitor copy and the task briefs. It reviewed the code, ran the tests and deploys, and made the commits. It also wrote some code by hand, mostly before PR #93.
+- **A reviewer model** from another vendor (DeepSeek, through OpenCode Go) reviews each pull request from PR #22 on. PR #97 was too large for it, so a separate Claude session read it. PR #103 merged with no review, and a separate Claude session read it afterwards.
+- **yokoten** started before the hackathon. This page uses `yokoten@0.2.0` from npm. No yokoten code is copied here, and yokoten is not part of this entry. Its logo existed before this project.
+
+`Co-Authored-By` lines name Muse on the commits whose code it wrote.
+
+<details>
+<summary>Full details</summary>
+
 This entry was built during the hackathon, with these tools:
 
 - **Muse Spark Open** (`muse-spark-open-1026`, on Baseten) wrote most of the code in this repo, from task briefs. At run time it writes each repo's "This project" section.
@@ -109,6 +121,8 @@ yokoten's logo existed before this project.
 
 A `Co-Authored-By` line names Muse on commits whose code it wrote. Claude's part is stated here instead of in those lines, and some commit messages also name it. Commit messages were edited once, before the first push, to change those lines.
 
+</details>
+
 ### A note for the organizers
 
-As we understand the rules, all contributors must be approved participants. One person made this entry, and that person is the only participant. Muse and Claude are AI tools used in this work, not people on a team. Our notes on the rules do not say whether an AI tool counts as a contributor, so we state our use of them here, in the open. If this use of Claude is not allowed, please tell us, and we will follow your decision.
+One person made this entry and is its only participant. Muse and Claude are AI tools, not team members. The rules don't say whether an AI tool counts as a contributor, so we state our use of them here. If this use of Claude is not allowed, please tell us, and we will follow your decision.
