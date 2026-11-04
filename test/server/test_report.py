@@ -104,8 +104,8 @@ def test_safe_extract_too_many_files_raises():
 
 
 def test_parse_verdict_last_block_wins_sorted_capped():
-    block1 = "```cw:result\n" + json.dumps({"summary": "first", "findings": [{"title": "a", "severity": "P2", "classification": "real", "evidence": []}]}) + "\n```"
-    block2 = "```cw:result\n" + json.dumps({"summary": "second", "findings": [{"title": "b", "severity": "P0", "classification": "real", "evidence": ["lib/a.js:12"]}, {"title": "c", "severity": "P1", "classification": "real", "evidence": []}]}) + "\n```"
+    block1 = "```cw:result\n" + json.dumps({"summary": "first", "findings": [{"title": "a", "severity": "P2", "classification": "real", "evidence": ["lib/a.js:1"]}]}) + "\n```"
+    block2 = "```cw:result\n" + json.dumps({"summary": "second", "findings": [{"title": "b", "severity": "P0", "classification": "real", "evidence": ["lib/a.js:12"]}, {"title": "c", "severity": "P1", "classification": "real", "evidence": ["lib/a.js:1"]}]}) + "\n```"
     text = block1 + "\n" + block2
     out = parse_verdict(text)
     assert out["summary"] == "second"
@@ -116,8 +116,8 @@ def test_parse_verdict_last_block_wins_sorted_capped():
 def test_parse_verdict_capped_20_and_bad_severity_dropped():
     findings = []
     for i in range(25):
-        findings.append({"title": f"t{i}", "severity": "P0", "classification": "real", "evidence": []})
-    findings.append({"title": "bad", "severity": "P5", "classification": "real", "evidence": []})
+        findings.append({"title": f"t{i}", "severity": "P0", "classification": "real", "evidence": ["lib/a.js:1"]})
+    findings.append({"title": "bad", "severity": "P5", "classification": "real", "evidence": ["lib/a.js:1"]})
     body = json.dumps({"summary": "s", "findings": findings})
     text = "```cw:result\n" + body + "\n```"
     out = parse_verdict(text)
@@ -208,14 +208,28 @@ def test_make_report_no_key_raises():
 
 def test_parse_verdict_conditional_capped_to_p2():
     findings = [
-        {"title": "conditional p0", "severity": "P0", "classification": "conditional", "evidence": []},
-        {"title": "conditional p1", "severity": "P1", "classification": "conditional", "evidence": []},
-        {"title": "real p1", "severity": "P1", "classification": "real", "evidence": []},
+        {"title": "conditional p0", "severity": "P0", "classification": "conditional", "evidence": ["lib/a.js:1"]},
+        {"title": "conditional p1", "severity": "P1", "classification": "conditional", "evidence": ["lib/a.js:1"]},
+        {"title": "real p1", "severity": "P1", "classification": "real", "evidence": ["lib/a.js:1"]},
     ]
     body = json.dumps({"summary": "s", "findings": findings})
     text = "```cw:result\n" + body + "\n```"
     out = parse_verdict(text)
     assert [f["severity"] for f in out["findings"]] == ["P1", "P2", "P2"]
+
+
+def test_parse_verdict_filters_non_issue_and_empty_evidence():
+    findings = [
+        {"title": "keep", "severity": "P1", "classification": "real", "evidence": ["lib/a.js:1"]},
+        {"title": "drop non-issue", "severity": "P2", "classification": "non-issue", "evidence": ["lib/b.js:2"]},
+        {"title": "drop empty", "severity": "P2", "classification": "real", "evidence": []},
+    ]
+    body = json.dumps({"summary": "s", "findings": findings})
+    text = "```cw:result\n" + body + "\n```"
+    out = parse_verdict(text)
+    assert len(out["findings"]) == 1
+    assert out["findings"][0]["title"] == "keep"
+    assert out["findings"][0]["severity"] == "P1"
 
 
 def test_api_bad_commit_400():
@@ -342,5 +356,5 @@ def test_existing_check_keys_unchanged():
 
 def test_report_key_format():
     k = report_key("O", "R", "a" * 40)
-    assert k.endswith("@r4")
+    assert k.endswith("@r5")
     assert k == k.lower()
