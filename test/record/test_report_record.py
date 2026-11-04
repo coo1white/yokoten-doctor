@@ -117,6 +117,47 @@ def test_second_call_returns_stored_and_fakes_not_called_again():
     assert calls["solana"] == 1
 
 
+def test_same_key_different_summary_writes_new_record_and_replaces_store():
+    store = DictStore()
+    check_sha256 = "c" * 64
+    report1 = _report(extra={"summary": "first"})
+    calls = {"rekor": 0, "solana": 0}
+
+    def fake_rekor(doc, pem):
+        calls["rekor"] += 1
+        return {"url": "https://example.test/x"}
+
+    def fake_solana(memo, seed_hex):
+        calls["solana"] += 1
+        return {"url": "https://example.test/x"}
+
+    env = {"REKOR_SIGNING_KEY": "pem", "SOLANA_DEVNET_SEED": "00" * 32}
+    rec1 = write_report_record(report1, check_sha256, store=store, now=lambda: 0, rekor=fake_rekor, solana=fake_solana, environ=env)
+    assert rec1 is not None
+    assert calls["rekor"] == 1
+    assert calls["solana"] == 1
+    key = report_record_key("owner", "repo", "abc123", "1")
+    assert store.get(key) is rec1
+
+    report2 = _report(extra={"summary": "second"})
+
+    def fake_rekor2(doc, pem):
+        calls["rekor"] += 1
+        return {"url": "https://example.test/x2"}
+
+    def fake_solana2(memo, seed_hex):
+        calls["solana"] += 1
+        return {"url": "https://example.test/x2"}
+
+    rec2 = write_report_record(report2, check_sha256, store=store, now=lambda: 1, rekor=fake_rekor2, solana=fake_solana2, environ=env)
+    assert rec2 is not None
+    assert rec2 is not rec1
+    assert calls["rekor"] == 2
+    assert calls["solana"] == 2
+    assert rec2["sha256"] != rec1["sha256"]
+    assert store.get(key) is rec2
+
+
 def test_with_no_env_keys_record_has_none_and_nothing_stored():
     store = DictStore()
     report = _report()

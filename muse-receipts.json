@@ -30,9 +30,9 @@
     "reply": "chatcmpl-51420f88dfbb484db107c6cf04111971"
   },
   "server/record/write.py": {
-    "sha256": "80b4d93dc051987eef38fe9bc33f586becc132563463e7c84fcc6679e1dd4343",
+    "sha256": "efe426abfac7d230e24123eac14799c26b3e0da395ce04c05081b9aafdc2d50c",
     "model": "meta-models/muse-spark-open-1026",
-    "reply": "chatcmpl-51420f88dfbb484db107c6cf04111971"
+    "reply": "chatcmpl-aada8db0e0434ba889a3c623c6c2e914"
   },
   "server/report/__init__.py": {
     "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
@@ -55,9 +55,9 @@
     "reply": "chatcmpl-10db6f12e8bc48ffa3c36f12d4fb3a98"
   },
   "test/record/test_report_record.py": {
-    "sha256": "a7da88c9a3762691e5a4e08b442d32e65cce8c0816733ebb4adac2aa85b8beed",
+    "sha256": "22c20e06b3f29211de4225c3d1c49eab175e0e59b6bb8a775ef7c9399214a088",
     "model": "meta-models/muse-spark-open-1026",
-    "reply": "chatcmpl-51420f88dfbb484db107c6cf04111971"
+    "reply": "chatcmpl-aada8db0e0434ba889a3c623c6c2e914"
   },
   "test/review/review.test.mjs": {
     "sha256": "c096aff79c9c7c10334f262180f12681fd6b82dd1f0fc09796a5fb6aac7a1022",

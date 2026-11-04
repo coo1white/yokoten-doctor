@@ -181,7 +181,13 @@ def write_report_record(report, check_sha256, store=None, now=time.time, rekor=N
                 logger.error(type(e).__name__)
                 existing = None
             if isinstance(existing, dict) and (existing.get("rekor") is not None or existing.get("solana") is not None):
-                return existing
+                try:
+                    stored_report = json.loads(existing["document"])["report"]
+                    body_norm = json.loads(json.dumps(body))
+                    if stored_report == body_norm:
+                        return existing
+                except Exception:
+                    pass
         try:
             ts = now()
         except Exception:
